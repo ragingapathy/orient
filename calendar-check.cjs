@@ -1,11 +1,12 @@
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
+const F=async p=>{await p.evaluate(()=>document.querySelectorAll('#sheet details.fold').forEach(d=>{d.open=true;}));return p;};
 const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
 (async()=>{
  const browser=await chromium.launch({headless:true,channel:'chrome'}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:4173');
- await page.locator('#sheet .expand').first().click();
- await page.getByRole('button',{name:'Edit hours, people & notes'}).click();
+ await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
+ await page.evaluate(()=>document.querySelector('#sheet button.expand').click());
+ await (await F(page)).getByRole('button',{name:'Edit hours, people & notes'}).click();
  await page.locator('#knowledge-dialog [name=hours]').fill('Wednesday 10–7');
  await page.locator('#knowledge-dialog [name=people]').fill('Sam — owner <script>');
  await page.locator('#knowledge-dialog [name=note]').fill('Ask about new releases.');

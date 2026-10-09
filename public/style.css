@@ -68,3 +68,10 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 .visit-chips{display:flex;gap:6px;flex-wrap:wrap}.visit-chips .chip{min-height:36px;padding:0 12px;border:1px solid var(--edge);border-radius:999px;font-size:11px}.visit-chips .chip.on{background:var(--green);color:var(--on);border-color:var(--green)}
 .visit-summary>.button{margin-top:10px}
 .toast-undo{margin-left:10px;color:inherit;text-decoration:underline;font:inherit;font-weight:700;background:none;border:0;padding:0 2px;cursor:pointer}
+
+.detail .fold{border-top:1px solid var(--edge);margin:0}.detail .fold:last-of-type{border-bottom:1px solid var(--edge)}
+.fold>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:46px;cursor:pointer;font-size:14px;font-weight:600}.fold>summary::-webkit-details-marker{display:none}
+.fold>summary small{margin-left:auto;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.04em}.fold>summary svg{width:16px;height:16px;flex-shrink:0;transition:transform .2s}
+.fold>summary small:empty{display:none}.fold>summary small:empty+svg{margin-left:auto}.fold[open]>summary svg{transform:rotate(180deg)}.fold[open]{padding-bottom:12px}
+.fold>section,.fold>p:first-of-type{margin-top:0}
+.personal-rating{display:flex;align-items:center;gap:12px}.personal-rating legend{float:left;margin:0 12px 0 0}.personal-rating>div{display:flex}

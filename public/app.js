@@ -178,8 +178,22 @@
     const saved=store.saved.includes(p.id),visited=store.visited.includes(p.id);
     const glance=OrientWebsite.cardFacts(p,store.details?.[p.id]?.hours||'');
     sheet.innerHTML=OrientPlaces.card({...p,profileHours:glance.hours,note:p.id.startsWith('local-')?'':p.note},{saved,visited,expanded:state.expanded,discovery:discoverySection(p),glance:glance.markup,knowledge:state.expanded?OrientCalendar.section(p):'',websiteSection:state.expanded?OrientWebsite.section(p):'',rating:store.ratings?.[p.id]||0,visits:{button:OrientVisits.button(p.id,p.name),line:OrientVisits.line(p.id),section:state.expanded?OrientVisits.section(p.id):''}});
-    if(state.expanded)OrientWebsite.inspectKnown(p);
+    if(state.expanded){foldSections(sheet);OrientWebsite.inspectKnown(p);}
     OrientDrawer.attach(sheet,state.drawerStop??(state.expanded?2:0),stop=>{state.drawerStop=stop;state.expanded=stop===2;render();});
+  }
+  const FOLDS={'visit-history':'Your visits','place-knowledge':'People & notes','place-happening':'What’s happening','nearby-section':'Near this place','website-section':'Website & calendars'};
+  function foldSections(sheet){
+    state.folds=state.folds||new Set();
+    for(const key of Object.keys(FOLDS)){
+      const sec=sheet.querySelector('.detail > section.'+key);if(!sec)continue;
+      const head=sec.querySelector('h3'),tag=sec.querySelector('.tag'),hint=sec.querySelector('.fine');
+      const d=document.createElement('details');d.className='fold '+key;d.open=state.folds.has(key)||(key==='website-section'&&/Review website findings|Checking this place/.test(sec.textContent));
+      const sum=document.createElement('summary');sum.innerHTML='<span>'+FOLDS[key]+'</span><small></small>'+icon('chevron-down');
+      sum.querySelector('small').textContent=key==='visit-history'?(hint?.textContent.startsWith('Tap')?'':(hint?.textContent||'').split(' · ')[0]):tag?tag.textContent.toLowerCase():'';
+      (head.closest('.nearby-heading')||head).remove();tag?.remove();
+      d.append(sum);while(sec.firstChild)d.append(sec.firstChild);sec.replaceWith(d);
+      d.addEventListener('toggle',()=>{d.open?state.folds.add(key):state.folds.delete(key);});
+    }
   }
   function row(p){return `<button class="row" data-place="${escapeHTML(p.id)}"><span class="tile">${icon(p.icon)}</span><span class="row-copy"><strong>${escapeHTML(p.name)}</strong><small>${state.tab==='Explore'?distanceMiles(p).toFixed(1)+' mi · ':''}${escapeHTML(p.kind)}${p.specials?.length?' · '+p.specials.length+' specials':''}${store.ratings?.[p.id]?` · ★ ${store.ratings[p.id]}/5`:''} · ${store.visited.includes(p.id)?OrientVisits.rowLabel(p.id):store.saved.includes(p.id)?'Saved':p.demo?'Demo place':'Not yet saved'}</small></span>${icon('chevron-right')}</button>`;}
   function renderPanel(visible) {

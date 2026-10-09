@@ -36,7 +36,7 @@ const SEED = {
       for (let i = 0; i < 3 && !(await page.locator('#sheet .visit').isVisible()); i++) { await page.locator('#sheet .grip').click(); await page.waitForTimeout(450); }
       await page.locator('#sheet .visit').waitFor({ state: 'visible' });
     };
-    const expand = async () => { if (!(await page.locator('.visit-history').count())) { await page.evaluate(() => document.querySelector('#sheet .expand')?.click()); await page.locator('.visit-history').waitFor(); } };
+    const expand = async () => { if (!(await page.locator('.visit-history').count())) { await page.evaluate(() => document.querySelector('#sheet .expand')?.click()); await page.locator('.visit-history').waitFor(); } await page.evaluate(() => document.querySelector('.visit-history')?.setAttribute('open', '')); };
 
     // 1. migration: a place that was only marked visited counts once, date unknown; 7 Brew starts at 2
     let data = await stored();

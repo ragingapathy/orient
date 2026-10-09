@@ -54,7 +54,7 @@ Saved places, visits, notes, ratings and circuits are not sent anywhere.
 
 ## Checks
 
-The `*-check.cjs` files are browser checks written for Playwright and Chrome. They are for my own use and are not a polished test suite. Set `ORIENT_PLAYWRIGHT` to the folder of a Playwright install to run one against a running server. Some checks assume my local catalog and skip themselves without `public/catalog.local.js`. Several of them are out of date with the current interface and fail; bringing them back is part of the ongoing work. `npm run check` only checks syntax.
+The `*-check.cjs` files are browser checks written for Playwright and Chrome. They are for my own use and are not a polished test suite. Set `ORIENT_PLAYWRIGHT` to the folder of a Playwright install to run one against a running server. Some checks assume my local catalog and skip themselves without `public/catalog.local.js`. They run in a phone-sized window, so they open the place drawer and its folded rows the way a person would. `npm run check` only checks syntax.
 
 ## Credits and license
 

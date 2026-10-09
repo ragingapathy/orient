@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-09 — A calmer place card
+
+- The expanded place card used to be one long stack of equal sections. Now the essentials stay up top (name, save, visit, rating, address, hours, phone, Directions) and the rest folds into quiet rows: **Your visits**, **People & notes**, **What’s happening**, **Near this place**, and **Website & calendars**. Open rows stay open as you move around. A website read that has findings to review, or is still loading, opens its row by itself.
+- Removed the second “Log a visit” button from the card. The check beside the bookmark does that job, and the visits row still lets you add an earlier day.
+- The rating sits on one line with its label.
+- Brought the browser checks back up to date with the three-stop drawer, the fold rows and the visit button. All 26 now pass against the sample or a local catalog. Checks that need a place that isn’t there, or a live address lookup that returns nothing, skip instead of failing.
+
 ## 2026-10-09 — Count every visit, and see where you go
 
 - Add a **check button beside the bookmark** on a place card. Each tap logs a visit now, shows the running count on the button, and offers **Undo** for a few seconds. Two taps within 20 seconds count once. The bookmark keeps its meaning: **Save** (on my map, a place I want to know), so a place can be saved and not yet visited.
