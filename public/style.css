@@ -79,3 +79,5 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 .sync-box{border-top:1px solid var(--edge);border-bottom:1px solid var(--edge);margin:14px 0;padding:12px 0}.sync-box h3{margin:0 0 6px;font-size:14px}
 .sync-box label{display:grid;gap:5px;font-size:12px;color:var(--muted);margin-top:10px}.sync-box input{font:inherit;font-size:13px;padding:10px;border:1px solid var(--edge);border-radius:10px;background:var(--surface);color:inherit;min-width:0;width:100%;box-sizing:border-box}
 .sync-pair{margin-top:10px}.sync-pair>input{margin-top:6px}.sync-box .settings-actions{margin-top:10px}
+
+.toggle-row select{font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--edge);border-radius:10px;background:var(--surface);color:inherit;max-width:55%}

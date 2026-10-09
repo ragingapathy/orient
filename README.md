@@ -11,6 +11,7 @@ Orient is a private map that lives in your browser.
 - Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS, no automatic check-in, and no account.
 - Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
 - Keep your own notes, ratings, and categories for each place.
+- Open directions in the maps app you prefer: Apple Maps, Google Maps, Waze or OpenStreetMap, or let Orient choose on a phone. The choice is kept on each device.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
 - Look up an address or a business name, and optionally read a place's own website for its hours, phone number and published events.
@@ -25,6 +26,8 @@ You need Node.js 18 or later. There is nothing to install or build.
 ```
 node server.cjs
 ```
+
+To keep it running in the background and bring it back after a restart, use Docker instead (`docker compose up -d`; see `docker-compose.yml`). It reads this folder, keeps your data in `./data`, and publishes the port on this computer only.
 
 Then open http://127.0.0.1:4173. On Windows, `.\start.ps1` does the same thing, and `.\start.ps1 -Port 4174` picks another port. The server only listens on this computer unless you set `HOST` yourself.
 

@@ -33,7 +33,9 @@ function token(renew = false) {
 function trusted(req) {
   const addr = req.socket.remoteAddress || '';
   const h = req.headers;
-  return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr)
+  // In Docker, connections from this computer arrive from the Docker network instead of loopback, so the
+  // compose file sets ORIENT_TRUST_LOCAL_HOST=1 and publishes the port on 127.0.0.1 only.
+  return (process.env.ORIENT_TRUST_LOCAL_HOST === '1' || ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr))
     && !h['cf-connecting-ip'] && !h['cf-ray'] && !h['x-forwarded-for'] && !h['x-forwarded-host']
     && /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i.test(h.host || '');
 }

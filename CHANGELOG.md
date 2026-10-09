@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-10 — Directions in your maps app, and a service that stays up
+
+- **Directions** now opens the maps app you choose instead of always Google Maps: Apple Maps, Google Maps, Waze or OpenStreetMap. A web page can’t see your default app, so there is a **Directions open in** setting in Your field kit, kept on that device. *Automatic* picks Apple Maps on iPhone and iPad, a plain `geo:` link on Android (so the phone uses its own default), and Google Maps elsewhere. Circuits use the same choice, with walking or driving routes where the app supports it.
+- `docker-compose.yml` runs Orient as a background service that restarts on its own, like the other services here. It reads this folder, keeps data in `./data`, and publishes the port on `127.0.0.1` only. `ORIENT_TRUST_LOCAL_HOST=1` lets the sync endpoints treat connections from this computer as trusted when they arrive through Docker; requests that came through a tunnel are still recognised and refused without the pairing key.
+- New check: `directions-check.cjs`.
+
 ## 2026-10-10 — One map on every device
 
 - The phone and the desktop now share one map. The computer running Orient keeps a single copy (`data/orient-state.json`); each browser keeps its own too, so it still works with no connection, and syncs when it can: when you open or return to Orient, a minute after a change, and on a timer.

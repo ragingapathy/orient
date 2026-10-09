@@ -1,0 +1,26 @@
+# Runs Orient as a background service that comes back after a restart:
+#   docker compose up -d
+# Stop it with `docker compose down`. Orient has no dependencies to install, so this uses a plain Node image
+# and reads the files in this folder, which means edits to public/ show up on refresh and server changes need
+# `docker compose restart`. Your data is kept in ./data, not in the container.
+#
+# The port is published on this computer only (127.0.0.1). To reach Orient from a phone, put a tunnel or reverse
+# proxy in front of it and pair the phone (see "Syncing between devices" in the README).
+services:
+  orient:
+    image: node:20-alpine
+    container_name: orient
+    working_dir: /app
+    command: node server.cjs
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: "4173"
+      # Connections from this computer reach the container through Docker, not loopback. Safe only because the
+      # port below is published on 127.0.0.1; requests that came through a tunnel are still recognised and refused.
+      ORIENT_TRUST_LOCAL_HOST: "1"
+    ports:
+      - "127.0.0.1:4173:4173"
+    volumes:
+      - .:/app:ro
+      - ./data:/app/data
