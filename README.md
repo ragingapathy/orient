@@ -14,7 +14,7 @@ Orient is a private map that lives in your browser.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
 - Look up an address or a business name, and optionally read a place's own website for its hours, phone number and published events.
-- Everything personal is stored in this browser (`localStorage`) and can be exported and imported as a file. Fog covers the parts of the map you haven't marked yet.
+- Your map is kept in the browser and synced to the computer running Orient, so a phone and a laptop show the same places and visits (see Syncing below). It can also be exported and imported as a file. Fog covers the parts of the map you haven't marked yet.
 
 The feature-by-feature record of how it got here is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -34,6 +34,16 @@ A fresh copy starts with four made-up example places (`public/catalog.sample.js`
 
 To start with your own places instead, create `public/catalog.local.js`. It is ignored by git, loads first, and replaces the examples. It should set `window.ORIENT_CATALOG` to a list shaped like the one in the sample file. Nothing from anyone's local catalog is part of this repository.
 
+## Syncing between devices
+
+A browser's storage belongs to one address, so a laptop at `127.0.0.1` and a phone at your public address would otherwise each keep their own map. To keep them the same, the computer running Orient holds one copy in `data/orient-state.json` (ignored by git), and each browser keeps its own copy too, so it still works offline.
+
+- Open Orient on that computer, choose the settings button, then **Pair a phone**. Enter the address your phone uses and open the link it makes on the phone once. The phone then syncs whenever it can reach the computer.
+- That computer, opened directly, is trusted. Anything arriving through a tunnel or over the network needs the pairing key, which is made on first use and shown only on that computer. **Make a new key** unpairs every phone.
+- Edits made on two devices are merged, not overwritten: visits and saved places from both are kept, and something you removed stays removed. If you change the very same single value on both, the device that syncs last wins.
+- The computer has to be on for other devices to update. Set `ORIENT_SYNC=off` to turn the sync endpoints off, and `ORIENT_DATA_DIR` to keep the copy elsewhere.
+- Whoever holds the key can read and change your map, so keep it to yourself.
+
 ## What leaves your computer
 
 Only things you ask for:
@@ -43,7 +53,7 @@ Only things you ask for:
 - **Nearby places** use [Overpass](https://overpass-api.de/) (OpenStreetMap data), with the server limiting how often it asks.
 - **Reading a website** fetches only the address you chose, checks `robots.txt`, refuses private and local addresses, and shows you what it found before anything is saved.
 
-Saved places, visits, notes, ratings and circuits are not sent anywhere.
+Saved places, visits, notes, ratings and circuits are not sent to anyone. They sync only to the computer running Orient, and only from browsers you have paired with it.
 
 ## How it's put together
 

@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-10 — One map on every device
+
+- The phone and the desktop now share one map. The computer running Orient keeps a single copy (`data/orient-state.json`); each browser keeps its own too, so it still works with no connection, and syncs when it can: when you open or return to Orient, a minute after a change, and on a timer.
+- Changes from two devices are **merged**, not overwritten. Visits logged on both are kept; a place saved on one and a rating given on the other both survive; a visit or place you removed stays removed. A first connection combines the two maps and takes the server's settings.
+- **Pairing:** the computer you run Orient on is trusted. A phone (or anything coming in through the tunnel) must carry a secret key, made on first use and shown only on that computer under Your field kit → **Pair a phone**, as a link to open once on the phone. **Make a new key** disconnects every phone.
+- New checks: `sync-merge-check.cjs` (offline, 11 merge cases) and `sync-check.cjs` (a trusted desktop and a paired phone through a separate hostname: seeding, refusal without the key, pairing, a visit crossing over, simultaneous edits, offline, and a new key).
+- Needs a restart of the Orient server. Export and import still work as a backup.
+
 ## 2026-10-09 — A calmer place card
 
 - The expanded place card used to be one long stack of equal sections. Now the essentials stay up top (name, save, visit, rating, address, hours, phone, Directions) and the rest folds into quiet rows: **Your visits**, **People & notes**, **What’s happening**, **Near this place**, and **Website & calendars**. Open rows stay open as you move around. A website read that has findings to review, or is still loading, opens its row by itself.

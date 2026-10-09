@@ -8,6 +8,7 @@ const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-
 const {geocode}=require('./geocode.cjs');
 const {nearby}=require('./places.cjs');
 const website=require('./website.cjs');
+const sync=require('./sync.cjs');
 const geocodeCache = new Map();
 let geocodeBusy = false, lastGeocode = 0;
 function json(res, status, data) {
@@ -38,6 +39,7 @@ http.createServer((req,res)=>{
   let url;
   try { url = decodeURIComponent(new URL(req.url,'http://localhost').pathname); } catch {res.writeHead(400);res.end('Bad request');return;}
   if(url==='/api/geocode'){lookup(req,res);return;}
+  if(sync.handle(req,res,url,json))return;
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}
     (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url));}catch(e){json(res,e.status||502,{error:e.message||'Website could not be read.'});}})();return;
