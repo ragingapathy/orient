@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#183f39">
+  <meta name="description" content="Orient — find your next familiar place.">
+  <title>Orient · Field map</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="./style.css?v=20261008-circuits2">
+  <script defer src="./vendor/lucide.js"></script>
+  <script defer src="./vendor/maplibre-gl.js"></script>
+  <script defer src="./discovery.js"></script>
+  <script defer src="./calendar-dates.js"></script>
+  <script defer src="./social.js"></script>
+  <script defer src="./website.js"></script>
+  <script defer src="./calendar.js"></script>
+  <script defer src="./fog.js"></script>
+  <script defer src="./today.js"></script>
+  <script defer src="./neighbors.js?v=20261008-circuits2"></script>
+  <script defer src="./journey.js"></script>
+  <script defer src="./circuits.js?v=20261008-circuits2"></script>
+  <script defer src="./drawer.js?v=20261008-circuits2"></script>
+  <script defer src="./catalog.local.js"></script>
+  <script defer src="./catalog.sample.js"></script>
+  <script defer src="./app.js?v=20261009-catalog"></script>
+</head>
+<body>
+<main id="app">
+  <header class="masthead"><span class="wordmark">ORIENT <i data-lucide="move-up-right"></i></span><span class="edition">FIELD TEST <b>0.5</b></span><button class="icon-button" data-action="settings" aria-label="Open settings"><i data-lucide="settings-2"></i></button></header>
+  <section class="world" aria-label="Explore your city">
+    <div id="map" aria-label="Interactive Toledo map"></div>
+    <div id="fog" aria-hidden="true"></div>
+    <div class="searchbar"><i data-lucide="search"></i><input id="search" type="search" autocomplete="off" aria-label="Search places and events" placeholder="Find your next place"><button class="area" data-action="home" aria-label="Return map to Toledo">Toledo</button><button class="icon-button" data-action="filters" aria-label="Filter places" aria-expanded="false"><i data-lucide="sliders-horizontal"></i><span id="filter-dot" hidden></span></button></div>
+    <div id="context" class="context">DOWNTOWN · DISCOVER</div>
+    <div id="tools" class="tools"><button id="circuits-tool" class="icon-button" data-circuit="browse" aria-label="Your circuits" hidden><i data-lucide="route"></i></button><button id="journey-tool" class="icon-button" data-journey="open" aria-label="Milestones and local lore" hidden><i data-lucide="sparkles"></i></button><button class="icon-button north" data-action="north" aria-label="Reset map bearing">N<i data-lucide="arrow-up"></i></button><button class="icon-button" data-action="list" aria-label="Switch to list"><i data-lucide="list"></i></button><button class="icon-button" data-action="add" aria-label="Add a place"><i data-lucide="plus"></i></button></div>
+    <div id="filters" class="filter-panel" hidden><div class="panel-heading"><strong>Refine your exploring</strong><button class="icon-button" data-action="filters" aria-label="Close filters"><i data-lucide="x"></i></button></div><div class="filter-options" id="filter-options"></div><p class="fine">Demo hours are illustrative, not live opening times.</p></div>
+    <section id="sheet" class="sheet" aria-label="Place details" aria-live="polite"></section>
+    <section id="panel" class="content-panel" hidden aria-label="Content"></section>
+    <div id="map-status" class="map-status" role="status">Loading Toledo map…</div>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </section>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button data-tab="Explore" aria-pressed="true"><i data-lucide="compass"></i><span>Explore</span></button>
+    <button data-tab="My Map" aria-pressed="false"><i data-lucide="map"></i><span>My Map</span></button>
+    <button data-tab="Calendar" aria-pressed="false"><i data-lucide="calendar-days"></i><span>Calendar</span></button>
+    <button data-tab="Today" aria-pressed="false"><i data-lucide="sun"></i><span>Today</span></button>
+  </nav>
+</main>
+<datalist id="place-categories"></datalist><dialog id="category-dialog" aria-label="Your category"></dialog>
+<dialog id="add-dialog" aria-labelledby="add-title"><form id="add-form"><div class="panel-heading"><h2 id="add-title">Put a place on your map</h2><button type="button" class="icon-button" data-action="close-add" aria-label="Close"><i data-lucide="x"></i></button></div><p class="sub">Search an address or a business name and city, then choose the matching location.</p><button type="button" class="button full" data-neighbor-action="add">Remember a neighbor instead →</button><label>Place name<input name="name" required maxlength="100" placeholder="A comic shop, a library, a favorite corner…"></label><label>Category<input name="kind" list="place-categories" maxlength="48" required autocomplete="off" placeholder="Choose or create a category"></label><p class="fine">Choose an existing category or type your own.</p><label>Address or business + city<input name="address" maxlength="250" placeholder="Street address, Toledo, OH" autocomplete="off"></label>
+<button type="button" class="button full lookup-button" data-action="lookup"><i data-lucide="search"></i>Find address</button>
+<div id="lookup-status" class="fine" role="status" aria-live="polite">Choose a match before saving.</div>
+<div id="lookup-results" class="lookup-results"></div>
+<p class="fine">Numbered U.S. addresses use the <a href="https://geocoding.geo.census.gov/" target="_blank" rel="noopener">U.S. Census geocoder</a>; place names use Photon / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Your notes and saved map stay here.</p>
+<details id="coordinate-details"><summary>Use the map center or coordinates instead</summary><button type="button" class="button full" data-action="map-center">Use current map center</button><div class="coordinate-fields"><label>Latitude<input name="lat" type="number" step="any" min="-85" max="85"></label><label>Longitude<input name="lng" type="number" step="any" min="-180" max="180"></label></div></details><label>Your note<textarea name="note" maxlength="800" rows="3" placeholder="Why you’d like to go"></textarea></label><p class="fine">Saved only in this browser. Adding a place does not publish it.</p><button type="submit" class="button primary full">Add to My Map</button></form></dialog>
+<dialog id="settings-dialog" aria-labelledby="settings-title"><div class="panel-heading"><h2 id="settings-title">Your field kit</h2><button class="icon-button" data-action="close-settings" aria-label="Close"><i data-lucide="x"></i></button></div><p class="sub">Saved places, visits, and conversation drafts stay in this browser. No account or GPS tracking.</p><label class="toggle-row"><span>Reveal the fog on My Map</span><input id="fog-toggle" type="checkbox"></label><label class="toggle-row"><span>Show demo places</span><input id="demo-toggle" type="checkbox"></label><div class="settings-actions"><button class="button" data-action="export"><i data-lucide="download"></i>Export my map</button><label class="button import-label"><i data-lucide="upload"></i>Import my map<input id="import-file" type="file" accept="application/json,.json" hidden></label></div><p class="fine">Map tiles load from OpenFreeMap. Numbered U.S. addresses go to the U.S. Census geocoder; place-name searches go to Photon. Searches are sent only when you press Find address. Nearby discovery sends the chosen map coordinates to Overpass only when you request it or tap a map place. Website reading sends only the website address you choose to the local reader, which requests public pages directly. Saved marks and notes stay in this browser.</p><p class="fine">Calendar entries are private and editable. Community threads are demo content. Personal replies are local drafts, visible only to you.</p><div class="settings-actions"><button class="button danger" data-action="reset">Reset this browser’s map</button></div><p class="fine">MapLibre GL JS · OpenFreeMap · OpenStreetMap<br>Orient prototype 0.5</p></dialog>
+</body>
+</html>
+
+
+
