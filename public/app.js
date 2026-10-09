@@ -23,9 +23,10 @@
       drafts[thread.id] = (Array.isArray(raw.drafts?.[thread.id])?raw.drafts[thread.id]:[]).slice(-100).filter(d=>d&&typeof d.text==='string').map(d=>({text:d.text.slice(0,2000),date:typeof d.date==='string'?d.date.slice(0,40):''}));
     }
     const ratings={};for(const [id,value]of Object.entries(raw.ratings||{}))if(ids.has(id)&&Number.isInteger(value)&&value>=1&&value<=5)ratings[id]=value;
-    return {version:1,circuits:OrientCircuits.clean(raw.circuits,ids),journey:OrientJourney.clean(raw.journey),neighbors:OrientNeighbors.clean(raw.neighbors),custom:unique,osm,ratings,saved:pick(raw.saved),visited:pick(raw.visited),drafts,...OrientCalendar.clean(raw,ids),web:OrientWebsite.clean(raw.web,ids),showDemo:raw.showDemo!==false,fog:raw.fog!==false};
+    const visitedPick=pick(raw.visited),visitLog=OrientVisits.clean(raw,ids,visitedPick);
+    return {version:1,circuits:OrientCircuits.clean(raw.circuits,ids),journey:OrientJourney.clean(raw.journey),neighbors:OrientNeighbors.clean(raw.neighbors),custom:unique,osm,ratings,saved:pick(raw.saved),visited:[...new Set([...visitedPick,...Object.keys(visitLog)])],visitLog,heat:raw.heat===true,visitDays:[0,14,30].includes(raw.visitDays)?raw.visitDays:14,drafts,...OrientCalendar.clean(raw,ids),web:OrientWebsite.clean(raw.web,ids),showDemo:raw.showDemo!==false,fog:raw.fog!==false};
   }
-  let store = {version:1,custom:[],osm:[],ratings:{},saved:[],visited:[],drafts:{},details:{},events:[],showDemo:true,fog:true};
+  let store = {version:1,custom:[],osm:[],ratings:{},saved:[],visited:[],visitLog:{},heat:false,visitDays:14,drafts:{},details:{},events:[],showDemo:true,fog:true};
   let storageWorks = true;
   try { const raw = localStorage.getItem(KEY); if(raw) store = cleanData(JSON.parse(raw)); } catch { storageWorks=false; }
   const state = {tab:'Explore',selected:window.ORIENT_DEFAULT_PLACE||demoPlaces[0]?.id||null,expanded:false,list:false,filter:'Everything',query:'',filters:false,thread:null,category:'All categories',relationship:'Any',happening:'Any time',radius:'Any distance',sort:'Nearby first',origin:[-83.539,41.655]};
@@ -57,6 +58,7 @@
 
   function save() { const earned=OrientJourney.sync();try { localStorage.setItem(KEY,JSON.stringify(store)); storageWorks=true;if(earned.length)queueMicrotask(()=>toast(earned.map(m=>m.name).join(' · ')+' · +'+earned.reduce((n,m)=>n+m.points,0)+' points'));return true; } catch {storageWorks=false;toast('Browser storage is unavailable or full. Export your map to keep these changes.');return false;} }
   function toast(message) {clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').hidden=false;toastTimer=setTimeout(()=>$('#toast').hidden=true,5000);}
+  function keepOsm(id){const p=placeById(id);if(p&&/^(osm-|tile-)/.test(id)&&!(store.osm||[]).some(x=>x.id===id))store.osm=[...(store.osm||[]),OrientPlaces.sanitize(p)].filter(Boolean);}
   function toggleMark(key,id) {const p=placeById(id);if(p&&/^(osm-|tile-)/.test(id)&&!(store.osm||[]).some(p=>p.id===id))store.osm=[...(store.osm||[]),OrientPlaces.sanitize(p)].filter(Boolean);store[key]=store[key].includes(id)?store[key].filter(v=>v!==id):[...store[key],id];store.osm=(store.osm||[]).filter(p=>isMarked(p.id)||store.ratings?.[p.id]||store.details?.[p.id]||(store.events||[]).some(e=>e.placeId===p.id)||store.web?.profiles?.[p.id]||store.web?.urls?.[p.id]||store.web?.sources?.some(s=>s.placeId===p.id));save();render();}
   function tileCandidates(anchor){
     if(!map)return [];
@@ -115,8 +117,29 @@
     const sheet=$('#sheet');
     map.easeTo({center:p.coordinates,zoom:Math.max(map.getZoom(),14),offset:desktop?[140,0]:[0,-Math.min(sheet.offsetHeight/2,150)],duration:matchMedia('(prefers-reduced-motion:reduce)').matches?0:400});
   }
+  // The heat map: places weighted by the visits you logged in the chosen range, under the labels. Off until you ask for it.
+  function updateHeat(){
+    if(!map||!mapLoaded)return;
+    try{
+      const data=OrientVisits.heatData();
+      if(!map.getSource('orient-heat'))map.addSource('orient-heat',{type:'geojson',data});else map.getSource('orient-heat').setData(data);
+      if(!map.getLayer('orient-heat')){
+        // above every drawn shape (land, roads, buildings) but under the labels, so street names stay readable
+        const layers=map.getStyle().layers;let lastShape=-1;layers.forEach((l,i)=>{if(!['symbol','heatmap','background'].includes(l.type))lastShape=i;});
+        const firstLabel=layers.slice(lastShape+1).find(l=>l.type==='symbol')?.id;
+        map.addLayer({id:'orient-heat',type:'heatmap',source:'orient-heat',paint:{
+          'heatmap-weight':['get','n'],
+          'heatmap-intensity':['interpolate',['linear'],['zoom'],10,2,17,3.2],
+          'heatmap-radius':['interpolate',['linear'],['zoom'],10,30,14,72,17,140],
+          'heatmap-opacity':0.9,
+          'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(255,200,80,0)',0.1,'rgba(255,196,70,0.4)',0.3,'rgba(255,146,40,0.68)',0.6,'rgba(235,88,30,0.86)',1,'rgba(168,24,36,0.96)']}},firstLabel);
+      }
+      map.setLayoutProperty('orient-heat','visibility',store.heat===true?'visible':'none');
+    }catch{}
+  }
   function renderMarkers() {
     if(!map)return;
+    updateHeat();
     const visible=visiblePlaces();const ids=new Set(visible.map(p=>p.id));
     for(const [id,marker] of markers)if(!ids.has(id)){marker.remove();markers.delete(id);}
     for(const p of visible){
@@ -154,11 +177,11 @@
     if(sheet.hidden){sheet.innerHTML='';return;}
     const saved=store.saved.includes(p.id),visited=store.visited.includes(p.id);
     const glance=OrientWebsite.cardFacts(p,store.details?.[p.id]?.hours||'');
-    sheet.innerHTML=OrientPlaces.card({...p,profileHours:glance.hours,note:p.id.startsWith('local-')?'':p.note},{saved,visited,expanded:state.expanded,discovery:discoverySection(p),glance:glance.markup,knowledge:state.expanded?OrientCalendar.section(p):'',websiteSection:state.expanded?OrientWebsite.section(p):'',rating:store.ratings?.[p.id]||0});
+    sheet.innerHTML=OrientPlaces.card({...p,profileHours:glance.hours,note:p.id.startsWith('local-')?'':p.note},{saved,visited,expanded:state.expanded,discovery:discoverySection(p),glance:glance.markup,knowledge:state.expanded?OrientCalendar.section(p):'',websiteSection:state.expanded?OrientWebsite.section(p):'',rating:store.ratings?.[p.id]||0,visits:{button:OrientVisits.button(p.id,p.name),line:OrientVisits.line(p.id),section:state.expanded?OrientVisits.section(p.id):''}});
     if(state.expanded)OrientWebsite.inspectKnown(p);
     OrientDrawer.attach(sheet,state.drawerStop??(state.expanded?2:0),stop=>{state.drawerStop=stop;state.expanded=stop===2;render();});
   }
-  function row(p){return `<button class="row" data-place="${escapeHTML(p.id)}"><span class="tile">${icon(p.icon)}</span><span class="row-copy"><strong>${escapeHTML(p.name)}</strong><small>${state.tab==='Explore'?distanceMiles(p).toFixed(1)+' mi · ':''}${escapeHTML(p.kind)}${p.specials?.length?' · '+p.specials.length+' specials':''}${store.ratings?.[p.id]?` · ★ ${store.ratings[p.id]}/5`:''} · ${store.visited.includes(p.id)?'Visited':store.saved.includes(p.id)?'Saved':p.demo?'Demo place':'Not yet saved'}</small></span>${icon('chevron-right')}</button>`;}
+  function row(p){return `<button class="row" data-place="${escapeHTML(p.id)}"><span class="tile">${icon(p.icon)}</span><span class="row-copy"><strong>${escapeHTML(p.name)}</strong><small>${state.tab==='Explore'?distanceMiles(p).toFixed(1)+' mi · ':''}${escapeHTML(p.kind)}${p.specials?.length?' · '+p.specials.length+' specials':''}${store.ratings?.[p.id]?` · ★ ${store.ratings[p.id]}/5`:''} · ${store.visited.includes(p.id)?OrientVisits.rowLabel(p.id):store.saved.includes(p.id)?'Saved':p.demo?'Demo place':'Not yet saved'}</small></span>${icon('chevron-right')}</button>`;}
   function renderPanel(visible) {
     if(state.tab==='My Map')visible=visible.filter(p=>isMarked(p.id));
     const panel=$('#panel');
@@ -177,7 +200,7 @@
         $('#draft-form').addEventListener('submit',e=>{e.preventDefault();const text=$('#draft').value.trim();if(!text)return;store.drafts[thread.id]=[...(store.drafts[thread.id]||[]),{text,date:new Date().toISOString()}].slice(-100);save();render();toast('Draft saved privately. Nothing was published.');});
       }else panel.innerHTML=`<div class="kicker">Conversations rooted in places</div><h2>Community</h2><p class="sub">People gathering around a shared place.</p>${(store.showDemo?threads:[]).filter(t=>!state.query||`${t.group} ${t.title}`.toLowerCase().includes(state.query)).map(t=>`<button class="row" data-thread="${t.id}"><span class="tile">${icon(t.icon)}</span><span class="row-copy"><strong>${t.group}</strong><small>${t.title}<br>${t.posts.length} sample posts</small></span>${icon('chevron-right')}</button>`).join('')||empty('No conversations here yet','Turn on demo places to explore sample threads.')}<p class="fine">Demo community · Replies are local drafts.</p>`;
     } else {
-      panel.innerHTML=`<div class="kicker">${state.tab==='My Map'?'Private · Deliberately marked':'Places around Toledo'}</div><h2>${state.tab==='My Map'?'Your city, becoming familiar.':'Explore as a list'}</h2>${state.tab==='My Map'?`<p class="sub">${store.saved.length} saved · ${store.visited.length} visited · ${OrientNeighbors.entries().length} neighbors</p>`:''}${state.tab==='Explore'?`<p class="fine">${visible.length} places · ${state.sort==='Nearby first'?'Nearest first':'By name'} · From ${escapeHTML(state.originLabel||'downtown Toledo')}</p>${exploreControls(true)}${filterChips()}`:''}${state.tab==='My Map'?OrientCircuits.summary()+OrientJourney.summary()+OrientNeighbors.list(state.query):''}${visible.map(row).join('')||(state.tab==='My Map'&&OrientNeighbors.entries().length?'':empty(state.query?'Nothing found':state.tab==='My Map'?'Your map starts with one place.':'No places to show',state.tab==='Explore'?'Try widening the distance or clearing a filter.':state.query?'Try another name, category, or filter.':'Save a place from Explore, or add somewhere you already know.'))}<button class="button full" data-action="add">${icon('plus')}Add your own place</button>`;
+      panel.innerHTML=`<div class="kicker">${state.tab==='My Map'?'Private · Deliberately marked':'Places around Toledo'}</div><h2>${state.tab==='My Map'?'Your city, becoming familiar.':'Explore as a list'}</h2>${state.tab==='My Map'?`<p class="sub">${store.saved.length} saved · ${store.visited.length} visited · ${OrientNeighbors.entries().length} neighbors</p>`:''}${state.tab==='Explore'?`<p class="fine">${visible.length} places · ${state.sort==='Nearby first'?'Nearest first':'By name'} · From ${escapeHTML(state.originLabel||'downtown Toledo')}</p>${exploreControls(true)}${filterChips()}`:''}${state.tab==='My Map'?OrientCircuits.summary()+OrientJourney.summary()+OrientVisits.summary()+OrientNeighbors.list(state.query):''}${visible.map(row).join('')||(state.tab==='My Map'&&OrientNeighbors.entries().length?'':empty(state.query?'Nothing found':state.tab==='My Map'?'Your map starts with one place.':'No places to show',state.tab==='Explore'?'Try widening the distance or clearing a filter.':state.query?'Try another name, category, or filter.':'Save a place from Explore, or add somewhere you already know.'))}<button class="button full" data-action="add">${icon('plus')}Add your own place</button>`;
     }
   }
   function empty(title,copy){return `<div class="empty">${icon('compass')}<h3>${title}</h3><p>${copy}</p></div>`;}
@@ -295,7 +318,13 @@
       case 'expand':if(OrientDrawer.mobile()){state.drawerStop=(state.drawerStop??0)===2?1:2;state.expanded=state.drawerStop===2;}else state.expanded=!state.expanded;render();break;
       case 'clear-rating':if(state.selected){delete store.ratings?.[state.selected];save();render();}break;
       case 'save':if(state.selected)toggleMark('saved',state.selected);break;
-      case 'visit':if(state.selected)toggleMark('visited',state.selected);break;
+      case 'visit':case 'log-visit':if(state.selected)OrientVisits.tap(state.selected);break;
+      case 'visit-undo':OrientVisits.undo();break;
+      case 'visit-remove':if(state.selected)OrientVisits.removeAt(state.selected,Number(b.dataset.visitIndex));break;
+      case 'visit-add-date':{const input=document.querySelector('.visit-history [name=visit-date]');const msg=state.selected?OrientVisits.addOn(state.selected,input?.value):'';if(msg){const s=document.querySelector('#visit-add-status');if(s)s.textContent=msg;}break;}
+      case 'visit-clear':if(state.selected&&confirm('Clear every visit logged for this place? The place stays on your map.'))OrientVisits.clear(state.selected);break;
+      case 'visits-window':OrientVisits.setWindow(b.dataset.days);break;
+      case 'visits-heat':OrientVisits.toggleHeat();break;
       case 'demo-directions':toast('This place is fictional. Add a real place to try directions.');break;
       case 'nearby':{const p=placeById(state.selected);if(p)loadNearby(p);break;}
       case 'discussion':state.thread=threads.find(t=>t.placeId===state.selected)?.id||null;state.tab='Community';render();break;
@@ -312,8 +341,8 @@
       case 'close-add':cancelLookup();$('#add-dialog').close();break;
       case 'settings':$('#settings-dialog').showModal();break;
       case 'close-settings':$('#settings-dialog').close();break;
-      case 'delete-place':if(confirm('Remove this place, its calendar entries, personal details, and saved/visited marks from this browser?')){store.custom=store.custom.filter(p=>p.id!==state.selected);store.events=(store.events||[]).filter(e=>e.placeId!==state.selected);delete store.ratings?.[state.selected];delete store.details?.[state.selected];delete store.web?.profiles?.[state.selected];delete store.web?.urls?.[state.selected];if(store.web)store.web.sources=store.web.sources.filter(s=>s.placeId!==state.selected);store.saved=store.saved.filter(id=>id!==state.selected);store.visited=store.visited.filter(id=>id!==state.selected);save();render();}break;
-      case 'reset':if(confirm('Reset all saved places, visits, personal details, calendar entries, and drafts in this browser? Export first if you want to keep them.')){store={version:1,custom:[],osm:[],ratings:{},saved:[],visited:[],drafts:{},details:{},events:[],showDemo:true,fog:true};discoveries.clear();enrichments.clear();nearbyStates.clear();state.neighborId=null;save();state.tab='Explore';state.query='';$('#search').value='';state.filter='Everything';state.list=false;state.drawerStop=0;state.expanded=false;state.thread=null;render();$('#settings-dialog').close();toast('Your browser’s map has been reset.');}break;
+      case 'delete-place':if(confirm('Remove this place, its calendar entries, personal details, and saved/visited marks from this browser?')){store.custom=store.custom.filter(p=>p.id!==state.selected);store.events=(store.events||[]).filter(e=>e.placeId!==state.selected);delete store.ratings?.[state.selected];delete store.details?.[state.selected];delete store.web?.profiles?.[state.selected];delete store.web?.urls?.[state.selected];if(store.web)store.web.sources=store.web.sources.filter(s=>s.placeId!==state.selected);store.saved=store.saved.filter(id=>id!==state.selected);store.visited=store.visited.filter(id=>id!==state.selected);delete store.visitLog?.[state.selected];save();render();}break;
+      case 'reset':if(confirm('Reset all saved places, visits, personal details, calendar entries, and drafts in this browser? Export first if you want to keep them.')){store={version:1,custom:[],osm:[],ratings:{},saved:[],visited:[],visitLog:{},heat:false,visitDays:14,drafts:{},details:{},events:[],showDemo:true,fog:true};discoveries.clear();enrichments.clear();nearbyStates.clear();state.neighborId=null;save();state.tab='Explore';state.query='';$('#search').value='';state.filter='Everything';state.list=false;state.drawerStop=0;state.expanded=false;state.thread=null;render();$('#settings-dialog').close();toast('Your browser’s map has been reset.');}break;
       case 'export':{const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`orient-my-map-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);break;}
     }
   });
@@ -349,6 +378,7 @@
   OrientNeighbors.init({store:()=>store,save,map:()=>map,show:id=>{const n=OrientNeighbors.get(id);if(!n)return;state.circuitMap=false;state.loreMap=false;state.drawerStop=0;state.neighborId=id;state.tab='My Map';state.list=false;state.expanded=true;state.filters=false;render();if(n.coordinates)focusPlace(n);},back:()=>{state.neighborId=null;state.tab='My Map';state.list=true;render();}});
   OrientCalendar.init(privatePlaceAPI);
   OrientWebsite.init({...privatePlaceAPI,toast});
+  OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
   OrientToday.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||'downtown Toledo'});

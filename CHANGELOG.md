@@ -1,5 +1,16 @@
 # Orient Changelog
 
+## 2026-10-09 — Count every visit, and see where you go
+
+- Add a **check button beside the bookmark** on a place card. Each tap logs a visit now, shows the running count on the button, and offers **Undo** for a few seconds. Two taps within 20 seconds count once. The bookmark keeps its meaning: **Save** (on my map, a place I want to know), so a place can be saved and not yet visited.
+- Keep a private list of visits per place (`visitLog`: a time from a tap, a plain date for a past visit, or an undated entry). A place previously only marked visited counts as one visit with no date. Visited marks, pins, fog clearings, milestones, and Today work as before.
+- In the expanded card, **Your visits** lists each visit, removes one, adds a visit on an earlier day (a future day is refused), or clears the place's visits. The card says how often and when you last went; list rows read Visited 3×. The old Mark visited toggle became Log a visit.
+- In My Map, **Where you go** ranks places by visits over 14 days, 30 days, or all time (for example, 7 Brew, 3 visits in 2 weeks). **Show the heat map** draws the same counts on the map: warmer and wider where you go more, scaled against your busiest place (never less than four visits), under the street names and inside the fog's clearings.
+- Marking a circuit stop Been here now logs a visit each outing.
+- Visits are saved in map backups; imports drop invalid, future, and non-text entries and unknown places, and count an older backup's visited places once.
+- Browser check seeds its own places and covers migration, tapping and the double-tap guard, undo, history, ranges and ranking, the heat toggle and weights (the layer itself when the basemap loads), older marks, clearing, saved versus visited, backup and import cleaning, and 320px. The earlier passing checks still pass.
+- Limits: counts places, not paths or time spent; the heat map is places weighted by visits, not a track; the check is hidden in the compact strip (like the bookmark) and shows in the preview. Three older checks that still look for Mark visited were already failing.
+
 ## 2026-10-09 — Start a place from its website
 
 - Add **Start from a website** to the top of the add-place dialog. Paste a website address (a bare domain works) and press **Read website**; nothing is read while typing.
