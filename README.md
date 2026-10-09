@@ -8,6 +8,7 @@ A personal tool for getting to know a city. I'm building it for Toledo, Ohio, an
 
 Orient is a private map that lives in your browser.
 
+- On first use, choose a city or town and confirm it as your home area. Explore distances, Today and outing suggestions start there; **Field kit → Change home area** moves that starting point while keeping saved places. No GPS or home address is needed. Calendar time zone starts with the device setting and can be changed during setup. Fresh maps do not load the Toledo catalog; existing maps retain their data and starting area.
 - Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS, no automatic check-in, and no account.
 - Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
 - Keep your own notes, ratings, and categories for each place.
@@ -20,7 +21,7 @@ Orient is a private map that lives in your browser.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
 - Today’s events and specials also inform outing suggestions, with the specific reason, listed time, and source shown on the recommendation. Timed listings must fit the available outing window; listed today does not mean open now.
-- In Today, use **Get me out for a bit** for up to two small outings based on available time, walking or driving, spending intentions, and people energy. Suggestions run locally and favor saved, unvisited places; ratings of 1–2 are excluded. Travel is estimated, hours and atmosphere are unverified, and dollar budgets are reminders until prices are known. No-spend plans suggest outdoor walks. Preferences last only until the page reloads; the starting point is downtown Toledo or a map center you choose, never GPS.
+- In Today, use **Get me out for a bit** for up to two small outings based on available time, walking or driving, spending intentions, and people energy. Suggestions run locally and favor saved, unvisited places; ratings of 1–2 are excluded. Travel is estimated, hours and atmosphere are unverified, and dollar budgets are reminders until prices are known. No-spend plans suggest outdoor walks. Preferences last only until the page reloads; the starting point is your chosen home area or a map center you choose, never GPS.
 - Look up an address or a business name, and optionally read a place's own website for its hours, phone number and published events.
 - Your map is kept in the browser and synced to the computer running Orient, so a phone and a laptop show the same places and visits (see Syncing below). It can also be exported and imported as a file. Fog covers the parts of the map you haven't marked yet.
 

@@ -23,13 +23,15 @@ async function lookup(req, res) {
     const input=JSON.parse(body);
     const query=typeof input.query==='string'?input.query.trim():'';
     if(query.length<3||query.length>250){json(res,400,{error:'Enter an address or place name, including the city.'});return;}
-    const key=query.toLowerCase();
+    const city=input.city===true;
+    const center=Array.isArray(input.center)&&input.center.length===2&&input.center.every(Number.isFinite)&&Math.abs(input.center[0])<=180&&Math.abs(input.center[1])<=85?input.center:null;
+    const key=JSON.stringify([query.toLowerCase(),city,center]);
     const cached=geocodeCache.get(key);
     if(cached&&Date.now()-cached.time<86400000){json(res,200,cached.data);return;}
     if(geocodeBusy||Date.now()-lastGeocode<1100){json(res,429,{error:'Please wait a moment, then try Find address again.'});return;}
     geocodeBusy=true;lastGeocode=Date.now();
     try{
-      const result=await geocode(query);
+      const result=await geocode(query,fetch,{city,center});
       if(geocodeCache.size>=200)geocodeCache.delete(geocodeCache.keys().next().value);
       geocodeCache.set(key,{time:Date.now(),data:result});json(res,200,result);
     }catch{json(res,502,{error:'Address lookup could not connect. Try again, or use the map center or coordinates.'});}finally{geocodeBusy=false;}
@@ -42,7 +44,7 @@ http.createServer((req,res)=>{
   if(sync.handle(req,res,url,json))return;
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}
-    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url));}catch(e){json(res,e.status||502,{error:e.message||'Website could not be read.'});}})();return;
+    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url,{timeZone:typeof input.timeZone==='string'?input.timeZone:undefined}));}catch(e){json(res,e.status||502,{error:e.message||'Website could not be read.'});}})();return;
   }
   if(url==='/api/places'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}

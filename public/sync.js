@@ -87,7 +87,7 @@
         let merged = mine;
         if (remote) {
           merged = merge(meta.base, mine, remote, !meta.base);
-          if (!same(merged, mine)) { host.apply(merged); mine = host.get(); merged = mine; }
+          if (!same(merged, mine)) { await host.apply(merged); mine = host.get(); merged = mine; }
           if (same(merged, remote)) { writeMeta({ ...meta, rev: got.data.rev, base: merged }); setStatus('ok'); return; }
         }
         const put = await call('PUT', { baseRev: got.data.rev, state: merged });

@@ -20,6 +20,7 @@ const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:comics\r\nDTSTA
  for(const ip of ['127.0.0.1','10.0.0.1','169.254.169.254','172.16.1.1','192.168.1.1','100.64.0.1','::1','::ffff:127.0.0.1','fc00::1','fe80::1','2001:0000::1','2001:db8::1','2002:7f00:1::1'])assert.equal(W.publicIP(ip),false,ip);
  assert.equal(W.publicIP('8.8.8.8'),true);assert.equal(W.publicIP('2606:4700:4700::1111'),true);
  assert.throws(()=>W.normalize('file:///C:/secret'),/public/);assert.throws(()=>W.normalize('https://user:pass@venue.example/'),/public/);
+ const zoned=W.extract('<script type="application/ld+json">'+JSON.stringify({'@type':'Event',name:'Central event',startDate:'2026-10-14T18:00:00Z'})+'</script>',site,'America/Chicago');assert.equal(zoned.events[0].start.time,'13:00');
  console.log('PASS: website facts, text candidates, linked contact pages, feed discovery without auto-fetch, ICS recurrence/timezones/exceptions, robots rules, public-network guards.');
  }finally{Date.now=now;}
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -3,7 +3,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
 (async()=>{const browser=await chromium.launch({channel:'chrome',headless:true});try{
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/api/state**',r=>r.fulfill({status:403,contentType:'application/json',body:'{"error":"Isolated test"}'}));
-  await page.goto(process.env.ORIENT_URL||'http://127.0.0.1:4173');await page.locator('[data-action="add"]').first().click();
+  await page.goto(process.env.ORIENT_URL||'http://127.0.0.1:4173');await page.waitForFunction(()=>window.OrientHome&&document.querySelector('#home-dialog')?.open);await page.locator('[data-home-close]').click();await page.locator('#panel [data-action="add"]').click();
   const dialog=page.locator('#add-dialog');assert.equal(await page.locator('#add-choices button:visible').count(),2);assert.equal(await page.locator('#add-fields').isVisible(),false);assert.equal(await page.locator('#add-fields').evaluate(el=>el.disabled),true);
   await page.screenshot({path:'output/playwright/add-menu-mobile.png'});await page.setViewportSize({width:320,height:740});assert.equal(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth),true);await page.setViewportSize({width:390,height:844});
   await page.locator('[data-action="add-name"]').click();assert.equal(await page.locator('#add-fields').isVisible(),true);assert.equal(await page.locator('#site-start').isVisible(),true);assert.equal(await page.locator('[data-neighbor-action="add"]').isVisible(),true);

@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-09 — v0.6.0: Make Orient yours, wherever you live
+
+- Added first-run city/town search and confirmation, with home area controls in the Field kit. GPS and a home address are unnecessary.
+- The home area centers the map, biases place searches, and supplies Explore distances and Today/outing origins. Changing it keeps saved places. Calendar and website/feed imports use the selected time zone, initially the device setting.
+- Fresh maps start without the Toledo catalog and can request nearby open-map discoveries at their city center. Existing maps migrate to Toledo and retain catalog references; backups and sync include the new settings. Unrevealed curated lore appears only near its location.
+- Verified mobile setup, Michigan discovery, persistence, changing cities/time zones, legacy migration, Add and outing flows, address geocoding, website import time zones, and live Ann Arbor city-only search.
+
 ## 2026-10-09 — A simpler Add menu
 
 - Add now begins with two choices: **Photo + note** or **Name of place**. The full address, website, category, neighbor, coordinates, and notes offerings appear only after choosing Name of place.
