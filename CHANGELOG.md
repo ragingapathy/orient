@@ -1,5 +1,41 @@
 # Orient Changelog
 
+## 2026-10-09 — A simpler Add menu
+
+- Add now begins with two choices: **Photo + note** or **Name of place**. The full address, website, category, neighbor, coordinates, and notes offerings appear only after choosing Name of place.
+- Back returns to the two choices without discarding entered fields. Opening Add afresh resets the flow; editing an existing place opens directly in the form.
+- Verified both photo and named-place paths, back navigation, save/edit behavior, and narrow mobile layout.
+
+## 2026-10-09 — Photo + note, without the place form
+
+- Added **Photo + note** directly to the Add place menu. A geotagged photo can create its own map pin with only an optional note; no name, category, or address fields are required. A short display title is derived from the note, with Photo memory as the fallback.
+- Standalone photo pins use the image’s GPS by default, even beside a known place. Existing-place attachment is an optional disclosure. Without readable GPS, saving requires an explicit map-center choice or an existing place.
+- Photo memories open with the image and its note at the top of the card. Their camera category and photo-memory state survive reload, sync, and backups.
+- Verified the add-menu flow, GPS pin creation, empty-note fallback, no accidental attachment, optional attachment, explicit map-center placement, primary photo card, reload, and existing photo/GPS regression checks.
+
+## 2026-10-09 — Place a photo using its GPS
+
+- Photo uploads now read embedded coordinates locally before resizing. Nearby known places appear in a destination picker; a single clear close match is preselected for review, while ambiguous matches require a choice. The existing place can always be overridden.
+- **Add a place photo** in the My Map list can start with an image. Users can attach it to an existing place or create a named personal place at its coordinates. Photos without readable GPS retain manual place selection.
+- Coordinates are used locally, with no external lookup. The smaller saved image strips embedded metadata. GPS does not establish which business was photographed; the selected destination stays visible before save.
+- Verified real synthetic EXIF parsing, coordinate order, close/ambiguous matching, new-place creation, no-GPS fallback, saved metadata removal, mobile layout, and the existing photo workflow.
+
+## 2026-10-09 — Photo memories for places
+
+- Added **Photos & notes** to every expanded place card, with a thumbnail gallery, camera/file selection, individual editable photo notes, and removal. Works for personal places and public spaces as well as businesses.
+- Images are resized and re-encoded locally as JPEGs before saving; originals are untouched. Photos travel with map sync and JSON backups. Import size increased from 2 MB to 3 MB to match the sync request limit.
+- Bounded album storage keeps this first version within browser storage limits. Capacity/save errors retain the editor and existing photos; concurrent photo additions are preserved through sync merges.
+- Verified resizing, safe note rendering, edit/remove/reload, rating independence, JSON backup/import, sync merges, and mobile presentation.
+
+## 2026-10-09 — Get me out for a bit
+
+- Connected outing suggestions to Today’s recurring calendar entries, website events, and shared specials. Relevant listings boost a place and appear on its suggestion with the title, time, provenance, and source link. Timed listings must fit the estimated travel, waiting, and short visit; expired entries are excluded. No-spend walks stay separate from offers with unknown costs, and ordinary suggestions remain available.
+- Today now offers a small outing planner: time to spare, walking or driving, spending limit, and people energy. Up to two suggestions explain why they were chosen, with place cards and directions in the preferred maps app.
+- Suggestions favor saved, unvisited places, exclude low personal ratings and service/resource categories, and use a rough round-trip travel allowance plus a 20-minute stop. No-spend plans suggest outdoor walks; other spending limits are reminders because prices are unknown. Hours, access, and atmosphere are explicitly unverified.
+- Preferences are temporary and local. The origin is clearly labeled and can be changed to the current map center. No GPS, external recommendation service, or changes to saved-map data.
+- Preserved the eight exploration ideas in Craft under **Orient — Exploration ideas**. This is the first implementation; the other ideas remain proposals.
+- Checked constraint/ranking behavior, mobile and desktop layouts, directions, place navigation, session-only preferences, and the existing Today briefing.
+
 ## 2026-10-11 — A simpler place card, and Directions that ask once
 
 - **Simpler card.** Closed, the card is the name, the save and visit buttons, and one line about visits. Opened, it adds the rating, the address, hours and phone (their captions are gone; the icons say it), one **Directions** button, and the folded rows. The “Saved on your private map” and “Discovered nearby” lines are gone (the bookmark already says it), the “Less detail” bar moved to the foot, **Edit place** and **Remove** are quiet text buttons instead of two big bars, and the fine print is left to Your field kit.
