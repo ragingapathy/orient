@@ -141,7 +141,7 @@
     } else if (paired) {
       h += '<div class="settings-actions"><button class="button" type="button" data-sync="now">Sync now</button><button class="button" type="button" data-sync="unpair">Unpair this browser</button></div>';
     } else {
-      h += '<p class="fine">On the computer that runs Orient, open Your field kit, choose Pair a phone, and open the link it gives you here. Or paste the key.</p>'
+      h += '<p class="fine">The key is shown only on the computer that runs Orient, and only when you open Orient there directly at http://127.0.0.1:4173 (not through this public address). Open Your field kit there, choose Pair a phone, and open the link it gives you on this device. Or paste the key here.</p>'
         + '<label>Pairing key<input id="sync-paste" autocomplete="off" spellcheck="false" placeholder="48 characters"></label>'
         + '<div class="settings-actions"><button class="button" type="button" data-sync="pair">Pair this browser</button></div>';
     }
