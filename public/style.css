@@ -84,3 +84,11 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 
 #takeout-dialog{overflow-y:auto}#takeout-dialog h3{font-size:14px;margin:16px 0 6px}#takeout-dialog .toggle-row small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:2px}
 #takeout-dialog .settings-actions{margin-top:14px}#takeout-dialog .fold{margin-top:10px}#takeout-dialog .fold .toggle-row{padding:8px 0}
+
+.place-glance>.glance-fact>div>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.detail .manage{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}.quiet{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;padding:10px 8px 10px 0;min-height:44px;cursor:pointer}.quiet svg{width:15px;height:15px}.quiet.danger{color:var(--accent)}
+.detail details.source-facts{border-top:1px solid var(--edge);margin:0}.source-facts>summary{min-height:46px;display:flex;align-items:center;font-size:14px;font-weight:600;cursor:pointer}.source-facts>summary::marker{content:''}.source-facts>summary::-webkit-details-marker{display:none}.source-facts[open]{padding-bottom:10px}
+
+#dir-dialog h2{margin:0 0 6px}.dir-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 6px}
+
+.personal-rating legend{white-space:nowrap}.rating-star{width:36px}

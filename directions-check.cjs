@@ -48,6 +48,22 @@ const seed = { version: 1, custom: [{ id: 'local-roast', name: 'Glass City Roast
     assert.equal(await href(android), 'geo:' + LL + '?q=' + LL + '(Glass%20City%20Roasters%20%20West%20)');
     console.log('ok  Android automatic hands the place to the phone\'s own maps choice');
 
+    // first tap on a device asks which app, then remembers
+    const fresh = await open();
+    await fresh.locator('#sheet a[data-dir]').first().click();
+    await fresh.locator('#dir-dialog[open]').waitFor();
+    assert.equal(await fresh.evaluate(() => localStorage.getItem('orient-directions-app')), null, 'nothing is chosen until the person chooses');
+    const popup = fresh.context().waitForEvent('page');
+    await fresh.getByRole('button', { name: 'Apple Maps', exact: true }).click();
+    assert.match((await popup).url(), /^https:\/\/maps\.apple\.com\/.*41\.6535(,|%2C)-83\.5395/);
+    assert.equal(await fresh.evaluate(() => OrientDirections.get()), 'apple');
+    assert.match(await href(fresh), /maps\.apple\.com/);
+    const again = fresh.context().waitForEvent('page');
+    await fresh.locator('#sheet a[data-dir]').first().click();
+    assert.match((await again).url(), /maps\.apple\.com/);
+    assert.equal(await fresh.locator('#dir-dialog[open]').count(), 0, 'it only asks once');
+    console.log('ok  the first tap asks which maps app, opens it, and does not ask again');
+
     // walking mode for circuits
     assert.match(await desk.evaluate(() => OrientDirections.url([-83.5, 41.6], 'x', 'walking', 'apple')), /dirflg=w$/);
     assert.match(await desk.evaluate(() => OrientDirections.url([-83.5, 41.6], 'x', 'walking', 'google')), /travelmode=walking$/);

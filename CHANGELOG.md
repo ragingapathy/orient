@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-11 — A simpler place card, and Directions that ask once
+
+- **Simpler card.** Closed, the card is the name, the save and visit buttons, and one line about visits. Opened, it adds the rating, the address, hours and phone (their captions are gone; the icons say it), one **Directions** button, and the folded rows. The “Saved on your private map” and “Discovered nearby” lines are gone (the bookmark already says it), the “Less detail” bar moved to the foot, **Edit place** and **Remove** are quiet text buttons instead of two big bars, and the fine print is left to Your field kit.
+- **Directions ask once.** The first time you tap Directions on a device, Orient asks which maps app you use (Apple Maps, Google Maps, Waze, OpenStreetMap), opens it, and remembers; it can be changed in Your field kit. Android skips the question, because a `geo:` link lets the phone use its own default.
+- “Been here 2 times · last Today” now reads “last today”. Rating label no longer wraps on a phone.
+
 ## 2026-10-10 — Bring your Google Maps places with you
 
 - **Import from Google** in Your field kit reads a Google Takeout export in the browser: saved lists (CSV), `Saved Places.json`, and optionally Timeline visits. It shows each list and what it found, and adds the places you tick as saved places, with the note and a guessed category. Places already on your map are skipped, so a second import adds nothing.

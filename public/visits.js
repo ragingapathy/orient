@@ -105,10 +105,11 @@ window.OrientVisits=(()=>{
     const d=new Date(t),today=new Date(),y=new Date(Date.now()-DAY);
     return localDay(d)===localDay(today)?'Today':localDay(d)===localDay(y)?'Yesterday':d.toLocaleDateString(undefined,{month:'short',day:'numeric',...(d.getFullYear()===today.getFullYear()?{}:{year:'numeric'})});
   }
+  const inline=s=>/^(Today|Yesterday)$/.test(s)?s.toLowerCase():s;
   function line(id){
     const n=count(id);if(!n)return '';
     const t=lastTime(id);
-    return `Been here ${plural(n,'time')}${t!==null?' · last '+dayLabel(t):''}`;
+    return `Been here ${plural(n,'time')}${t!==null?' · last '+inline(dayLabel(t)):''}`;
   }
   const rowLabel=id=>{const n=count(id);return n>1?`Visited ${n}×`:'Visited';};
 
@@ -145,7 +146,7 @@ window.OrientVisits=(()=>{
     const label=WINDOWS.find(w=>w[0]===days)[1].toLowerCase();
     return `<section class="visit-summary" aria-label="Where you go"><div class="visit-summary-head"><h3>Where you go</h3><div class="visit-chips" role="group" aria-label="Time range">${WINDOWS.map(([d,l])=>`<button type="button" class="chip${d===days?' on':''}" data-action="visits-window" data-days="${d}" aria-pressed="${d===days}">${l}</button>`).join('')}</div></div>`
       +`<p class="fine">${rows.length?`${plural(visits,'visit')} to ${plural(rows.length,'place')}${days?` in the last ${label}`:' so far'}.`:`No visits in the last ${label}.`}</p>`
-      +rows.slice(0,5).map(r=>`<button class="row" data-place="${esc(r.id)}"><span class="tile">${icon(r.p.icon||'map-pin')}</span><span class="row-copy"><strong>${esc(r.p.name)}</strong><small>${plural(r.n,'visit')}${days&&r.all!==r.n?` · ${r.all} in all`:''}${r.last!==null?' · last '+esc(dayLabel(r.last)):''}</small></span>${icon('chevron-right')}</button>`).join('')
+      +rows.slice(0,5).map(r=>`<button class="row" data-place="${esc(r.id)}"><span class="tile">${icon(r.p.icon||'map-pin')}</span><span class="row-copy"><strong>${esc(r.p.name)}</strong><small>${plural(r.n,'visit')}${days&&r.all!==r.n?` · ${r.all} in all`:''}${r.last!==null?' · last '+esc(inline(dayLabel(r.last))):''}</small></span>${icon('chevron-right')}</button>`).join('')
       +`<button type="button" class="button full" data-action="visits-heat" aria-pressed="${heat}">${heat?'Hide the heat map':'Show the heat map on the map'}</button></section>`;
   }
   // Points for the map's heat layer: one per place, weighted by visits in the chosen range.
