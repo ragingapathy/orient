@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-10 — Bring your Google Maps places with you
+
+- **Import from Google** in Your field kit reads a Google Takeout export in the browser: saved lists (CSV), `Saved Places.json`, and optionally Timeline visits. It shows each list and what it found, and adds the places you tick as saved places, with the note and a guessed category. Places already on your map are skipped, so a second import adds nothing.
+- Saved-list exports often carry only a name and a link. **Look up by name** (up to 80 at a time, one per second) sends only the name and your home city to the local reader and lists the matches for you to check; matches more than 60 miles from your map stay out unless you include them.
+- **Timeline** visits are added as dated visits only for places already on your map (within about 75 metres, one per place per day); the rest of the file is discarded unread. Files over 200 MB are refused.
+- New checks: `takeout-parse-check.cjs` (offline, 6 cases) and `takeout-check.cjs` (browser, with made-up files). Not yet tried on a real export.
+
 ## 2026-10-10 — Directions in your maps app, and a service that stays up
 
 - **Directions** now opens the maps app you choose instead of always Google Maps: Apple Maps, Google Maps, Waze or OpenStreetMap. A web page can’t see your default app, so there is a **Directions open in** setting in Your field kit, kept on that device. *Automatic* picks Apple Maps on iPhone and iPad, a plain `geo:` link on Android (so the phone uses its own default), and Google Maps elsewhere. Circuits use the same choice, with walking or driving routes where the app supports it.

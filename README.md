@@ -11,6 +11,7 @@ Orient is a private map that lives in your browser.
 - Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS, no automatic check-in, and no account.
 - Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
 - Keep your own notes, ratings, and categories for each place.
+- Bring in your own Google Maps data from a Google Takeout export: saved lists (the CSV files in the Saved folder), Saved Places, and optionally Timeline visits. See Importing from Google below.
 - Open directions in the maps app you prefer: Apple Maps, Google Maps, Waze or OpenStreetMap, or let Orient choose on a phone. The choice is kept on each device.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
@@ -47,11 +48,20 @@ A browser's storage belongs to one address, so a laptop at `127.0.0.1` and a pho
 - The computer has to be on for other devices to update. Set `ORIENT_SYNC=off` to turn the sync endpoints off, and `ORIENT_DATA_DIR` to keep the copy elsewhere.
 - Whoever holds the key can read and change your map, so keep it to yourself.
 
+## Importing from Google
+
+Your places are yours to take out of Google Maps. Request a [Google Takeout](https://takeout.google.com/) export of **Saved** (your lists as CSV files) and **Maps (your places)** (`Saved Places.json`). In Orient, open the settings button, choose **Import from Google**, and pick the files; you can select several at once. Orient reads them in the browser, shows what it found, and adds the places you tick as saved places. Duplicates of places already on your map are skipped, so importing twice is safe.
+
+- Many saved-list exports have a name and a Google link but no coordinates. **Look up by name** sends only the place name to the local address reader, which uses Photon, and offers the matches for you to check. A name can match the wrong city, so matches more than 60 miles from your map are left out unless you include them.
+- **Timeline** is optional. If you pick a Timeline file, Orient adds a dated visit only for places that are already on your map (within about 75 metres), one per place per day, and discards everything else in the file unread. This feeds the visit counts and heat map. Files over 200 MB are refused; export a shorter period instead.
+- The readers follow Google's documented export shapes. If a file isn't recognised, the dialog says so.
+
 ## What leaves your computer
 
 Only things you ask for:
 
 - **Map tiles** come from [OpenFreeMap](https://openfreemap.org/), so that service sees the area you're looking at.
+- **Importing from Google** reads your files in the browser. Only place names you choose to look up leave it, as below.
 - **Address and place lookups** go through the local server to the [U.S. Census geocoder](https://geocoding.geo.census.gov/) (street addresses) or [Photon](https://github.com/komoot/photon) (business names), after you press the button. Typing alone sends nothing.
 - **Nearby places** use [Overpass](https://overpass-api.de/) (OpenStreetMap data), with the server limiting how often it asks.
 - **Reading a website** fetches only the address you chose, checks `robots.txt`, refuses private and local addresses, and shows you what it found before anything is saved.

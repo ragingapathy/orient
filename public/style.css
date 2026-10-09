@@ -81,3 +81,6 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 .sync-pair{margin-top:10px}.sync-pair>input{margin-top:6px}.sync-box .settings-actions{margin-top:10px}
 
 .toggle-row select{font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--edge);border-radius:10px;background:var(--surface);color:inherit;max-width:55%}
+
+#takeout-dialog{overflow-y:auto}#takeout-dialog h3{font-size:14px;margin:16px 0 6px}#takeout-dialog .toggle-row small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:2px}
+#takeout-dialog .settings-actions{margin-top:14px}#takeout-dialog .fold{margin-top:10px}#takeout-dialog .fold .toggle-row{padding:8px 0}

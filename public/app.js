@@ -393,6 +393,7 @@
   OrientCalendar.init(privatePlaceAPI);
   OrientWebsite.init({...privatePlaceAPI,toast});
   OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:raw=>{store=cleanData(raw);try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
+  OrientTakeout.init({store:()=>store,places:allPlaces,origin:()=>state.origin,icon:categoryIcon,save,render,keepOsm,addVisit:(id,day)=>OrientVisits.add(id,day),visitDays:id=>OrientVisits.entries(id)});
   OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
