@@ -200,18 +200,59 @@
     $('#fog-toggle').checked=store.fog;$('#demo-toggle').checked=store.showDemo;
     requestAnimationFrame(()=>$('.world').style.setProperty('--sheet-height',`${$('#sheet').offsetHeight+8}px`));
   }
-  let editId=null, locationReady=false, lookupResults=[], lookupController=null;
+  let editId=null, locationReady=false, lookupResults=[], lookupController=null, siteRead=null, siteController=null;
   function locationStatus(message){$('#lookup-status').textContent=message;}
   function cancelLookup(){lookupController?.abort();lookupController=null;const b=document.querySelector('[data-action="lookup"]');b.disabled=false;b.innerHTML=icon('search')+'Find address';icons();}
   function addPlace(existing=null){
     cancelLookup();
     refreshCategoryOptions();const form=$('#add-form');form.reset();form.elements.kind.value='Other';editId=existing?.id||null;locationReady=!!existing;lookupResults=[];
-    $('#lookup-results').innerHTML='';$('#coordinate-details').open=false;
+    $('#lookup-results').innerHTML='';$('#coordinate-details').open=false;resetSite();$('#site-start').hidden=!!existing;
     $('#add-title').textContent=existing?'Edit your place':'Put a place on your map';
     form.querySelector('[type=submit]').textContent=existing?'Save changes':'Add to My Map';
     if(existing){for(const key of ['name','kind','address','note'])form.elements[key].value=(key==='note'?store.details?.[existing.id]?.note??existing.note:existing[key])||'';form.elements.lat.value=existing.coordinates[1];form.elements.lng.value=existing.coordinates[0];}
     locationStatus(existing?'Current pin kept. Look up an address to move it.':'Choose a match before saving.');
     $('#add-dialog').showModal();
+  }
+  // ── Start a place from a website address ──────────────────────────────────────
+  // The address is read only after the button is pressed. It fills in what the page publishes (name, address, category, phone, hours,
+  // social links, map location) for review; the website address itself is kept with the place whether or not it was read.
+  const siteStatus=message=>{$('#site-status').textContent=message;};
+  function kindFromTypes(types){const t=(types||[]).join(' ');const label=/Library/.test(t)?'Library':/Restaurant|FoodEstablishment|Cafe|BarOrPub|Bakery|Brewery|Winery/.test(t)?'Food & drink':/Museum/.test(t)?'Museum':/Store|Shop/.test(t)?'Shop':/Church|PlaceOfWorship/.test(t)?'Place of worship':'';return label?canonicalCategory(label):'';}
+  function resetSite(){siteController?.abort();siteController=null;siteRead=null;const found=$('#site-found');if(found)found.innerHTML='';const s=$('#site-status');if(s)s.textContent='';const b=document.querySelector('[data-action="read-site"]');if(b){b.disabled=false;b.innerHTML=icon('search')+'Read website';icons();}}
+  async function readSite(){
+    const form=$('#add-form'),url=OrientWebsite.normalize(form.elements.website.value);
+    if(!url){siteStatus('Enter a valid website address (http or https).');return;}
+    siteController?.abort();siteController=new AbortController();const mine=siteController;
+    const b=document.querySelector('[data-action="read-site"]');b.disabled=true;b.textContent='Reading website…';
+    siteStatus('Reading public pages. Only the website address is sent.');$('#site-found').innerHTML='';siteRead=null;
+    try{
+      const result=await OrientWebsite.read(url,mine.signal);if(mine!==siteController)return;
+      siteRead={url,result};applySite(result);
+    }catch(e){if(e.name!=='AbortError'&&mine===siteController)siteStatus(e.message+' You can still add the place; its website address will be kept.');}
+    finally{if(mine===siteController){b.disabled=false;b.innerHTML=icon('search')+'Read website';icons();}}
+  }
+  function applySite(r){
+    const form=$('#add-form'),place=r.place||{},said=[];
+    const name=place.names?.[0]?.value;
+    if(name&&!form.elements.name.value.trim()){form.elements.name.value=name.slice(0,100);said.push('name');}
+    const addr=(r.facts||[]).find(f=>f.key==='address');
+    if(addr&&!form.elements.address.value.trim()){form.elements.address.value=addr.value.slice(0,250);locationReady=false;lookupResults=[];$('#lookup-results').innerHTML='';said.push('address');locationStatus('Address filled from the website. Press Find address to choose the matching location.');}
+    const kind=kindFromTypes(place.types);
+    if(kind&&(!form.elements.kind.value.trim()||form.elements.kind.value==='Other')){form.elements.kind.value=kind;said.push('category');}
+    const labels={phone:'Phone',hours:'Published hours',address:'Published address'};
+    const rows=(r.facts||[]).map((f,i)=>({f,i})).filter(({f})=>['phone','hours','social','address'].includes(f.key)).map(({f,i})=>`<label class="website-choice"><input type="checkbox" data-site-fact="${i}" checked><span><strong>${escapeHTML(f.key==='social'?(OrientSocial.parse(f.value)?.label||'Social link'):labels[f.key])}</strong><span>${escapeHTML(f.value)}</span><small>${escapeHTML(f.method)}</small></span></label>`).join('');
+    const nEvents=(r.events||[]).length,nCals=(r.calendars||[]).length;
+    $('#site-found').innerHTML=
+      `<p class="fine">${said.length?'Filled in from the website: '+said.join(', ')+'. ':''}${name?'':'No name was found on the page, so enter one. '}${addr||place.coordinates?'':'No address was found on the page: enter one below, then press Find address. '}</p>`+
+      (place.coordinates?'<button type="button" class="button full" data-action="site-pin">Use the map location this website publishes</button>':'')+
+      (rows?'<p class="fine">Tick what to keep with this place. Nothing is saved until you press Add to My Map.</p>'+rows:'<p class="fine">No phone number, hours or social links were found.</p>')+
+      ((nEvents||nCals)?`<p class="fine">${nEvents?nEvents+' upcoming event'+(nEvents===1?'':'s'):'A calendar feed'} found. After adding the place, use Read a website on its card to import them.</p>`:'');
+    siteStatus(`Read ${(r.readPages||[]).length||1} page${(r.readPages||[]).length===1?'':'s'}. Check the details, then choose a location.`);
+  }
+  function attachSite(id,fields){
+    const typed=OrientWebsite.normalize(String(fields.get('website')||''));if(!typed)return;
+    const chosen=siteRead?[...document.querySelectorAll('#site-found [data-site-fact]:checked')].map(b=>siteRead.result.facts[+b.dataset.siteFact]).filter(Boolean):[];
+    OrientWebsite.attach(id,typed,chosen,siteRead?.result.retrievedAt||'');
   }
   async function findAddress(){
     const query=$('#add-form').elements.address.value.trim();
@@ -265,6 +306,8 @@
       case 'default-category':delete store.details?.[state.selected]?.category;save();$('#category-dialog').close();render();break;
       case 'edit-place':addPlace(placeById(state.selected));break;
       case 'lookup':findAddress();break;
+      case 'read-site':readSite();break;
+      case 'site-pin':{const c=siteRead?.result?.place?.coordinates;if(!c)break;cancelLookup();const form=$('#add-form');form.elements.lat.value=c[1];form.elements.lng.value=c[0];locationReady=true;lookupResults=[];$('#lookup-results').innerHTML='';locationStatus('Location selected: the point this website publishes (its own map data, not verified).');map?.easeTo({center:c,zoom:16,duration:300});break;}
       case 'map-center':{cancelLookup();const center=map?.getCenter();if(!center){locationStatus('Map unavailable. Enter coordinates instead.');break;}const form=$('#add-form');form.elements.lat.value=center.lat.toFixed(6);form.elements.lng.value=center.lng.toFixed(6);locationReady=true;$('#lookup-results').innerHTML='';locationStatus('Using the current map center. No GPS location was requested.');break;}
       case 'close-add':cancelLookup();$('#add-dialog').close();break;
       case 'settings':$('#settings-dialog').showModal();break;
@@ -279,16 +322,19 @@
   $('#search').addEventListener('input',e=>{state.query=e.target.value.trim().toLowerCase();state.list=!!state.query;render();});
   $('#add-form').elements.address.addEventListener('input',()=>{cancelLookup();locationReady=false;lookupResults=[];$('#lookup-results').innerHTML='';locationStatus('Address changed. Press Find address and choose a match.');});
   $('#add-form').elements.address.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findAddress();}});
+  $('#add-form').elements.website.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();readSite();}});
+  $('#add-form').elements.website.addEventListener('input',()=>{siteController?.abort();siteController=null;siteRead=null;$('#site-found').innerHTML='';siteStatus('');const b=document.querySelector('[data-action="read-site"]');b.disabled=false;b.innerHTML=icon('search')+'Read website';icons();});
   for(const key of ['lat','lng'])$('#add-form').elements[key].addEventListener('input',()=>{cancelLookup();const form=$('#add-form');locationReady=!!form.elements.lat.value.trim()&&!!form.elements.lng.value.trim();locationStatus('Using manually entered coordinates.');});
   $('#add-dialog').addEventListener('cancel',cancelLookup);
   $('#add-form').addEventListener('submit',e=>{
     e.preventDefault();const fields=new FormData(e.target);const name=String(fields.get('name')).trim();const lat=Number(fields.get('lat')),lng=Number(fields.get('lng'));
+    const rawSite=String(fields.get('website')||'').trim();if(!editId&&rawSite&&!OrientWebsite.normalize(rawSite)){siteStatus('That website address is not valid. Correct it or clear the box.');$('#site-status').scrollIntoView({block:'nearest'});return;}
     if(!locationReady){locationStatus('Find an address and choose a match, or explicitly use the map center or coordinates.');$('#lookup-status').scrollIntoView({block:'nearest'});return;}
     if(!name||!String(fields.get('lat')).trim()||!String(fields.get('lng')).trim()||!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>85||Math.abs(lng)>180){locationStatus('Enter a name and a valid location.');return;}
     const editing=!!editId;
     const kind=canonicalCategory(fields.get('kind'))||'Other';const p={id:editId||`local-${crypto.randomUUID?.()||Date.now().toString(36)}`,name:name.slice(0,100),kind,icon:categoryIcon(kind),coordinates:[lng,lat],address:String(fields.get('address')).slice(0,250),note:String(fields.get('note')).slice(0,800),demo:false};
     if(editing&&store.details?.[editId]){store.details[editId].note=p.note;delete store.details[editId].category;}
-    if(editing){store.custom=store.custom.map(old=>old.id===editId?p:old);markers.get(editId)?.setLngLat(p.coordinates);}else{store.custom.push(p);store.saved.push(p.id);}
+    if(editing){store.custom=store.custom.map(old=>old.id===editId?p:old);markers.get(editId)?.setLngLat(p.coordinates);}else{store.custom.push(p);store.saved.push(p.id);attachSite(p.id,fields);}
     cancelLookup();save();$('#add-dialog').close();state.tab='My Map';state.query='';$('#search').value='';state.filter='Everything';selectPlace(p.id,{expand:true});toast(editing?'Place updated. Your saved and visited marks are kept.':'A new place on your map. Saved only in this browser.');
   });
   $('#fog-toggle').addEventListener('change',e=>{store.fog=e.target.checked;save();render();});

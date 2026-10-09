@@ -14,7 +14,7 @@
   <script defer src="./discovery.js"></script>
   <script defer src="./calendar-dates.js"></script>
   <script defer src="./social.js"></script>
-  <script defer src="./website.js"></script>
+  <script defer src="./website.js?v=20261009-site"></script>
   <script defer src="./calendar.js"></script>
   <script defer src="./fog.js"></script>
   <script defer src="./today.js"></script>
@@ -24,7 +24,7 @@
   <script defer src="./drawer.js?v=20261008-circuits2"></script>
   <script defer src="./catalog.local.js"></script>
   <script defer src="./catalog.sample.js"></script>
-  <script defer src="./app.js?v=20261009-catalog"></script>
+  <script defer src="./app.js?v=20261009-site2"></script>
 </head>
 <body>
 <main id="app">
@@ -49,7 +49,7 @@
   </nav>
 </main>
 <datalist id="place-categories"></datalist><dialog id="category-dialog" aria-label="Your category"></dialog>
-<dialog id="add-dialog" aria-labelledby="add-title"><form id="add-form"><div class="panel-heading"><h2 id="add-title">Put a place on your map</h2><button type="button" class="icon-button" data-action="close-add" aria-label="Close"><i data-lucide="x"></i></button></div><p class="sub">Search an address or a business name and city, then choose the matching location.</p><button type="button" class="button full" data-neighbor-action="add">Remember a neighbor instead →</button><label>Place name<input name="name" required maxlength="100" placeholder="A comic shop, a library, a favorite corner…"></label><label>Category<input name="kind" list="place-categories" maxlength="48" required autocomplete="off" placeholder="Choose or create a category"></label><p class="fine">Choose an existing category or type your own.</p><label>Address or business + city<input name="address" maxlength="250" placeholder="Street address, Toledo, OH" autocomplete="off"></label>
+<dialog id="add-dialog" aria-labelledby="add-title"><form id="add-form"><div class="panel-heading"><h2 id="add-title">Put a place on your map</h2><button type="button" class="icon-button" data-action="close-add" aria-label="Close"><i data-lucide="x"></i></button></div><p class="sub">Search an address or a business name and city, then choose the matching location.</p><button type="button" class="button full" data-neighbor-action="add">Remember a neighbor instead →</button><div id="site-start" class="site-start"><label>Start from a website <span class="fine">(optional)</span><input name="website" type="text" inputmode="url" maxlength="2048" placeholder="Paste the place’s website address" autocomplete="off"></label><button type="button" class="button full" data-action="read-site"><i data-lucide="search"></i>Read website</button><div id="site-status" class="fine" role="status" aria-live="polite"></div><div id="site-found"></div></div><label>Place name<input name="name" required maxlength="100" placeholder="A comic shop, a library, a favorite corner…"></label><label>Category<input name="kind" list="place-categories" maxlength="48" required autocomplete="off" placeholder="Choose or create a category"></label><p class="fine">Choose an existing category or type your own.</p><label>Address or business + city<input name="address" maxlength="250" placeholder="Street address, Toledo, OH" autocomplete="off"></label>
 <button type="button" class="button full lookup-button" data-action="lookup"><i data-lucide="search"></i>Find address</button>
 <div id="lookup-status" class="fine" role="status" aria-live="polite">Choose a match before saving.</div>
 <div id="lookup-results" class="lookup-results"></div>

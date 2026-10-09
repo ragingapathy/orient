@@ -9,6 +9,7 @@ A personal tool for getting to know a city. I'm building it for Toledo, Ohio, an
 Orient is a private map that lives in your browser.
 
 - Save places, and mark a visit deliberately. Nothing is tracked, and there is no GPS, no automatic check-in, and no account.
+- Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
 - Keep your own notes, ratings, and categories for each place.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.

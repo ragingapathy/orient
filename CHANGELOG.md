@@ -1,5 +1,17 @@
 # Orient Changelog
 
+## 2026-10-09 — Start a place from its website
+
+- Add **Start from a website** to the top of the add-place dialog. Paste a website address (a bare domain works) and press **Read website**; nothing is read while typing.
+- Fill the place name, address and category from what the page publishes, and offer its phone number, hours, published address and social links to keep. Details arrive ticked for review; only the ticked ones are saved, with their source and read date. Nothing is saved until Add to My Map.
+- When the page publishes its own map location, offer **Use the map location this website publishes** as an alternative to an address lookup. The address is never looked up automatically: Find address still needs a button press and a chosen match.
+- Keep the website address with the new place even when it was never read, or when reading was blocked. A website address that is not valid blocks saving with a plain message.
+- Name choice: structured-data name first, then the site name, then a cleaned page title (filler such as Home and Welcome removed). A name that is only the site's domain ranks last. Suggest a category from the page's business type when the category is still Other.
+- Reader fix: ask for robots.txt as plain text. Some servers (the Toledo Zoo's and Metroparks' among them) answered 406 to the page-oriented request, which was reported as being unable to check the site's rules. Page requests now also accept any content type as a fallback.
+- Offline and browser checks cover page names and titles, the published location and its range checks, domain-like names, explicit reading, prefilled fields, kept and unticked details, a published pin, unread and blocked websites, invalid addresses, edit mode, and 320px layout. The earlier passing checks still pass.
+- Read live against the Toledo Zoo, Metroparks Toledo and Kava Culture sites: names, phone, hours, address and social links were found where the sites publish them. The Toledo Museum of Art returned HTTP 403 and one local shop's domain did not resolve. Event import still happens from the place card after the place exists.
+- Limits: only structured data and plain page metadata are read, so a site that publishes neither gives just a title; a page description is read but not yet kept. Restart the server to pick up the reader changes.
+
 ## 2026-10-08 — Personal circuits
 
 - Build named, reusable outings from two to twelve saved, visited, or personally added places. Add an intention, choose walking/driving, and reorder or remove stops.
