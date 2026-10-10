@@ -5,6 +5,9 @@
 - **Collections and the Add form** follow the shared dialog shell: icon tile, title, switches, cards. Codex’s separate `modal-system.css` and the supplied `gidgit.png` are retired in favour of `ui.css` and the pixel mascot (Gidgit is being reworked separately).
 - **Explore, My Map and the place card** use the same language: place rows as cards, My Map blocks as cards with tag chips, an orange saved tile and a green visited tile on the place card, facts as pills, folds as cards, a green gradient on the daily outing.
 - **Milestones and local lore** get an icon, a gradient balance tile, chip tabs and rounded progress bars.
+- **Dialog details:** form labels read the same everywhere, disclosures use one arrow, the weekday picker in a calendar entry is a row of chips, and the calendar-entry dialog has its icon.
+- **Filters, list filters and the neighbor card** are restyled; a brand-new My Map now leads with *Add your own place* before collections and circuits.
+- **Export for other apps:** Your data gains **GeoJSON**, **CSV** and **GPX** buttons, built on the device from the saved map (the neighbor guide is never included; spreadsheet formulas are defused). New check `export-open-check.cjs` (6 cases).
 - `ui-check.cjs` now has 13 cases and guards the panels, including a regression where the Create a collection button turned white on white.
 
 ## 2026-10-11 — One design language
