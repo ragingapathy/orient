@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-11 — Plain times, and a full-height phone screen
+
+- **Times read like people say them.** Calendar entries, the Today lines, the outing card and website findings showed 24-hour times (17:00–19:00). They now read 5:00–7:00 pm, and a 24-hour locale still sees 24-hour times.
+- **No strip below the app on a phone.** On some phones, and in the installed app, the screen came up short of the bottom edge and a sage strip of the page showed beneath the tab bar. The app is now pinned to all four edges, and anything behind it is the app's own colour.
+- New check `time-fit-check.cjs` (3 cases).
+
 ## 2026-10-11 — Crowded pins fold into one button
 
 - **Pin clustering.** Pins that would sit on top of each other (downtown, mostly) are drawn as one round button with a count. Tap it to zoom in and pull them apart. Places at exactly the same spot can't be separated by zooming, so tapping their button opens a small list of them instead; pick one to open it.

@@ -254,8 +254,19 @@ function expandAll(events, from, to) {
   return out.sort((x, y) => x.date.localeCompare(y.date) || (x.time || '').localeCompare(y.time || ''));
 }
 
+// "17:00" -> "5:00 pm" in a 12-hour locale, left as "17:00" in a 24-hour one. A range shares its am/pm: "5:00–7:00 pm".
+function clock(t) {
+  const m = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(t || '')); if (!m) return String(t || '');
+  const d = new Date(2000, 0, 1, Number(m[1]), Number(m[2]));
+  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }).replace(/\s?([AP])M$/i, (x, a) => ' ' + a.toLowerCase() + 'm');
+}
+function clockSpan(a, b) {
+  const x = clock(a); if (!b) return x; const y = clock(b), tail = /\s([ap]m)$/.exec(x);
+  return tail && y.endsWith(tail[0]) ? x.slice(0, -tail[0].length) + '–' + y : x + '–' + y;
+}
+
 const OrientDates = {
-  toNum, fromNum, addMinutes, minutesOf, validZone, wallOf, instantOf, toCityWall,
+  clock, clockSpan, toNum, fromNum, addMinutes, minutesOf, validZone, wallOf, instantOf, toCityWall,
   parseRule, expandRule, occurrences, parseIcs, expandAll, icsDate, durationMin, monthDays, WD,
 };
 
