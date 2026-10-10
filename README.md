@@ -36,7 +36,7 @@ A map can tell you where something is. A small observation can make it easier to
 
 In Orient, choose **Share this note** on a place, trim the part you want to contribute, and tick the consent box. Orient shows what will be shared in plain words, then opens GitHub’s own new-file page with the contribution filled in; you sign in as yourself and press **Propose new file** and **Create pull request**. No token and no account linking are needed. The original note stays private and unchanged. Each shared claim carries a type, observation date, source identity, and optional credit, and places are anchored by latitude and longitude, with no OSM identity requirement.
 
-Anyone can host a commons: [`commons-template/`](commons-template/README.md) is a repository you copy, with a check on every contribution and a snapshot that rebuilds when you merge.
+Anyone can host a commons: [`commons-template/`](commons-template/README.md) is a repository you copy, with a check on every contribution and a snapshot that rebuilds when you merge. The first one is [Toledo commons](https://github.com/ragingapathy/toledo-commons).
 
 Someone else can load that bundle, review individual claims, and decide what belongs on their map. Nearby coordinates suggest matches; the person importing chooses whether to link an existing place or create a new one. Shared observations sit in a compact fold with attribution, separate from private notes.
 

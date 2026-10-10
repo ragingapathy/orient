@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-11 — The Toledo commons is live
+
+- [ragingapathy/toledo-commons](https://github.com/ragingapathy/toledo-commons) is the first commons, made from the template, with its own reader-facing README and the maintainer notes in `MAINTAINING.md`.
+- The template’s workflows were run for real on GitHub, in a private scratch repository: a valid contribution passed its check; a pull request that edited the validator and added a private-map export failed with the two errors on the right files; merging rebuilt `snapshot.json`; and a retiring contribution drew the “would be replaced” warning, then showed as retired in the snapshot.
+- Workflows now use `actions/checkout@v7` and `actions/setup-node@v7` (v4 ran on a deprecated Node version). Setup instructions no longer ask maintainers to change the repository’s workflow permissions: the workflows declare what they need, and that was verified.
+
 ## 2026-10-11 — A template for hosting a commons
 
 - **`commons-template/`**: a repository to copy for the maintainer side of the place commons. A **Check contribution** workflow runs on every pull request that touches `contributions/` and fails anything that is not a valid, append-only public bundle. It posts a table of the place, a map link for the pin and the full observation, and warns about emails, phone numbers, likely references to a person, replaced observations and moved pins. A **Build snapshot** workflow rewrites `snapshot.json` when a contribution is merged, so followers need only one address.

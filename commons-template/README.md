@@ -12,7 +12,7 @@ You review and merge. Nothing is accepted automatically.
 ## Set it up
 
 1. Create a new **public** repository on GitHub (for example `toledo-commons`) and copy the contents of this folder into it, including the hidden `.github` folder. Push it to `main`. The repository needs at least one commit before anyone can contribute.
-2. In the repository's **Settings → Actions → General**, make sure workflows can run, and under *Workflow permissions* allow **Read and write permissions**, so the snapshot can be committed. (The workflow asks for `contents: write` and nothing else.)
+2. Check that GitHub Actions are enabled for the repository (**Settings → Actions → General**; they are by default). The workflows ask for the permissions they need (`contents: read` to check a pull request, `contents: write` to commit the snapshot), so there is nothing to switch on.
 3. If you protect `main` and require pull requests for every change, allow `github-actions[bot]` to bypass that rule, or the snapshot build cannot push. Otherwise leave protection off for the bot.
 4. Edit the first paragraph above so it says what *your* commons is for and where it is (a city, a neighbourhood, a theme).
 5. Tell people the repository name. In Orient, **Share this note** asks for it once.
