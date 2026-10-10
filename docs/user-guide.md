@@ -71,7 +71,7 @@ Only things you ask for:
 - **Nearby places** use [Overpass](https://overpass-api.de/) (OpenStreetMap data), with the server limiting how often it asks.
 - **Reading a website** fetches only the address you chose, checks `robots.txt`, refuses private and local addresses, and shows you what it found before anything is saved.
 
-Private map data syncs only to the computer running Orient and paired browsers. The separate Place commons flow can export a place-note excerpt you explicitly review and approve; it submits only after you press Publish contribution. Loading a GitHub commons snapshot requests the public file in your browser only when you ask. Neighbor entries and people fields never enter public bundles.
+Private map data syncs only to the computer running Orient and paired browsers. The separate Place commons flow can export a place-note excerpt you explicitly review and approve; it opens GitHub only after you press Open on GitHub to finish. Loading a GitHub commons snapshot requests the public file in your browser only when you ask. Neighbor entries and people fields never enter public bundles.
 
 ## How it's put together
 
@@ -116,4 +116,4 @@ Monthly service windows appear as derived entries in Calendar and Today (nearby 
 
 ## Place commons
 
-An explicit, reviewed place-note contribution and commons-bundle import/export loop is available in Field kit. See [commons/README.md](../commons/README.md) for the GitHub workflow, public format, and privacy boundaries. Publishing creates a GitHub pull request after explicit review and one-time connection; neighbor entries never participate.
+An explicit, reviewed place-note contribution and commons-bundle import/export loop is available in Field kit. See [commons/README.md](../commons/README.md) for the GitHub workflow, public format, and privacy boundaries. Sharing opens GitHub’s own new-file page with the reviewed file filled in, so no token is needed; publishing from Orient with a token is an optional extra. Neighbor entries never participate.

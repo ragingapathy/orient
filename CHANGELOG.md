@@ -1,5 +1,14 @@
 # Orient Changelog
 
+## 2026-10-11 — Share a note without a GitHub token
+
+- **No token needed.** After the preview, **Open on GitHub to finish** opens GitHub’s own new-file page with `contributions/<hash>.json` filled in. You sign in as yourself and press Propose new file, then Create pull request; GitHub makes the fork. Orient never handles a GitHub credential on this route. The file name and content match what the token route creates, so the two never disagree.
+- **Two-field form.** Sharing now asks for the observation and a consent tick. Place name, map pin, type, date and commons identity are filled in and tucked under **Details**. The “Kind” list uses plain names (Getting in, Browsing, Seating & staying…).
+- **Plain-language preview.** What will be shared appears as a quote, place and date. The exact JSON is one tap away under **Show the file that will be shared**.
+- **Repository check.** The repository is checked with GitHub’s public API as you type (not found, private or archived are explained) and a pasted GitHub link is accepted. **Copy the file** is there for very long contributions, which do not fit in a link.
+- The token route remains, folded under **Other ways to share**, with Download.
+- New check `commons-open-check.cjs`; the commons UI checks follow the new layout. Not yet tried against the real GitHub page: that GitHub prefills the editor from the link is documented behaviour but unconfirmed here.
+
 ## Reviewed GitHub publishing
 
 - Replace the download-only contribution endpoint with Publish contribution: select a commons repository, connect GitHub once, review the public bundle, and submit a pull request from Orient.

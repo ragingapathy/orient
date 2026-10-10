@@ -34,7 +34,7 @@ A map can tell you where something is. A small observation can make it easier to
 >
 > “This stretch of the river is quiet.”
 
-In Orient, choose **Share this note** on a place, edit the part you want to contribute, and review the complete public bundle before pressing **Publish contribution**. Orient submits a GitHub pull request for maintainer review. The original note stays private and unchanged. Each shared claim carries a kind, observation date, source identity, and optional credit. Places are anchored by latitude and longitude, with no OSM identity requirement.
+In Orient, choose **Share this note** on a place, trim the part you want to contribute, and tick the consent box. Orient shows what will be shared in plain words, then opens GitHub’s own new-file page with the contribution filled in; you sign in as yourself and press **Propose new file** and **Create pull request**. No token and no account linking are needed. The original note stays private and unchanged. Each shared claim carries a type, observation date, source identity, and optional credit, and places are anchored by latitude and longitude, with no OSM identity requirement.
 
 Someone else can load that bundle, review individual claims, and decide what belongs on their map. Nearby coordinates suggest matches; the person importing chooses whether to link an existing place or create a new one. Shared observations sit in a compact fold with attribution, separate from private notes.
 
@@ -60,7 +60,7 @@ node server.cjs
 
 Open [localhost:4173](http://127.0.0.1:4173), choose your home city, and add a place you know or want to try. A fresh map does not load the author’s private Toledo catalog.
 
-For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. Connect GitHub once, choose the destination commons repository, and press **Publish contribution**. Orient submits the pull request and shows its link. Downloading a file remains an optional fallback.
+For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. Enter the destination commons repository once (a pasted GitHub link works) and press **Open on GitHub to finish**. **Copy the file** and **Download the file** are alternatives, and publishing straight from Orient with a GitHub token remains under **Other ways to share**.
 
 Docker, phone pairing, backups, Google Maps imports, local AI setup, and the fuller feature reference are in the [user guide](docs/user-guide.md). Development history is in the [changelog](CHANGELOG.md).
 
