@@ -73,7 +73,8 @@ window.OrientWeather = (() => {
   }
   const outlook = () => {
     if (!fc) return '';
-    const h = fc.hourly, i = nowIndex();
+    const h = fc.hourly, i = nowIndex(), ck = cond(fc.current.weather_code)[3];
+    if (ck === 'rain' || ck === 'snow' || ck === 'storm') return (ck === 'snow' ? 'Snow' : ck === 'storm' ? 'Storms' : 'Rain') + ' right now';
     for (let k = 0; k < 12; k++) {
       if ((h.precipitation_probability[i + k] || 0) >= 50) { const kind = cond(h.weather_code[i + k])[3], what = kind === 'snow' ? 'Snow' : kind === 'storm' ? 'Storms' : 'Rain'; return k === 0 ? what + ' likely now' : what + ' likely around ' + hour(h.time[i + k]); }
     }
@@ -92,7 +93,41 @@ window.OrientWeather = (() => {
     strip.setAttribute('aria-label', 'Weather: ' + temp(c.temperature_2m) + ', ' + cond(c.weather_code)[0].toLowerCase() + '. Open the weather report.');
     heading.after(strip); paint();
   }
-  function everywhere() { setChip(); applyFx(); dressToday(); if (dialog && dialog.open) renderReport(); }
+  // A small, unit-free reading of the weather for recommendations: how it feels to be outside right now.
+  function snapshot() {
+    if (!fc || !prefs().show) return null;
+    const c = fc.current, k = cond(c.weather_code), h = fc.hourly, i = nowIndex();
+    let soon = 0; for (let j = 1; j <= 3; j++) soon = Math.max(soon, h.precipitation_probability[i + j] || 0);
+    const sev = alerts.find(a => a.severity === 'Severe' || a.severity === 'Extreme');
+    return { kind: k[3], level: k[4], label: k[0], temp: c.temperature_2m, feels: c.apparent_temperature, wind: c.wind_speed_10m, day: !!c.is_day, rainSoon: soon >= 50 && !['rain', 'snow', 'storm'].includes(k[3]), severe: sev ? sev.event : '' };
+  }
+  // mood: rough (better indoors), iffy (keep it short and close), lovely (a good time to be outside), fine (no opinion).
+  function judge() {
+    const s = snapshot(); if (!s) return null;
+    const out = (mood, text, hard = false) => ({ mood, text, hard, label: s.label, temp: s.temp });
+    if (s.severe) return out('rough', s.severe + ' is in effect: best to stay inside.', true);
+    if (s.kind === 'storm') return out('rough', 'Thunderstorms around: somewhere indoors is the better call.');
+    if (s.kind === 'rain') return s.level >= 2 ? out('rough', 'It’s raining: somewhere indoors keeps you dry.') : out('iffy', 'Light rain: fine with a jacket, and better close by.');
+    if (s.kind === 'snow') return s.level >= 2 ? out('rough', 'It’s snowing: dress warm, or choose somewhere indoors.') : out('iffy', 'A little snow is falling: dress warm and keep it close.');
+    if (s.feels <= -8) return out('rough', 'It feels like ' + temp(s.feels) + ': dress warm, or choose somewhere indoors.');
+    if (s.feels >= 33) return out('rough', 'It feels like ' + temp(s.feels) + ': somewhere with shade or air conditioning is kinder.');
+    if (s.wind >= 45) return out('rough', 'It’s very windy out: somewhere indoors is easier today.');
+    if (s.kind === 'fog') return out('iffy', 'It’s foggy: take it slow and keep it close.');
+    if (s.rainSoon) return out('iffy', 'Rain is likely within a few hours: keep it short or close.');
+    if (s.day && (s.kind === 'none' || (s.kind === 'clouds' && s.level <= 1)) && s.feels >= 10 && s.feels <= 27) return out('lovely', 'It’s ' + temp(s.temp) + ' and ' + s.label.toLowerCase() + ': a nice time to be outside.');
+    return out('fine', '');
+  }
+  let lastMood = null, soon = 0;
+  // The app may still be starting up when a cached forecast arrives, so drawing again waits a moment and skips an open dialog.
+  // It also never redraws under a finger: a drag on the briefing drawer, say, must not be interrupted.
+  let pressed = false; document.addEventListener('pointerdown', () => { pressed = true; }, true); ['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, () => { pressed = false; }, true));
+  function drawSoon() { clearTimeout(soon); soon = setTimeout(() => { if (pressed || document.querySelector('dialog[open]')) return drawSoon(); try { api.render(); } catch { /* the next change draws it */ } }, 250); }
+  function everywhere() {
+    setChip(); applyFx(); dressToday(); if (dialog && dialog.open) renderReport();
+    // Today and "Get me out" lean on the weather; when it first arrives or its mood changes, draw them again.
+    const j = judge(), sig = j ? j.mood + '|' + j.text : '';
+    if (sig !== lastMood) { const first = lastMood === null; lastMood = sig; if ((!first || sig) && api.render) drawSoon(); }
+  }
 
   async function refresh(force = false) {
     if (!api) return;
@@ -261,5 +296,5 @@ window.OrientWeather = (() => {
     clearInterval(timer); timer = setInterval(() => { if (!document.hidden) refresh(); }, FRESH);
     refresh();
   }
-  return { init, refresh, open, summarize, cond, state: () => ({ fc, alerts, units: units() }) };
+  return { init, refresh, open, summarize, cond, snapshot, judge, state: () => ({ fc, alerts, units: units() }) };
 })();

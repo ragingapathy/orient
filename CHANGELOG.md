@@ -7,6 +7,9 @@
 - **The map has weather.** Gentle rain, snow, fog, drifting cloud shade and a soft, slow flash of lightning drift over the map, matching the real conditions. It never takes a tap, stops entirely under reduced motion, and can be switched off. A preview in the report shows every kind on a sunny day.
 - **Today** gets a one-line weather summary with the outlook ("Rain likely around 3 pm") that opens the report.
 - **Privacy:** the only thing sent is the area's position rounded to about 10 km, to Open-Meteo (forecast and history, no key) and, in the US, the National Weather Service (alerts). Nothing from your map is ever included. Switch Weather off in the field kit and no request is made. Units follow the area (°F and mph in the US) and can be flipped in the report.
+- **Weather shapes the suggestions.** "Get me out for a bit" moves outdoor places down in rain, snow, storms, extreme heat or cold and strong wind, brings indoor ones up (with a short note on each card saying why), favours parks on a lovely day, and never suggests going outside during a severe or extreme NWS alert. Today's "Still on your list" leans the same way. It only reorders: nothing is hidden except outdoors during a severe alert. With Weather off, nothing changes.
+- A coffee shop now counts as somewhere to pause rather than to browse in outing suggestions.
+- New check `weather-recs-check.cjs` (6 cases); mocks are shared in `weather-mock.cjs`.
 - New check `weather-check.cjs` (13 cases, all answered by mocks) and shared files `weather.js`, `weather-fx.js`, `weather.css`.
 
 ## 2026-10-11 — The panels join in
