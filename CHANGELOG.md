@@ -4,6 +4,7 @@
 
 - **Prefill.** When the home city is within 60 miles of Toledo, **Share this note** fills in `ragingapathy/toledo-commons` as the destination (a destination you chose before still wins), and **Place commons** fills in the Toledo snapshot address to follow. Elsewhere nothing is filled in.
 - **Project stats.** `repo-stats.cjs` records GitHub’s clone and view counts, stars and forks for the project’s repositories into `data/repo-stats.json` (GitHub keeps only 14 days, so the archive is what builds history). Your field kit shows them as **Project stats**, only on the computer that runs Orient: the endpoint refuses anything that looks like it came through the tunnel. These are GitHub’s numbers about repositories, not about people using the app, which still reports nothing.
+- `schedule-repo-stats.ps1` installs (or removes) a weekly Windows scheduled task for it: hidden, runs only while you are signed in, catches up after a missed run, and leaves its output in `data/repo-stats-last-run.txt`. Verified by running it through Task Scheduler. (A first attempt that hid the window with `conhost --headless` silently did nothing; a hidden PowerShell is what works.)
 - New check `repo-stats-check.cjs` (merge logic, a fake GitHub, the endpoint’s trust rules, and the panel). `commons-open-check.cjs` covers the prefill.
 
 ## 2026-10-11 — The Toledo commons is live
