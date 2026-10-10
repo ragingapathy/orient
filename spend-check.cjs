@@ -141,6 +141,25 @@ const withSpend = () => ({
       const form = await p.locator('.spend-add').evaluate(el => [...el.querySelectorAll('input,button')].every(e => e.getBoundingClientRect().right <= el.getBoundingClientRect().right + 1)); assert.equal(form, true);
       await ctx.close();
     });
+    await t('Same as last time writes the latest amount for today in one tap, and only shows once there is a last time', async () => {
+      const a = await open(base()); await card(a.p, 'local-a'); assert.equal(await a.p.locator('[data-spend-repeat]').count(), 0); await a.ctx.close();
+      const { ctx, p } = await open(withSpend()); await card(p, 'local-a');
+      assert.match(await p.locator('[data-spend-repeat]').innerText(), /Same as last time · [$]18[.]50/, 'the most recent day, not the biggest');
+      await p.click('[data-spend-repeat]');
+      const e = (await saved(p)).spend['local-a']; assert.equal(e.length, 3); const fresh = e.find(x => x.day === day(0)); assert.ok(fresh && fresh.cents === 1850);
+      assert.match(await p.locator('.spend-stats').innerText(), /[$]49[.]50/); assert.deepEqual(p.errors, []); await ctx.close();
+    });
+    await t('My Map shows six months side by side once two of them have spending, and not before', async () => {
+      const one = { ...base(), spend: { 'local-a': [{ id: 'sp-1', day: day(0), cents: 700 }] }, ownership: { 'local-a': 'local' } }; const a = await open(one); await myMap(a.p);
+      assert.equal(await a.p.locator('.spend-trend').count(), 0, 'one month is not a trend'); await a.ctx.close();
+      const many = { ...base(), spend: { 'local-a': [{ id: 'sp-1', day: day(0), cents: 700 }, { id: 'sp-2', day: day(33), cents: 3000 }, { id: 'sp-3', day: day(66), cents: 1500 }], 'local-b': [{ id: 'sp-4', day: day(34), cents: 1000 }] }, ownership: { 'local-a': 'local', 'local-b': 'chain' } };
+      const { ctx, p } = await open(many); await myMap(p); const tr = p.locator('.spend-trend'); await tr.waitFor();
+      assert.equal(await tr.locator('.spend-month').count(), 6); const label = await tr.getAttribute('aria-label'); assert.match(label, /^Month by month: /); assert.match(label, /[$]7/);
+      const months = await p.evaluate(() => OrientSpend.months().map(m => [m.local, m.chain, m.none, m.total])); assert.equal(months.length, 6); assert.equal(months.reduce((x, m) => x + m[3], 0), 6200, 'every purchase lands in a month');
+      assert.deepEqual(months[5].slice(0, 3), [700, 0, 0], 'the current month holds the local purchase from today and nothing else');
+      const heights = await tr.locator('.spend-col').evaluateAll(l => l.map(c => c.getBoundingClientRect().height)); assert.ok(Math.max(...heights) > 20 && heights.some(h => h === 0 || h < Math.max(...heights)), 'bars are scaled to the biggest month');
+      assert.equal(await p.evaluate(() => document.querySelector('.spend-summary').scrollWidth <= document.querySelector('.spend-summary').clientWidth + 1), true); assert.deepEqual(p.errors, []); await ctx.close();
+    });
     console.log('PASS: ' + n + ' spending cases');
   } finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exit(1); });

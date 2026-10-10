@@ -103,6 +103,7 @@ window.OrientSpend=(()=>{
   }
 
   // ── the place card ─────────────────────────────────────────────────────────
+  const lastEntry=id=>entries(id).map((e,i)=>({...e,i})).sort((a,b)=>b.day.localeCompare(a.day)||b.i-a.i)[0]||null;
   function section(p){
     const id=p.id,list=entries(id).map((e,i)=>({...e,i})).sort((a,b)=>b.day.localeCompare(a.day)||b.i-a.i),n=list.length,total=list.reduce((s,e)=>s+e.cents,0),o=ownerOf(id);
     const stats=n?`<div class="spend-stats"><div><b>${fmt(total)}</b><small>spent in all</small></div><div><b>${fmt(Math.round(total/n))}</b><small>average · ${plural(n,'time')}</small></div><div><b>${esc(dayLabel(list[0].day))}</b><small>last spent</small></div></div>`:'';
@@ -114,6 +115,7 @@ window.OrientSpend=(()=>{
         +`<button type="button" role="radio" aria-checked="${o==='local'}" data-spend-owner="local" class="${o==='local'?'on ':''}loc">${icon('store')}Local</button>`
         +`<button type="button" role="radio" aria-checked="${o==='chain'}" data-spend-owner="chain" class="${o==='chain'?'on ':''}chn${sug?' suggest':''}">${icon('building-2')}Chain</button></div>`
       +`<p class="fine spend-owner-note">${esc(ownerLine(id,p))}</p>`
+      +(n?`<button type="button" class="button full spend-repeat" data-spend-repeat>${icon('rotate-ccw')}Same as last time · ${esc(fmt(list[0].cents))}</button>`:'')
       +`<form class="spend-add" data-spend-form autocomplete="off"><label>Spent<span class="spend-money"><span aria-hidden="true">$</span><input name="spend-amount" inputmode="decimal" maxlength="10" placeholder="0.00" aria-label="Amount spent, in dollars"></span></label>`
         +`<label>On<input type="date" name="spend-day" value="${localDay(new Date())}" max="${localDay(new Date())}" min="2000-01-01"></label><button type="submit" class="button primary">Add</button></form>`
       +`<p class="fine" id="spend-status" role="status" aria-live="polite"></p>`
@@ -136,6 +138,22 @@ window.OrientSpend=(()=>{
     out.places.sort((a,b)=>b.cents-a.cents||a.p.name.localeCompare(b.p.name));
     return out;
   }
+  // The last six months, oldest first, each split by what you called the place. Only places still on your map count.
+  function months(now=Date.now()){
+    const byId=new Set(api.places().map(p=>p.id)),out=[],d=new Date(now);
+    for(let i=5;i>=0;i--){const m=new Date(d.getFullYear(),d.getMonth()-i,1);out.push({key:m.getFullYear()+'-'+pad(m.getMonth()+1),label:m.toLocaleDateString(undefined,{month:'short'}),local:0,chain:0,none:0,total:0});}
+    for(const [id,list] of Object.entries(api.store().spend||{})){
+      if(!byId.has(id))continue;const o=ownerOf(id)||'none';
+      for(const e of list){const m=out.find(x=>x.key===e.day.slice(0,7));if(m){m[o]+=e.cents;m.total+=e.cents;}}
+    }
+    return out;
+  }
+  function trend(){
+    const ms=months(),filled=ms.filter(m=>m.total>0);if(filled.length<2)return '';
+    const top=Math.max(...ms.map(m=>m.total));
+    const col=m=>`<div class="spend-month"><b>${m.total?esc(fmt(m.total)):''}</b><div class="spend-barwrap"><div class="spend-col" style="height:${m.total?Math.max(6,Math.round(m.total/top*100)):0}%">${['local','chain','none'].map(k=>m[k]?`<i class="${k==='local'?'loc':k==='chain'?'chn':'uns'}" style="flex-grow:${m[k]}"></i>`:'').join('')}</div></div><span>${esc(m.label)}</span></div>`;
+    return `<div class="spend-trend" role="img" aria-label="${esc('Month by month: '+filled.map(m=>m.label+' '+fmt(m.total)).join(', '))}">${ms.map(col).join('')}</div>`;
+  }
   function summary(){
     if(!api||!Object.keys(api.store().spend||{}).length)return '';
     const days=rangeDays(),r=rollup(days),label=RANGES.find(x=>x[0]===days)[1].toLowerCase();
@@ -150,6 +168,7 @@ window.OrientSpend=(()=>{
       +`<p class="fine">${esc(fmt(r.total))} across ${plural(r.count,'purchase')} at ${plural(r.places.length,'place')}${days?` in the last ${esc(label)}`:' so far'}.${pct===null?' Mark places Local or Chain to see the split.':''}</p>`
       +`<div class="spend-bar" role="img" aria-label="${esc(`${fmt(r.local)} local, ${fmt(r.chain)} chain or corporate, ${fmt(r.none)} not sorted yet`)}">${seg('loc',r.local)}${seg('chn',r.chain)}${seg('uns',r.none)}</div>`
       +`<ul class="spend-legend">${part('loc','Local')}${part('chn','Chain or corporate')}${r.none?part('uns','Not sorted yet'):''}</ul>`
+      +trend()
       +r.places.slice(0,5).map(x=>`<button class="row spend-row" data-place="${esc(x.id)}"><span class="tile">${icon(x.p.icon||'map-pin')}</span><span class="row-copy"><strong>${esc(x.p.name)}</strong><small>${esc(fmt(x.cents))} · ${plural(x.n,'time')} · ${x.owner==='local'?'Local':x.owner==='chain'?'Chain':'Not sorted'}</small></span><i class="spend-dot ${x.owner==='local'?'loc':x.owner==='chain'?'chn':'uns'}" aria-hidden="true"></i>${icon('chevron-right')}</button>`).join('')
       +(r.none?`<p class="fine">${esc(fmt(r.none))} at ${plural(r.places.filter(x=>x.owner==='none').length,'place')} is not sorted yet. Open a place and choose Local or Chain.</p>`:'')
       +`<p class="fine">Only what you wrote down, kept on this device. “Local” is your call.</p></section>`;
@@ -166,6 +185,7 @@ window.OrientSpend=(()=>{
     api=a;
     document.addEventListener('click',e=>{
       const own=e.target.closest('[data-spend-owner]');if(own){setOwner(api.selected(),own.dataset.spendOwner);return;}
+      const rp=e.target.closest('[data-spend-repeat]');if(rp){const id=api.selected(),l=id&&lastEntry(id);if(l)add(id,(l.cents/100).toFixed(2));return;}
       const rm=e.target.closest('[data-spend-remove]');if(rm){const id=api.selected();if(id)remove(id,rm.dataset.spendRemove);return;}
       const rg=e.target.closest('[data-spend-range]');if(rg){const d=Number(rg.dataset.spendRange);api.store().spendRange=[0,30,365].includes(d)?d:0;api.save();api.render();}
     });
@@ -177,5 +197,5 @@ window.OrientSpend=(()=>{
     });
   }
   const status=()=>({places:Object.keys(api.store().spend||{}).length,range:rangeDays()});
-  return {init,clean,section,summary,rollup,add,remove,setOwner,forget,guess,parseAmount,fmt,entries,ownerOf,totalOf,exportFacts,validDay,status};
+  return {init,clean,section,summary,months,rollup,add,remove,setOwner,forget,guess,parseAmount,fmt,entries,ownerOf,totalOf,exportFacts,validDay,status};
 })();

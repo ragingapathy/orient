@@ -7,7 +7,9 @@
 - **Where your money goes, on My Map.** Once you have written something down, My Map shows how much of what you sorted stayed local, a split bar (local, chain or corporate, not sorted yet), and the places you spent the most at, for 30 days, 12 months or all time. Money at places you have not sorted is shown apart, never hidden inside either side.
 - **Add spend** appears beside Undo after you log a visit, and opens the Spending section with the amount box ready.
 - Your CSV and GeoJSON exports gain `spent` and `ownership` columns; the full map export, backups and sync carry the records (entries merge between devices). Spending is never read by the commons or the insights.
-- New check `spend-check.cjs` (14 cases).
+- **Month by month.** Once two of the last six months have spending, the My Map card shows them side by side, each bar split local / chain / not sorted yet.
+- **Same as last time.** Once a place has spending, one tap writes the latest amount for today.
+- New check `spend-check.cjs` (16 cases).
 
 ## 2026-10-11 — Orient is an app
 
