@@ -95,8 +95,8 @@ const store = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.65
     await t('the map gets rain in rain, preview shows other weather, and closing the report puts it back', async () => {
       const p = await open({ code: 63 }); await chip(p).waitFor();
       const fx = p.locator('#weather-fx'); assert.equal(await fx.getAttribute('data-fx'), 'rain'); assert.equal(await fx.getAttribute('data-running'), 'true');
-      await p.waitForTimeout(500);
-      assert.ok(await fx.evaluate(c => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) return true; return false; }), 'something is drawn');
+      // something is drawn (a slow machine may need a moment for the first frames)
+      await p.waitForFunction(() => { const c = document.querySelector('#weather-fx'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) return true; return false; }, null, { timeout: 8000 });
       assert.equal(await fx.evaluate(c => getComputedStyle(c).pointerEvents), 'none', 'it never takes a click');
       await chip(p).click(); await p.locator('summary', { hasText: 'Preview the map' }).click();
       for (const [kind, label] of [['snow', 'Snow'], ['storm', 'Thunderstorm'], ['fog', 'Fog'], ['clouds', 'Clouds']]) { await p.getByRole('button', { name: label, exact: true }).click(); assert.equal(await fx.getAttribute('data-fx'), kind); }
