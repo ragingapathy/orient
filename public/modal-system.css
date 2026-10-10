@@ -1,0 +1,65 @@
+/* Shared with the card rhythm and restrained accents of Your map so far. */
+:is(#collections-dialog,#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog){--modal-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23205b4a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Z M9 3v16M15 5v16'/%3E%3C/svg%3E");width:min(480px,calc(100% - 24px));padding:16px;border-radius:20px;max-height:calc(100dvh - 28px);overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog)[open]{animation:atlas-modal-rise .25s cubic-bezier(.2,.75,.25,1)}
+:is(#collections-dialog,#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog)::backdrop{background:#142e2d70;backdrop-filter:blur(5px)}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .panel-heading{gap:10px;margin-bottom:16px;align-items:center}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .panel-heading:before{content:'';display:block;flex-shrink:0;width:40px;height:40px;border-radius:13px;background:var(--modal-icon) center/22px 22px no-repeat,var(--land)}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .panel-heading>h2{flex:1;min-width:0;font-size:17px;font-weight:600;letter-spacing:-.3px;overflow-wrap:anywhere}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .panel-heading>:last-child{margin-left:auto;flex-shrink:0;border:0;background:transparent;min-width:36px;padding:7px;min-height:36px}
+:is(#collections-dialog,#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .sub{font-size:12px;line-height:1.55;margin:8px 2px 16px}
+.modal-card,#settings-dialog>section{padding:13px 14px 14px;border:1px solid var(--edge);border-radius:16px;background:#ffffffa6;margin:12px 0}
+.modal-label,#settings-dialog>section>h3{display:block;color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin:0 0 8px}
+.modal-card label{display:block;font-size:12px;margin-top:12px;color:var(--muted)}
+.modal-card label:first-child{margin-top:0}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) :is(input:not([type=checkbox]):not([type=file]),textarea,select){border:1px solid transparent;border-radius:12px;background:#e0e8d980;color:var(--ink);min-width:0;max-width:100%;padding:11px}
+:is(#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) .fine{line-height:1.55}
+#settings-dialog .toggle-row{border:0;gap:12px;padding:10px 0;font-size:12px;margin:0}
+#settings-dialog .toggle-row span{min-width:0;flex:1}
+#settings-dialog .toggle-row input{flex-shrink:0}
+#settings-dialog .toggle-row select{width:55%;font-size:13px}
+#settings-dialog .home-setting .fine{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+#settings-dialog .home-setting p{font-weight:600;margin:5px 0 10px}
+#settings-dialog .gidgit-setting .toggle-row{padding-top:0;font-weight:600}
+#settings-dialog section .button:not(.primary){background:var(--land);border-color:transparent}
+#settings-dialog .settings-actions{gap:6px;margin:10px 0 0}
+#settings-dialog .settings-actions .button{flex:1;font-size:11px}
+#settings-dialog section .fine{margin:8px 0 12px}
+.modal-disclosure{padding:4px 2px;margin-top:12px;border-top:1px solid var(--edge)}
+.modal-disclosure summary{min-height:44px;display:flex;align-items:center;font-size:12px;cursor:pointer;color:var(--green)}
+#collections-dialog{padding:0}.collection-screen{padding:16px}.collection-heading{align-items:center;gap:10px;margin-bottom:14px}.collection-heading>div{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.modal-heading-icon{width:40px;height:40px;display:grid;place-items:center;flex-shrink:0;border-radius:13px;background:var(--land);color:var(--green)}
+#collections-dialog h2{font-size:17px;font-weight:600;letter-spacing:-.3px;line-height:1.3}
+.collection-heading [data-collection=close]{background:transparent;width:36px}
+.collection-intro{font-size:12px;line-height:1.5;margin:0 2px 12px}
+.collection-empty{padding:16px 14px;margin-bottom:14px;border:1px solid var(--edge);background:#ffffffa6;border-radius:16px;font-size:13px;line-height:1.6}
+.collection-row{border:1px solid var(--edge);background:#ffffffa6;padding:13px 14px;border-radius:16px}.collection-symbol{background:var(--land);border-radius:13px}
+.collection-list{gap:10px;margin-bottom:14px}.collection-summary>[data-collection=new]{min-height:44px;border-radius:12px}
+#collections-dialog .collection-member{border:1px solid var(--edge);border-radius:14px;padding:3px 12px;margin:8px 0;background:#ffffffa6}
+#collections-dialog form>label.toggle-row{padding:12px 14px;background:var(--land);font-size:13px}
+#collections-dialog form>.button{min-height:44px;margin-top:14px}
+#collections-dialog .collection-actions{margin-top:16px}
+#circuit-editor form>label{padding:12px 14px;border:1px solid var(--edge);border-radius:16px;background:#ffffffa6;font-size:12px;margin-top:10px}
+#circuit-editor h3{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.09em;margin:18px 2px 8px}
+#circuit-editor .circuit-edit-stop,#circuit-dialog .circuit-stop{border:1px solid var(--edge);border-radius:16px;padding:12px;margin:10px 0;background:#ffffffa6}
+#circuit-dialog>h2{font-size:22px;margin:12px 2px 8px}
+#circuit-editor form>.primary{margin-top:16px}
+#knowledge-dialog .modal-card label{margin-top:10px}
+#add-dialog .site-start{border:1px solid var(--edge);margin:12px 0;padding:13px 14px}
+#add-dialog .add-choice{background:var(--land);border:1px solid transparent;border-radius:16px}
+#add-dialog #add-fields>.button:not(.primary){border:0;background:var(--land)}
+#add-dialog .modal-card>.button{margin-top:10px}
+#add-dialog #coordinate-details{margin:12px 0}
+:is(#settings-dialog,#circuit-editor,#knowledge-dialog,#add-dialog) .modal-card{animation:atlas-modal-rise .3s cubic-bezier(.2,.75,.25,1) both}
+:is(#settings-dialog,#circuit-editor,#knowledge-dialog,#add-dialog) .modal-card:nth-of-type(2){animation-delay:.04s}
+:is(#settings-dialog,#circuit-editor,#knowledge-dialog,#add-dialog) .modal-card:nth-of-type(3){animation-delay:.08s}
+@keyframes atlas-modal-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){:is(#collections-dialog,#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog),:is(#collections-dialog,#settings-dialog,#circuit-dialog,#circuit-editor,#add-dialog,#knowledge-dialog) *{animation:none!important;transition:none!important}}
+/* Gidgit keeps the question, rather than a large illustration, in reach. */
+#gidgit-dialog .gidgit-heading{gap:8px;align-items:flex-start;margin-bottom:20px}
+.gidgit-identity{display:flex;align-items:center;gap:14px;min-width:0;flex:1}
+.gidgit-character{display:block;flex-shrink:0;width:106px;height:auto;object-fit:contain}
+.gidgit-identity>div{min-width:0}
+#gidgit-dialog .gidgit-identity .kicker{font-size:9px;letter-spacing:1.2px;margin-bottom:6px}
+#gidgit-dialog .gidgit-identity .sub{font-size:12px;line-height:1.45;margin:7px 0 0}
+#gidgit-dialog .gidgit-heading>button{width:32px;height:32px;flex-shrink:0}
+@media(max-width:380px){.gidgit-character{width:80px}.gidgit-identity{gap:10px}#gidgit-dialog .gidgit-identity .kicker{font-size:8px;letter-spacing:.8px}#gidgit-dialog h2{font-size:24px}}

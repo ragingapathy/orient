@@ -1,0 +1,40 @@
+.collection-summary,.collection-place{padding:16px 0;border-bottom:1px solid var(--edge)}.collection-summary strong,.collection-map-banner strong{overflow-wrap:anywhere}.collection-member{display:flex;gap:8px;align-items:center;margin:8px 0}.collection-member>button:first-child{flex:1;text-align:left;min-width:0;overflow-wrap:anywhere}.collection-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.collection-filter{display:block;margin:12px 0}.collection-map-banner{position:absolute;z-index:6;top:76px;left:20px;right:20px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--edge);border-radius:12px;padding:10px}.collection-map-banner[hidden]{display:none}.collection-map-banner strong{flex:1;font-size:13px;min-width:0}.collection-map-banner .button{font-size:11px;padding:8px;flex-shrink:0}#collections-dialog .toggle-row span{min-width:0;overflow-wrap:anywhere}#collections-dialog input[type=checkbox]{flex-shrink:0}@media(min-width:760px){.collection-map-banner{right:auto;max-width:480px}}.collection-place .fine{overflow-wrap:anywhere}
+#collections-dialog{width:min(480px,calc(100% - 24px));padding:0;border-radius:26px;box-shadow:0 28px 100px #102c3650;overflow-x:hidden;overflow-y:auto}
+#collections-dialog::backdrop{background:#163a365c;backdrop-filter:blur(9px);animation:collection-veil .2s ease-out}
+.collection-screen{padding:28px;animation:collection-arrive .24s cubic-bezier(.2,.8,.2,1)}
+.collection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+.collection-heading .kicker{font-size:9px;letter-spacing:1.8px;margin:0 0 10px}
+#collections-dialog h2{font-size:26px;font-weight:500;line-height:1.18;letter-spacing:-.8px;overflow-wrap:anywhere}
+.collection-heading [data-collection=close]{border:0;border-radius:50%;background:#e9eee5;min-height:36px;width:36px;flex-shrink:0;padding:0;font-size:22px;font-weight:400}
+#collections-dialog .collection-summary{padding:0;border:0}
+.collection-intro{font-size:13px;color:var(--muted);line-height:1.65;margin:0 0 18px}
+.collection-list{display:grid;gap:8px;margin-bottom:20px}
+.collection-row{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:16px 14px;border:1px solid transparent;border-radius:16px;background:#edf1e8;transition:background .18s,transform .18s,border-color .18s}
+.collection-row:hover{background:#e3ebdd;border-color:var(--edge);transform:translateY(-1px)}
+.collection-symbol{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--surface);color:var(--green);flex-shrink:0}
+.collection-copy{flex:1;min-width:0}.collection-copy strong{display:block;font-size:14px;font-weight:600;overflow-wrap:anywhere}.collection-copy small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.collection-summary>[data-collection=new]{width:100%;background:var(--green);border-color:var(--green);color:var(--on);border-radius:14px;min-height:48px}
+.collection-empty{padding:22px 0 30px;font-size:16px;line-height:1.7;color:var(--muted)}
+#collections-dialog form>.button{margin-top:18px;border-radius:14px;min-height:48px}
+#collections-dialog form>label{color:var(--muted);font-size:11px;letter-spacing:.2px}
+#collections-dialog input:not([type=checkbox]),#collections-dialog textarea,#collections-dialog select{border-radius:12px;background:#edf1e8;border-color:transparent;padding:13px;color:var(--ink)}
+#collections-dialog .fine{line-height:1.65;margin-top:16px}
+#collections-dialog [data-collection-status]:empty{display:none}
+#collections-dialog .collection-member{border-bottom:1px solid var(--edge);margin:0;padding:5px 0}
+#collections-dialog .collection-member>[data-collection=place]{border:0;background:transparent;justify-content:flex-start;padding:12px 0;font-size:14px}
+.collection-remove{width:44px;height:44px;border-radius:50%;color:var(--muted);font-size:20px;flex-shrink:0}.collection-remove:hover{background:#e9eee5}
+.collection-disclosure{border-top:1px solid var(--edge);margin-top:18px;padding-top:4px}
+.collection-disclosure>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;font-size:12px;color:var(--green);cursor:pointer}.collection-disclosure>summary::-webkit-details-marker{display:none}
+.collection-disclosure[open]>form,.collection-disclosure[open]>.collection-options{animation:collection-arrive .2s ease-out}
+#collections-dialog .collection-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:24px;gap:10px}
+#collections-dialog .collection-actions .button{border-radius:14px;min-height:48px}
+#collections-dialog [data-collection=map]{background:var(--green);border-color:var(--green);color:var(--on)}
+.collection-options{display:grid;gap:4px}.collection-options .button{justify-content:flex-start;border:0;background:transparent;padding-left:0}.collection-options [data-collection=delete]{color:#9b3b2c}
+#collections-dialog form>label.toggle-row{display:flex;gap:14px;margin:8px 0;padding:16px;border:1px solid transparent;border-radius:14px;background:#edf1e8;color:var(--ink);font-size:14px;letter-spacing:0;cursor:pointer}
+#collections-dialog .toggle-row:has(input:checked){background:#e2eadc;border-color:#a6bca7}
+.collection-place>[data-collection=membership]{width:100%;justify-content:flex-start;border-radius:14px;background:#edf1e8;border-color:transparent}.collection-place>[data-collection=membership]>span:last-child{margin-left:auto}
+@keyframes collection-arrive{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes collection-veil{from{opacity:0}to{opacity:1}}
+@media(max-width:360px){.collection-screen{padding:22px}#collections-dialog h2{font-size:23px}.collection-row{padding:13px 10px;gap:10px}}
+@media(prefers-reduced-motion:reduce){#collections-dialog::backdrop,.collection-screen,.collection-disclosure[open]>form,.collection-disclosure[open]>.collection-options{animation:none}.collection-row{transition:none}.collection-row:hover{transform:none}}
+.collection-back{display:block;min-height:36px;padding:0;margin:-6px 0 12px;color:var(--muted);font-size:11px}.collection-back:hover{color:var(--green)}

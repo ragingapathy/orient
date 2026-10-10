@@ -146,3 +146,7 @@ The restore saves the map as it is now first (`before-restore`), checks the chos
 ## Place commons
 
 An explicit, reviewed place-note contribution and commons-bundle import/export loop is available in Field kit. See [commons/README.md](../commons/README.md) for the GitHub workflow, public format, and privacy boundaries. Sharing opens GitHub’s own new-file page with the reviewed file filled in, so no token is needed; publishing from Orient with a token is an optional extra. Neighbor entries never participate.
+
+## Collections
+
+Open Your collections from My Map’s map tool or list. Create a name and optional description, then add saved places. A place card’s Add to / edit collections supports multiple memberships and creating a collection in place. Collections are unordered and private. Show on map fits the member pins; Show as list applies the collection filter. All my places clears it. Removing a member or deleting a collection preserves the underlying places and visits. Make a circuit lets you choose 2–12 members and review their order in the existing circuit editor; changes to that circuit do not change collection membership. Collections are included in private backups and sync and never automatically exported to the commons.

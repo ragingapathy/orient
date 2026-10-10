@@ -18,7 +18,7 @@ Start in your own city. Save places, add notes and photos, remember visits, make
 
 - **Explore with a little direction.** A compact daily briefing surfaces specials, nearby service hours, and places you’ve saved but haven’t tried. Expand it when you want a nudge; keep the map in view when you don’t.
 - **Take your map somewhere else.** Tap the city beside search to explore Detroit, Ann Arbor, Cleveland, or your own destination. Recent areas remember their map positions. Home stays home.
-- **Remember what matters to you.** Personal categories, ratings, notes, photos, recurring events, and circuits make the map useful on your terms. Add a photo and a note without filling out a business profile.
+- **Remember what matters to you.** Private collections, personal categories, ratings, notes, photos, recurring events, and circuits make the map useful on your terms. Add a photo and a note without filling out a business profile.
 - **Use the information a place publishes.** Address lookup and a reviewed website reader help fill in hours, contact details, social links, and readable calendar data.
 - **Ask for help if you want it.** Gidgit is an optional local AI companion for questions about your saved map and reviewed detail updates. It stays hidden when disabled and uses local Ollama, with no cloud fallback.
 

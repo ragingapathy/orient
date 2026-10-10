@@ -1,5 +1,9 @@
 # Orient Changelog
 
+## 2026-10-10 — Gidgit gets a face
+
+- Add the supplied transparent Gidgit character beside the assistant modal title, sized for mobile and desktop. Animation remains planned for a later pass.
+
 ## 2026-10-11 — Your map in numbers
 
 - **A retractable drawer on My Map**, in the spot where Explore keeps Today: **Your map so far**, closed by default with a one-line summary ("10 places visited · 3 visits this week"). It steps aside when the list or a place card is open, remembers whether you left it open, and works on a phone as a bottom drawer.
@@ -13,6 +17,21 @@
 - Worked out in the browser from your own map. Nothing is sent anywhere, and there are no streaks or targets: it describes what you did and never scolds. Dates follow your home time zone.
 - Nothing in `app.js` changed: the drawer is a separate file that reads the saved map and mounts itself on My Map. Damaged or old data in storage cannot break it.
 - New check `insights-check.cjs` (19 cases: time zones, ties, new versus returning, once-only counting, leap days, the year review, junk data, the drawer's show/hide rules, refresh, reduced motion, a phone, and that nothing leaves the page).
+
+## 2026-10-10 — A shared atlas style for modals
+
+- Align Collections, Settings, Circuits, Add place, and Place details with the compact icon headings, bordered cards, sage controls, and orange section labels from Your map so far.
+- Group settings and place fields by purpose; tuck detailed data-source explanations into a disclosure.
+- Preserve existing actions and form behavior, with gentle entrance motion and reduced-motion support.
+- Verify collection flows, Settings at 320px/390px/desktop widths, add-place fields, and place-detail saving with fictional data.
+
+## 2026-10-10 — Private collections
+
+- Add named, unordered collections with optional descriptions in My Map and place cards. A place may belong to several collections.
+- Show a collection on the map or filter My Map list; preserve places and visits when removing membership or deleting a collection.
+- Choose 2–12 members to seed a circuit, then review/reorder stops independently of the collection.
+- Validate membership references and text limits, retain collections in private sync/backups, and keep collections outside public commons bundles.
+- Browser checks cover creation, multiple membership, map/list filtering, circuit conversion, reload, deletion, private-data preservation, and narrow screens.
 
 ## 2026-10-11 — Automatic backups of the synced map
 
