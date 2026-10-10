@@ -37,9 +37,11 @@ async function lookup(req, res) {
       const result=await geocode(query,fetch,{city,center});
       if(geocodeCache.size>=200)geocodeCache.delete(geocodeCache.keys().next().value);
       geocodeCache.set(key,{time:Date.now(),data:result});json(res,200,result);
-    }catch{json(res,502,{error:'Address lookup could not connect. Try again, or use the map center or coordinates.'});}finally{geocodeBusy=false;}
+    }catch{json(res,422,{error:'Address lookup could not connect. Try again, or use the map center or coordinates.'});}finally{geocodeBusy=false;}
   } catch {if(!res.headersSent)json(res,400,{error:'Invalid search request.'});}
 }
+// 502, 503 and 504 are rewritten by reverse proxies, which hides the JSON message; expected upstream failures use 422 instead
+const apiFail=s=>(s===502||s===503||s===504||!s)?422:s;
 http.createServer((req,res)=>{
   let url;
   try { url = decodeURIComponent(new URL(req.url,'http://localhost').pathname); } catch {res.writeHead(400);res.end('Bad request');return;}
@@ -53,11 +55,11 @@ http.createServer((req,res)=>{
   if(url==='/api/repo-stats'){if(!sync.trusted(req)){json(res,403,{error:'Project stats are shown only on the computer that runs Orient.'});return;}let stats={repos:{}};try{stats=JSON.parse(fs.readFileSync(path.join(process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),'repo-stats.json'),'utf8'));}catch{}json(res,200,stats);return;}
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}
-    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url,{timeZone:typeof input.timeZone==='string'?input.timeZone:undefined}));}catch(e){json(res,e.status||502,{error:e.message||'Website could not be read.'});}})();return;
+    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url,{timeZone:typeof input.timeZone==='string'?input.timeZone:undefined}));}catch(e){json(res,apiFail(e.status),{error:e.message||'Website could not be read.'});}})();return;
   }
   if(url==='/api/places'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}
-    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>2048){json(res,413,{error:'Request too large.'});return;}}const input=JSON.parse(body);json(res,200,await nearby(input.lat,input.lng));}catch(e){json(res,e.status||502,{error:e.message||'Open map data is unavailable.'});}})();return;
+    (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>2048){json(res,413,{error:'Request too large.'});return;}}const input=JSON.parse(body);json(res,200,await nearby(input.lat,input.lng));}catch(e){json(res,apiFail(e.status),{error:e.message||'Open map data is unavailable.'});}})();return;
   }
   const file = path.resolve(root, '.' + (url.endsWith('/') ? url+'index.html' : url));
   if (file !== root && !file.startsWith(root + path.sep)) {res.writeHead(403);res.end('Forbidden');return;}

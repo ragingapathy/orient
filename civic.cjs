@@ -14,6 +14,6 @@ async function handle(req,res,json){
  if(published?.format==='orient-civic'&&published.version===1&&point(published.center)&&require('./commons-template/tools/civic.cjs').distance(published.center,rounded)<60&&Date.now()-Date.parse(published.updated)<60*60e3)return json(res,200,published);
  const areas=rounded[0]>-85&&rounded[0]<-80&&rounded[1]>38&&rounded[1]<42?[{id:'SOH',name:'Ohio statewide'}]:rounded[0]>-104&&rounded[0]<-80&&rounded[1]>36&&rounded[1]<49?[{id:'R20',name:'Midwest region'}]:[];
  const data=await collect({sourceId:'orient-public-sources',center:rounded,airnow:true,toledoAmenities:true,eiaAreas:areas});cache.set(key,{time:Date.now(),data});if(cache.size>50)cache.delete(cache.keys().next().value);json(res,200,data);
- }catch{json(res,502,{error:'Civic sources could not be reached.'});}finally{pending=null;}
+ }catch{json(res,422,{error:'Civic sources could not be reached.'});}finally{pending=null;}
 }
 module.exports={handle};
