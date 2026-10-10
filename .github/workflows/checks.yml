@@ -29,4 +29,4 @@ jobs:
           node-version: lts/*
       - run: npm install --no-save playwright
       - run: npm run check
-      - run: node run-checks.cjs ${{ inputs.only }}
+      - run: node run-checks.cjs --jobs 3 ${{ inputs.only }}

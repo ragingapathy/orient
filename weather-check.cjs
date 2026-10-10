@@ -99,8 +99,8 @@ const store = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.65
       await p.waitForFunction(() => { const c = document.querySelector('#weather-fx'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) return true; return false; }, null, { timeout: 8000 });
       assert.equal(await fx.evaluate(c => getComputedStyle(c).pointerEvents), 'none', 'it never takes a click');
       await chip(p).click(); await p.locator('summary', { hasText: 'Preview the map' }).click();
-      for (const [kind, label] of [['snow', 'Snow'], ['storm', 'Thunderstorm'], ['fog', 'Fog'], ['clouds', 'Clouds']]) { await p.getByRole('button', { name: label, exact: true }).click(); assert.equal(await fx.getAttribute('data-fx'), kind); }
-      await p.keyboard.press('Escape'); await p.waitForTimeout(200); assert.equal(await fx.getAttribute('data-fx'), 'rain', 'the real weather is back');
+      for (const [kind, label] of [['snow', 'Snow'], ['storm', 'Thunderstorm'], ['fog', 'Fog'], ['clouds', 'Clouds']]) { await p.getByRole('button', { name: label, exact: true }).click(); await p.waitForFunction(k => document.querySelector('#weather-fx').dataset.fx === k, kind, { timeout: 5000 }); }
+      await p.keyboard.press('Escape'); await p.waitForFunction(() => document.querySelector('#weather-fx').dataset.fx === 'rain', null, { timeout: 5000 }); // the real weather is back (waits, rather than a fixed pause, for a slow machine)
     });
     await t('clear skies draw nothing', async () => {
       const p = await open({ code: 0 }); await chip(p).waitFor(); assert.equal(await p.locator('#weather-fx').getAttribute('data-fx'), 'none'); assert.equal(await p.locator('#weather-fx').getAttribute('data-running'), 'false');
