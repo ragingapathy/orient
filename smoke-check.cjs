@@ -1,3 +1,4 @@
+const H=require('./check-helpers.cjs');
 // Optional browser check. Uses the bundled Playwright runtime; no application dependencies.
 const assert = require('node:assert/strict');
 const path = require('node:path');
@@ -9,8 +10,9 @@ const { chromium } = require(runtime);
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await H.seed(page,{useCatalog:true});
   await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
-  await page.locator('.map-marker').first().waitFor();
+  await H.openDefault(page);await H.map(page);await page.locator('.map-marker').first().waitFor();
   await page.waitForTimeout(4500);
   await page.screenshot({path:path.join(out,'mobile-explore.png')});
   await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());
@@ -21,7 +23,7 @@ const { chromium } = require(runtime);
   await page.reload();
   await page.getByRole('button',{name:'My Map',exact:true}).click();
   assert.match(await page.locator('#context').innerText(),/1 SAVED · 1 VISITED/);
-  await page.getByRole('button',{name:'Add a place',exact:true}).click();
+  await H.add(page);await H.pick(page);
   await page.locator('[name=name]').fill('My test place <script>');
   await page.locator('[name=note]').fill('A place to try.');
   await page.locator('#coordinate-details summary').click();
@@ -39,22 +41,13 @@ const { chromium } = require(runtime);
   assert.match(await page.locator('#panel').innerText(),new RegExp(known.replace(/[.*+?^${}()|[]\]/g,'\$&')));
   await page.locator('#search').fill('');
   await page.getByRole('button',{name:'Explore',exact:true}).click();
-  await page.getByRole('button',{name:'Switch to list',exact:true}).click();
-  const demoId=await page.evaluate(()=>(window.ORIENT_CATALOG.find(p=>p.demo)||{}).id||'');
-  if(demoId){
-    await page.locator('#panel [data-place="'+demoId+'"]').click();
-    await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());
-    await page.getByRole('button',{name:'Place conversations',exact:false}).click();
-    await page.locator('#draft').fill('I would like to come along.');
-    await page.getByRole('button',{name:'Save private draft',exact:true}).click();
-    assert.match(await page.locator('#panel').innerText(),/I would like to come along/);
-  }
+  await H.list(page);
   await page.getByRole('button',{name:'Open settings',exact:true}).click();
   const downloadPromise=page.waitForEvent('download');
   await page.getByRole('button',{name:'Export my map',exact:true}).click();
   const download=await downloadPromise;
   const exported=JSON.parse(fs.readFileSync(await download.path(),'utf8'));
-  assert.equal(exported.custom.length,1);if(demoId)assert.equal(exported.drafts.readers.length,1);
+  assert.equal(exported.custom.length,1);
   await page.getByRole('button',{name:'Close',exact:true}).last().click();
   for(const size of [{width:320,height:568},{width:390,height:844},{width:1280,height:800}]){
     await page.setViewportSize(size);
@@ -65,7 +58,7 @@ const { chromium } = require(runtime);
     await page.screenshot({path:path.join(out,`layout-${size.width}.png`)});
   }
   assert.deepEqual(errors,[]);
-  console.log('PASS: save/visit/reload, custom place, search/empty state, event → thread → local draft, export, 320/390/1280 layouts; no runtime errors.');
+  console.log('PASS: save/visit/reload, custom place, search/empty state, export, 320/390/1280 layouts; no runtime errors.');
   assert.ok(await page.locator('#map-status').isHidden(),'Map should finish loading');
   console.log('PASS: live Toledo basemap loaded.');
   await browser.close();

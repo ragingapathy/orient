@@ -80,7 +80,7 @@ This is a working prototype with room for other people’s ideas and judgment. Y
 
 The app is plain JavaScript and CSS in `public/`, with a small Node server in `server.cjs`. No framework or compilation pipeline stands between you and an experiment. The commons protocol and UI live in `public/commons-data.js` and `public/commons.js`; the format and contribution workflow are documented in [commons/README.md](commons/README.md).
 
-Run `npm run check` for syntax checks and `node commons-check.cjs` for the public-data protocol checks. Browser checks use Playwright and Chrome; see the [user guide](docs/user-guide.md#checks) for setup and limitations.
+Run `npm test` for every check (`node run-checks.cjs spend icons` for just some, `--list` to see them): it starts a test server of its own, so your map is never touched. `npm run check` is the quick syntax pass. Browser checks use Playwright and Chrome; see the [user guide](docs/user-guide.md#checks) for setup and limitations.
 
 ## Where things stand
 

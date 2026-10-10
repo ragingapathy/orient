@@ -1,3 +1,4 @@
+const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict'),path=require('node:path'),{geotag}=require('./photo-gps-check.cjs');
 const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
 (async()=>{const browser=await chromium.launch({channel:'chrome',headless:true});try{
@@ -7,7 +8,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
   await page.goto(process.env.ORIENT_URL||'http://127.0.0.1:4173');await page.waitForFunction(()=>window.OrientPhotos);
   const plain=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=240;c.height=160;const ctx=c.getContext('2d');ctx.fillStyle='#a4cbc7';ctx.fillRect(0,0,240,160);return c.toDataURL('image/jpeg').split(',')[1];}),'base64');
   await page.evaluate(()=>localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,custom:[{id:'local-existing',name:'Existing nearby shop',kind:'Comic shop',coordinates:[-83.539,41.655]}],saved:['local-existing'],visited:[],showDemo:false})));await page.reload();
-  const start=async()=>{if(await page.locator('.grip').isVisible())await page.locator('.grip').press('Home');await page.locator('[data-action="add"]').first().click();await page.locator('[data-photo-memory]').click();assert.equal(await page.locator('#add-dialog').isVisible(),false);await page.locator('#photo-dialog').waitFor({state:'visible'});};
+  const start=async()=>{if(await page.locator('.grip').isVisible())await page.locator('.grip').press('Home');await H.add(page);await page.locator('[data-photo-memory]').click();assert.equal(await page.locator('#add-dialog').isVisible(),false);await page.locator('#photo-dialog').waitFor({state:'visible'});};
   const upload=async buffer=>{await page.locator('[data-photo-file]').first().setInputFiles({name:'memory.jpg',mimeType:'image/jpeg',buffer});await page.getByText('Ready to save.',{exact:true}).waitFor();};
   await start();await upload(geotag(plain));assert.equal(await page.locator('[name=photo-destination]').inputValue(),'__new');assert.equal(await page.locator('[name=photo-place-name]').count(),0);
   await page.locator('[name=photo-note]').fill('Quiet corner by the river');await page.screenshot({path:'output/playwright/photo-memory-add-mobile.png'});await page.getByRole('button',{name:'Save to my map',exact:true}).click();

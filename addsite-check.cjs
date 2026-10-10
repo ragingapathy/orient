@@ -1,3 +1,4 @@
+const H = require('./check-helpers.cjs');
 // Browser check: start a place from a website address. Uses fixtures for the website reader and the geocoder (no live requests).
 // Run against a running server:  ORIENT_URL=http://127.0.0.1:4173 node addsite-check.cjs
 const assert = require('node:assert/strict');
@@ -23,9 +24,10 @@ const MATCH = { results: [{ name: '1 Government Center', address: '1 GOVERNMENT 
     await page.route('**/api/website', r => { websiteCalls.push(JSON.parse(r.request().postData() || '{}')); return mode === 'blocked' ? r.fulfill({ status: 502, json: { error: 'This website asks automated readers not to read that page.' } }) : r.fulfill({ json: FIXTURE }); });
     await page.route('**/api/geocode', r => { otherPosts.push('geocode'); return r.fulfill({ json: MATCH }); });
     await page.goto(URL_);
+    await H.skipHome(page);
     await page.waitForFunction(() => window.OrientWebsite && document.querySelector('[data-action="add"]'));
     const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem('orient-field-map-v1')));
-    const openAdd = async () => { await page.evaluate(() => document.querySelector('[data-action="add"]').click()); await page.locator('#add-dialog').waitFor({ state: 'visible' }); };
+    const openAdd = async () => { await page.evaluate(() => document.querySelector('[data-action="add"]').click()); await page.locator('#add-dialog').waitFor({ state: 'visible' }); if (await page.locator('[data-action="add-name"]').isVisible()) await H.pick(page); };
     const field = n => page.locator(`#add-form [name=${n}]`);
 
     // 1. Read a website: nothing happens by typing, the page fills the form on the button press
@@ -35,7 +37,7 @@ const MATCH = { results: [{ name: '1 Government Center', address: '1 GOVERNMENT 
     assert.equal(websiteCalls.length, 0, 'typing does not read the website');
     await page.getByRole('button', { name: 'Read website', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('#add-form [name=name]').value === 'Kava Culture');
-    assert.deepEqual(websiteCalls, [{ url: SRC }], 'only the website address is sent, normalized to https');
+    assert.deepEqual(websiteCalls, [{ url: SRC, timeZone: 'America/New_York' }], 'only the website address and the time zone are sent, normalized to https');
     assert.equal(await field('address').inputValue(), '1 Government Center, Toledo, OH, 43604');
     assert.equal(await field('kind').inputValue(), 'Food & drink', 'category suggested from the business type');
     const labels = await page.locator('#site-found .website-choice strong').allInnerTexts();

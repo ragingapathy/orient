@@ -1,3 +1,4 @@
+const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict');
 const F=async p=>{await p.evaluate(()=>document.querySelectorAll('#sheet details.fold').forEach(d=>{d.open=true;}));return p;};
 const path=require('node:path');
@@ -17,11 +18,11 @@ const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
  try{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,custom:[{id:'local-freedom',name:'Freedom Comics',kind:'Comic shop',coordinates:[-83.539,41.655],address:'My saved shop',note:'Want to visit'}],saved:['local-freedom'],visited:[],showDemo:false,fog:true}));});
+ await page.route(/tiles.openfreemap.org/,r=>r.abort()); // no live basemap places: only the fixture below
  await page.route('**/api/places',async route=>{const body=route.request().postDataJSON();assert.deepEqual(Object.keys(body).sort(),['lat','lng']);await route.fulfill({json:{places:fixture,retrievedAt:now,radius:800}});});
  await page.route('**/api/website',route=>route.fulfill({json:{url:'https://example.org/',retrievedAt:now,readPages:['https://example.org/'],facts:[],events:[],calendars:[],warnings:[]}}));
- await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
- await page.getByRole('button',{name:'My Map',exact:true}).click();
- await page.evaluate(()=>document.querySelector('#sheet button.expand').click());
+ await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));await page.waitForFunction(()=>window.OrientHome&&document.querySelector('.bottom-nav'));
+ await page.locator('.bottom-nav [data-tab="My Map"]').click();await H.list(page);await H.dom(page,'#panel [data-place="local-freedom"]');await H.expand(page);
  await (await F(page)).getByRole('button',{name:'Look around this place',exact:true}).click();
  await page.locator('.discovery-row').first().waitFor();
  assert.match(await page.locator('.discovery-row').first().innerText(),/Videogame Underground/);

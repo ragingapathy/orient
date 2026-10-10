@@ -89,6 +89,8 @@ Private map data syncs only to the computer running Orient and paired browsers. 
 
 ## Checks
 
+**To run them all:** `npm test` (same as `node run-checks.cjs`). It starts a test server of its own on a free port with sync off and an empty data folder, runs every `*-check.cjs`, and prints pass, fail and skip. Name some to run just those (`node run-checks.cjs spend icons`), `--list` shows them, `--jobs 3` runs three at a time. It needs Playwright and Chrome (`npm i playwright`, or set `ORIENT_PLAYWRIGHT`). GitHub runs the same command on every push. The older checks share their "get to this screen" steps in `check-helpers.cjs`.
+
 Run `node commons-check.cjs` for protocol validation without browser dependencies. The new `commons-ui-check.cjs`, `areas-check.cjs`, and `briefing-drawer-check.cjs` use `ORIENT_PLAYWRIGHT` (a Playwright module path) or a locally installed `playwright` package, plus Chrome. They default to `http://127.0.0.1:4173`; set `ORIENT_URL` to test another instance. Their browser fixtures block `/api/state` to keep tests separate from the owner’s map.
 
 The `*-check.cjs` files are browser checks written for Playwright and Chrome. They are for my own use and are not a polished test suite. Set `ORIENT_PLAYWRIGHT` to the folder of a Playwright install to run one against a running server. Some checks assume my local catalog and skip themselves without `public/catalog.local.js`. They run in a phone-sized window, so they open the place drawer and its folded rows the way a person would. `npm run check` only checks syntax.

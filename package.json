@@ -5,6 +5,7 @@
   "description": "A personal tool for discovering your city",
   "scripts": {
     "start": "node server.cjs",
+    "test": "node run-checks.cjs",
     "check": "node --check public/collections.js && node --check commons-publish.cjs && node --check public/commons-data.js && node --check public/commons.js && node --check public/areas.js && node --check public/briefing-drawer.js && node --check public/home.js && node --check public/boot.js && node --check server.cjs && node --check public/app.js && node --check public/calendar.js && node --check public/calendar-dates.js && node --check public/website.js && node --check website.cjs"
   },
   "license": "SEE LICENSE IN LICENSE",

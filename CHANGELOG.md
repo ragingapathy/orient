@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-11 — The checks are green again
+
+- **All 78 checks pass.** Twenty had gone stale as the app grew (the daily briefing, the add menu, the list toggle, a card that no longer opens on its own). They now reach each screen the way the app does, through a small shared `check-helpers.cjs`. A few that leaned on the private place catalog skip themselves in a clean copy instead of failing.
+- **One command:** `npm test` (or `node run-checks.cjs`) starts a test server with sync off and an empty data folder, runs every check, and reports pass, fail and skip. `node run-checks.cjs spend icons` runs just some.
+- **Checks on GitHub.** A workflow runs them on every push and pull request.
+- Four older checks no longer assume port 4173 or a Codex-only Playwright path; the sync check avoids port 4190, which browsers refuse to fetch from.
+
 ## 2026-10-11 — Icons that mean something
 
 - **A star, not a red dot.** Saved places on the map now wear a tiny gold star instead of the red dot, which looked like an alert on every pin. Visited places keep their own icon and get a small check badge in the same corner.

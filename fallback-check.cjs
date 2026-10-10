@@ -1,3 +1,5 @@
+if(!require('node:fs').existsSync(require('node:path').join(__dirname,'public/catalog.local.js'))){console.log('SKIP: needs public/catalog.local.js (a local catalog of places)');process.exit(0);}
+const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict');const path=require('node:path');
 const F=async p=>{await p.evaluate(()=>document.querySelectorAll('#sheet details.fold').forEach(d=>{d.open=true;}));return p;};
 const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
@@ -5,7 +7,7 @@ const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,custom:[{id:'local-downtown',name:'My downtown starting point',kind:'Other',coordinates:[-83.539,41.655]}],saved:['local-downtown'],visited:[],showDemo:false,fog:true})));
  await page.route('**/api/places',r=>r.fulfill({status:502,json:{error:'Open map details unavailable.'}}));
- await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));await page.waitForTimeout(5000);
+ await H.seed(page,{useCatalog:true});await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));await H.openDefault(page);await page.waitForTimeout(5000);
  await page.evaluate(()=>document.querySelector('#sheet button.expand').click());await (await F(page)).getByRole('button',{name:'Look around this place',exact:true}).click();
  await page.locator('.discovery-row').first().waitFor();
  const count=await page.locator('.discovery-row').count();assert.ok(count>0);console.log('PASS: live basemap yielded '+count+' nearby discoveries when full data endpoint was unavailable.');

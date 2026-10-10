@@ -1,3 +1,4 @@
+const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict'),path=require('node:path');
 const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.USERPROFILE,'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
 (async()=>{
@@ -28,7 +29,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
       const date=OrientCalendar.today();localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,showDemo:false,custom:[{id:'local-timely',name:'Calendar fixture comics',kind:'Comic shop',coordinates:[-83.539,41.655]}],saved:['local-timely'],visited:[],events:[{id:'fixture-new-comics',placeId:'local-timely',title:'New comic day fixture',kind:'Special',date,time:'',end:'',repeat:'daily',interval:1,days:[],skip:[]},{id:'fixture-skipped',placeId:'local-timely',title:'Skipped fixture',kind:'Special',date,time:'',end:'',repeat:'daily',interval:1,days:[],skip:[date]}]}));
     });
     await page.reload();
-    await page.getByRole('button',{name:'Today',exact:true}).click();
+    await page.locator('.bottom-nav [data-tab="Explore"]').click();await H.briefing(page);
     await page.locator('[data-outing-open]').click();
     const dialog=page.locator('#outing-dialog');await dialog.waitFor({state:'visible'});
     assert.match(await dialog.innerText(),/not your GPS location/);
@@ -46,7 +47,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
     await page.locator('[data-outing-pref="minutes"]').selectOption('90');
     await page.screenshot({path:'output/playwright/outings-mobile-results.png'});
     const placeButton=page.locator('[data-outing-place]').first();if(await placeButton.count()){await placeButton.click();assert.equal(await dialog.isVisible(),false);assert.equal(await page.locator('#sheet').isVisible(),true);}
-    await page.reload();await page.getByRole('button',{name:'Today',exact:true}).click();await page.locator('[data-outing-open]').click();assert.equal(await page.locator('[data-outing-pref="minutes"]').inputValue(),'45');
+    await page.reload();await page.locator('.bottom-nav [data-tab="Explore"]').click();await H.briefing(page);await page.locator('[data-outing-open]').click();assert.equal(await page.locator('[data-outing-pref="minutes"]').inputValue(),'45');
     await page.setViewportSize({width:1280,height:900});await page.screenshot({path:'output/playwright/outings-desktop.png'});
     assert.deepEqual(errors,[]);console.log('Outings: constraints, ranking, mobile layout, navigation, directions and session-only preferences passed.');
   }finally{await browser.close();}

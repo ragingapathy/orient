@@ -1,14 +1,14 @@
-const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
+const H=require('./check-helpers.cjs');const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
 (async()=>{const browser=await chromium.launch({channel:'chrome',headless:true});try{
- const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
- const id=await page.locator('#sheet').getAttribute('data-place-id');
- await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());await page.getByRole('radio',{name:'4 out of 5 stars',exact:true}).check();
+ const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await H.seed(page,{custom:[{id:'local-rate',name:'Rating Fixture Cafe',kind:'Coffee shop',icon:'coffee',coordinates:[-83.539,41.655],address:'1 Test St',note:'',demo:false}]});await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
+ const id='local-rate';
+ await H.openPlace(page,id);await page.getByRole('radio',{name:'4 out of 5 stars',exact:true}).check();
  assert.match(await page.locator('.personal-rating legend').innerText(),/4\/5/);
  await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());await page.getByRole('radio',{name:'4 out of 5 stars',exact:true}).press('ArrowLeft');
  assert.ok(await page.getByRole('radio',{name:'3 out of 5 stars',exact:true}).isChecked());
  let raw=await page.evaluate(()=>JSON.parse(localStorage.getItem('orient-field-map-v1')));assert.equal(raw.ratings[id],3);assert.ok(raw.saved.includes(id));assert.equal(raw.visited.length,0);
- await page.reload();await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());assert.ok(await page.getByRole('radio',{name:'3 out of 5 stars',exact:true}).isChecked());
+ await page.reload();await H.openPlace(page,id);assert.ok(await page.getByRole('radio',{name:'3 out of 5 stars',exact:true}).isChecked());
  await page.getByRole('button',{name:'My Map',exact:true}).click();await page.getByRole('button',{name:'Switch to list',exact:true}).click();assert.match(await page.locator('#panel [data-place="'+id+'"]').innerText(),/★ 3\/5/);
  await page.getByRole('button',{name:'Open settings',exact:true}).click();const dp=page.waitForEvent('download');await page.getByRole('button',{name:'Export my map',exact:true}).click();const exported=JSON.parse(fs.readFileSync(await(await dp).path(),'utf8'));assert.equal(exported.ratings[id],3);
  page.once('dialog',d=>d.accept());await page.locator('#import-file').setInputFiles({name:'orient.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(exported))});await page.locator('#panel [data-place="'+id+'"]').click();await page.evaluate(()=>document.querySelector('#sheet button.expand[aria-expanded=false]')?.click());assert.ok(await page.getByRole('radio',{name:'3 out of 5 stars',exact:true}).isChecked());

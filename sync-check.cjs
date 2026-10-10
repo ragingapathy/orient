@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
 const os = require('node:os'), fs = require('node:fs'), path = require('node:path');
 
-const PORT = 4190 + Math.floor(Math.random() * 40);
+const PORT = 4191 + Math.floor(Math.random() * 38); // 4190 is a port browsers refuse to fetch from ("bad port"), so the range starts above it
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'orient-sync-'));
 const DESK = `http://127.0.0.1:${PORT}`, PHONE = `http://orient.test:${PORT}`;
 const KEY = 'orient-field-map-v1';

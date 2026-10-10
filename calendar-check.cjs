@@ -1,10 +1,12 @@
+if(!require('node:fs').existsSync(require('node:path').join(__dirname,'public/catalog.local.js'))){console.log('SKIP: needs public/catalog.local.js (a local catalog of places)');process.exit(0);}
+const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const F=async p=>{await p.evaluate(()=>document.querySelectorAll('#sheet details.fold').forEach(d=>{d.open=true;}));return p;};
 const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
 (async()=>{
  const browser=await chromium.launch({headless:true,channel:'chrome'}),page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));
+ await H.seed(page,{useCatalog:true});await page.goto((process.env.ORIENT_URL||'http://127.0.0.1:4173'));await H.openDefault(page);
  await page.evaluate(()=>document.querySelector('#sheet button.expand').click());
  await (await F(page)).getByRole('button',{name:'Edit hours, people & notes'}).click();
  await page.locator('#knowledge-dialog [name=hours]').fill('Wednesday 10–7');
@@ -14,7 +16,7 @@ const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
  assert.match(await page.locator('#sheet').innerText(),/Sam — owner <script>/);
  await page.locator('.place-quick input').fill('Wednesday is new comic day');
  await page.locator('.place-quick button').click();
- assert.equal(await page.locator('#event-dialog [name=repeat]').inputValue(),'weekly');
+ await page.waitForTimeout(500);assert.equal(await page.locator('#event-dialog [name=repeat]').inputValue(),'weekly');
  assert.equal(await page.locator('#event-dialog [name=time]').inputValue(),'');
  assert.equal(await page.locator('#event-dialog [name=placeId]').inputValue(),'toledo-pantry-26');
  await page.getByRole('button',{name:'Save calendar entry'}).click();
@@ -36,7 +38,7 @@ const {chromium}=require((process.env.ORIENT_PLAYWRIGHT||'playwright'));
   const C=OrientCalendar,weekly=C.parse('Every Tuesday, 2 for 1 al pastor tacos'),timed=C.parse('Trivia every Thursday 7pm to 9pm');
   const e={...weekly,id:'a',placeId:'p',date:'2026-10-06',until:'2026-10-27'};
   const dates=C.occurrences([e],'2026-10-01','2026-10-31').map(o=>o.date);
-  const monthly=C.occurrences([{...e,date:'2026-01-31',repeat:'monthly',until:'2026-03-31'}],'2026-01-01','2026-03-31').map(o=>o.date);
+  const monthly=C.occurrences([{...e,date:'2026-01-31',repeat:'monthly',days:[],until:'2026-03-31'}],'2026-01-01','2026-03-31').map(o=>o.date);
   const raw=JSON.parse(localStorage.getItem('orient-field-map-v1')),ids=new Set(['toledo-pantry-26']);
   return {weekly,timed,dates,monthly,clean:C.clean(raw,ids)};
  });
