@@ -64,3 +64,13 @@ node tools/validate.cjs --base origin/main       # check what a branch changes
 ## Licences
 
 Contributions are shared under [CC BY 4.0](DATA-LICENSE.md). The tools in `tools/` come from Orient and are under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+## Road work (optional)
+
+This repository can also publish road work and closures for your region, for Orient's map.
+
+1. Keep `roadwork.config.json` and `.github/workflows/roadwork.yml`. The workflow runs every half hour and publishes one file, `roadwork.json`, on a branch called `roadwork-data` (a single commit that is replaced each time, so history does not grow).
+2. Get a free API key from your state's feed if it needs one (Ohio's is the [OHGO Public API](https://publicapi.ohgo.com/docs/resources)) and add it under **Settings → Secrets and variables → Actions → New repository secret**, named `OHGO_API_KEY`. Never put a key in a file.
+3. Run the workflow once by hand (**Actions → Road work → Run workflow**), then open `https://raw.githubusercontent.com/<owner>/<repo>/roadwork-data/roadwork.json`.
+
+Every state publishes road work in the same national format, WZDx. To add another state, add an entry to `feeds` in `roadwork.config.json` with its feed URL (the USDOT keeps a [registry of feeds](https://www.transportation.gov/av/data/wzdx)), and if it needs a key, a `secretEnv` name and the header it expects, then pass the secret to the "Fetch and normalise the feeds" step in the workflow. `bbox` is [west, south, east, north] and keeps the file to your region. Orient finds your file through the `SOURCES` list in `public/roadwork.js`.

@@ -1,0 +1,25 @@
+/* Road work: the map button, the line in Today, and the list. */
+#roadwork-tool{position:relative}
+.rw-dot{position:absolute;top:5px;right:5px;width:10px;height:10px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 2px var(--surface)}
+
+.roadwork-strip{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 16px;padding:11px 14px;border:1px solid var(--line);border-left:5px solid #e08a2c;border-radius:var(--r-md);background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background .15s,box-shadow .15s}
+.roadwork-strip[data-tone=closed]{border-left-color:#c0392b}
+.roadwork-strip:hover{background:#fff;box-shadow:var(--lift-sm)}
+.roadwork-strip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.rw-ico{width:24px;height:24px;color:#b4661a;flex-shrink:0}.roadwork-strip[data-tone=closed] .rw-ico{color:#c0392b}
+.rw-copy{flex:1;min-width:0}.rw-copy b{display:block;font-size:14px;font-weight:700}.rw-copy small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+
+#roadwork-dialog{width:min(560px,calc(100% - 24px))}
+#roadwork-dialog .panel-heading .ui-kicker{margin-bottom:2px}
+.rw-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.rw-warn{margin:0 0 12px;padding:9px 12px;border-radius:var(--r-sm);background:#f4e6d5;color:#8a4a1c;font-size:13px;font-weight:600}
+.rw-section{margin:0 0 16px}.rw-section>.ui-kicker{margin:0 0 8px}
+.rw-card{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:start;margin:0 0 8px;padding:12px;border:1px solid var(--line);border-left-width:5px;border-radius:var(--r-md);background:var(--card)}
+.rw-card[data-status=closed]{border-left-color:#c0392b}.rw-card[data-status=restricted],.rw-card[data-status=unknown]{border-left-color:#e08a2c}.rw-card[data-status=open]{border-left-color:#7d9a6b}
+.rw-card[data-focus]{box-shadow:0 0 0 3px #e08a2c55;background:#fff}
+.rw-tile{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--land);color:#b4661a}.rw-card[data-status=closed] .rw-tile{background:#f6dcd7;color:#c0392b}.rw-tile svg{width:21px;height:21px}
+.rw-card b{display:block;font-size:14px}.rw-card small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}.rw-card p{margin:6px 0 0;font-size:13px;line-height:1.5}.rw-meta{font-weight:600}
+.rw-card .button{min-height:36px;padding:6px 12px;font-size:13px}
+.rw-empty{padding:14px;border:1px dashed var(--line);border-radius:var(--r-sm);text-align:center;color:var(--muted)}
+@media(max-width:420px){.rw-card{grid-template-columns:40px 1fr}.rw-card .button{grid-column:2;justify-self:start}}
+@media(prefers-reduced-motion:reduce){.roadwork-strip{transition:none}}

@@ -1,5 +1,14 @@
 # Orient Changelog
 
+## 2026-10-11 — Road work and closures
+
+- **What is under construction, and which roads are closed**, drawn on the map (closures solid red, lane restrictions dashed orange, work starting soon faded, lanes-open work grey-green, each start marked with a dot) and listed under a new construction button on the map tools. Tapping a road on the map opens its card first; *Show* on a card zooms to it.
+- **Today** gets a line such as "2 roads closed · 2 lane restrictions" when there is something within about 15 miles, and the list says plainly when its information is old.
+- **It reads the US national standard, WZDx**, so any state's feed fits. A scheduled GitHub Action in a commons repository (`commons-template/.github/workflows/roadwork.yml`, every half hour) reads the feeds listed in `roadwork.config.json` with the maintainer's own API key (a repository secret, never published), keeps only the region, and publishes one small `roadwork.json` on a `roadwork-data` branch (one replaced commit, so history does not grow). Orient downloads that one public file: no key for readers, no location sent. If a feed fails its last good copy is kept for six hours, then dropped.
+- Ohio's OHGO feed is configured for the Toledo region; Michigan or any other WZDx feed is one more entry in the config (see `commons-template/README.md`).
+- **Switch** in the field kit ("Road work on the map"); when no source covers the area it is off and says so.
+- New checks: `wzdx-check.cjs` (8 cases: the reader, the fetch tool, the key handling, the workflow) and `roadwork-check.cjs` (13 cases in the browser).
+
 ## 2026-10-11 — Weather
 
 - **The temperature and a weather icon sit beside FIELD TEST** in the header. Tap it for the weather report: now, the next 24 hours, the week, wind, humidity, UV, sunrise and sunset, and any National Weather Service alert (US) with what to do.
