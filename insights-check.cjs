@@ -89,7 +89,7 @@ const run = (s, o = {}) => I.compute(s, { now: NOW, lookup, ...o });
     const open = async (store, opts = {}) => {
       const ctx = await browser.newContext({ viewport: { width: 1200, height: 840 }, ...opts });
       const requests = []; ctx.on('request', r => requests.push(r.url()));
-      await ctx.addInitScript(s => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); } }, store);
+      await ctx.addInitScript(s => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); localStorage.setItem('orient-weather-v1', JSON.stringify({ show: false })); } }, store); // weather is off here: this test is about the stats drawer making no requests of its own
       const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message)); page.errors = errors; page.requests = requests;
       await page.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' }));
       await page.goto(URL_); await page.waitForFunction(() => window.OrientInsights && document.querySelector('.map-marker, #insights'), null, { timeout: 30000 });

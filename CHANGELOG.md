@@ -1,5 +1,14 @@
 # Orient Changelog
 
+## 2026-10-11 — Weather
+
+- **The temperature and a weather icon sit beside FIELD TEST** in the header. Tap it for the weather report: now, the next 24 hours, the week, wind, humidity, UV, sunrise and sunset, and any National Weather Service alert (US) with what to do.
+- **How this day looked in other years:** the same date 1, 2, 5, 10, 20, 30, 50 and 75 years ago (as far back as 1940), each compared with today, plus what is usual for the week around this date (1991–2020 average, records, and where today's forecast high ranks) with a small chart.
+- **The map has weather.** Gentle rain, snow, fog, drifting cloud shade and a soft, slow flash of lightning drift over the map, matching the real conditions. It never takes a tap, stops entirely under reduced motion, and can be switched off. A preview in the report shows every kind on a sunny day.
+- **Today** gets a one-line weather summary with the outlook ("Rain likely around 3 pm") that opens the report.
+- **Privacy:** the only thing sent is the area's position rounded to about 10 km, to Open-Meteo (forecast and history, no key) and, in the US, the National Weather Service (alerts). Nothing from your map is ever included. Switch Weather off in the field kit and no request is made. Units follow the area (°F and mph in the US) and can be flipped in the report.
+- New check `weather-check.cjs` (13 cases, all answered by mocks) and shared files `weather.js`, `weather-fx.js`, `weather.css`.
+
 ## 2026-10-11 — The panels join in
 
 - **Collections and the Add form** follow the shared dialog shell: icon tile, title, switches, cards. Codex’s separate `modal-system.css` and the supplied `gidgit.png` are retired in favour of `ui.css` and the pixel mascot (Gidgit is being reworked separately).
