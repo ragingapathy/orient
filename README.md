@@ -2,6 +2,8 @@
 
 **Get to know your city. Help someone else feel at home in theirs.**
 
+![Orient showing the Toledo map with its Today briefing, outing suggestions, and nearby specials.](docs/images/orient-today-toledo.png)
+
 Orient began in Toledo, Ohio, with a personal question: *How can a map nudge me to leave the house and explore?*
 
 A comic shop I keep meaning to visit. Coffee before the thrift store. A quiet bench by the river. Somewhere I can walk into alone and feel comfortable. The useful parts of a city often come from trying a place, talking to someone, and remembering one small thing.
