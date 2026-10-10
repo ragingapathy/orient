@@ -1,3 +1,4 @@
+if(!require('node:fs').existsSync(require('node:path').join(__dirname,'public/catalog.local.js'))){console.log('SKIP: needs public/catalog.local.js (a local catalog of places)');process.exit(0);}
 const H=require('./check-helpers.cjs');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 const F=async p=>{await p.evaluate(()=>document.querySelectorAll('#sheet details.fold').forEach(d=>{d.open=true;}));return p;};

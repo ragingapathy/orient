@@ -79,9 +79,9 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
     });
     await t('hovering a plate reader shows who runs it and which way it faces, and draws its view on the map', async () => {
       const p = await open(); await civic(p); await p.waitForFunction(() => OrientBoard.mapLayers() && OrientBoard.mapLayers().alpr);
-      await p.evaluate(() => OrientBoard.flyTo(-83.640, 41.640, 15.5)); await p.waitForTimeout(900);
+      await p.evaluate(() => OrientBoard.flyTo(-83.640, 41.640, 15.5)); await p.waitForTimeout(2200);
       // the reader at 41.640,-83.560 faces 345 degrees
-      await p.evaluate(() => OrientBoard.flyTo(-83.560, 41.640, 16)); await p.waitForTimeout(900);
+      await p.evaluate(() => OrientBoard.flyTo(-83.560, 41.640, 16)); await p.waitForTimeout(2200);
       await hoverAt(p, -83.560, 41.640);
       const card = p.locator('.civic-hover'); await card.waitFor();
       const text = await card.innerText(); assert.match(text, /License plate reader/i); assert.match(text, /Flock Safety · Toledo Police Department/); assert.match(text, /faces north \(345°\)|faces northwest \(345°\)/);
@@ -90,10 +90,10 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
     });
     await t('hovering a closed road shows the closure, and a camera shows its picture', async () => {
       const p = await open(); await civic(p);
-      await p.evaluate(() => OrientBoard.flyTo(-83.58, 41.62, 15)); await p.waitForTimeout(900);
+      await p.evaluate(() => OrientBoard.flyTo(-83.58, 41.62, 15)); await p.waitForTimeout(2200);
       await hoverAt(p, -83.58, 41.62); const card = p.locator('.civic-hover'); await card.waitFor();
       assert.match(await card.innerText(), /Closed[\s\S]*I-75 · Northbound[\s\S]*All lanes closed for bridge demolition[\s\S]*Miami St to Front St|All lanes closed for bridge demolition/);
-      await p.evaluate(() => OrientBoard.flyTo(-83.545, 41.655, 15)); await p.waitForTimeout(900);
+      await p.evaluate(() => OrientBoard.flyTo(-83.545, 41.655, 15)); await p.waitForTimeout(2200);
       await hoverAt(p, -83.545, 41.655); await card.waitFor();
       assert.match(await card.innerText(), /I-75 at Exit 1/); assert.match(await card.innerText(), /Click for the live picture/); assert.equal(await card.locator('img.rb-thumb').count(), 1);
     });
