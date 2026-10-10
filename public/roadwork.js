@@ -6,7 +6,8 @@
 window.OrientRoadwork = (() => {
   const PREF = 'orient-roadwork-v1', CACHE = 'orient-roadwork-cache-v1', FRESH = 10 * 60e3, OLD = 3 * 3600e3;
   // Areas with a road-work file. Anyone running a commons for their own region can add a line.
-  const SOURCES = [{ name: 'Toledo region', center: [-83.539, 41.655], km: 90, url: 'https://raw.githubusercontent.com/ragingapathy/toledo-commons/roadwork-data/roadwork.json' }];
+  // base: the folder of civic files this region's commons publishes (roadwork.json, incidents.json, cameras.json, alpr.json).
+  const SOURCES = [{ name: 'Toledo region', center: [-83.539, 41.655], km: 90, base: 'https://raw.githubusercontent.com/ragingapathy/toledo-commons/live-data/' }].map(s => ({ ...s, url: s.base + 'roadwork.json' }));
   const LAYERS = ['orient-roadwork-hit', 'orient-roadwork-casing', 'orient-roadwork-solid', 'orient-roadwork-dash', 'orient-roadwork-points'];
   const SRC = 'orient-roadwork';
   const STATUS = { closed: 'Closed', restricted: 'Lane restrictions', unknown: 'Work zones', open: 'Lanes open' };
@@ -15,6 +16,8 @@ window.OrientRoadwork = (() => {
   const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage can be blocked; the file is just fetched again */ } };
   const prefs = () => ({ show: true, ...jget(PREF, {}) });
 
+  let viewOn = false; // the Closures filter view: show road work for now, whatever the field kit says
+  const shownNow = () => prefs().show || viewOn;
   let api = null, data = null, source = null, dialog = null, timer = null, mapTries = 0, drawn = false, focusId = '', more = {};
 
   // ----- the file, checked as strictly as anything that arrives from outside -----
@@ -73,7 +76,7 @@ window.OrientRoadwork = (() => {
   function draw() {
     const map = api.map && api.map();
     if (!map) { if (mapTries++ < 100) setTimeout(draw, 300); return; }
-    if (!(prefs().show && data && data.items.length)) { clearMap(); return; }
+    if (!(shownNow() && data && data.items.length)) { clearMap(); return; }
     if (!map.isStyleLoaded()) { map.once('idle', draw); return; }
     const gj = geojson(), have = map.getSource(SRC);
     if (have) { have.setData(gj); drawn = true; return; }
@@ -98,7 +101,7 @@ window.OrientRoadwork = (() => {
   async function refresh(force = false) {
     if (!api) return;
     source = sourceFor(origin());
-    if (!prefs().show || !source) { data = null; clearMap(); everywhere(); return; }
+    if (!shownNow() || !source) { data = null; clearMap(); everywhere(); return; }
     const cache = jget(CACHE, null);
     if (!force && cache && cache.url === source.url && Date.now() - cache.at < FRESH) { data = validate(cache.raw); everywhere(); return; }
     try {
@@ -120,7 +123,7 @@ window.OrientRoadwork = (() => {
   };
   function setTool() {
     const tools = document.getElementById('tools'); let b = document.getElementById('roadwork-tool');
-    if (!data || !prefs().show) { b && b.remove(); return; }
+    if (!data || !shownNow()) { b && b.remove(); return; }
     if (!b) { b = document.createElement('button'); b.id = 'roadwork-tool'; b.type = 'button'; b.className = 'icon-button'; b.dataset.roadwork = 'open'; tools && tools.prepend(b); }
     const c = counts();
     b.innerHTML = '<i data-lucide="construction" aria-hidden="true"></i>' + (c.closed ? '<span class="rw-dot" aria-hidden="true"></span>' : '');
@@ -130,7 +133,7 @@ window.OrientRoadwork = (() => {
   function dressToday() {
     const panel = document.getElementById('panel'); if (!panel) return;
     const heading = panel.querySelector('.today-heading'), old = panel.querySelector('.roadwork-strip');
-    const c = data && prefs().show ? counts() : null;
+    const c = data && shownNow() ? counts() : null;
     if (!c || (!c.closed && !c.restricted) || !heading) { old && old.remove(); return; }
     const bits = []; if (c.closed) bits.push(c.closed + (c.closed === 1 ? ' road closed' : ' roads closed')); if (c.restricted) bits.push(c.restricted + (c.restricted === 1 ? ' lane restriction' : ' lane restrictions'));
     const html = '<i data-lucide="construction" class="rw-ico" aria-hidden="true"></i><span class="rw-copy"><b>' + esc(bits.join(' · ')) + '</b><small>Within about 15 miles' + (c.soon ? ' · ' + c.soon + ' more starting soon' : '') + '</small></span><span class="wx-go" aria-hidden="true">›</span>';
@@ -138,17 +141,20 @@ window.OrientRoadwork = (() => {
     const s = document.createElement('button'); s.type = 'button'; s.className = 'roadwork-strip'; s.dataset.roadwork = 'open'; s.dataset.html = html; s.innerHTML = html; s.dataset.tone = c.closed ? 'closed' : 'restricted';
     (panel.querySelector('.weather-strip') || heading).after(s); try { window.lucide && window.lucide.createIcons(); } catch { /* decoration */ }
   }
-  function everywhere() { draw(); setTool(); dressToday(); if (dialog && dialog.open) render(); syncSettings(); }
+  function everywhere() { draw(); setTool(); dressToday(); if (dialog && dialog.open) render(); syncSettings(); document.dispatchEvent(new Event('orient-roadwork')); }
 
   const dir = d => d ? d.charAt(0).toUpperCase() + d.slice(1) : '';
   const shortDate = s => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   const dates = i => i.upcoming ? 'Starts ' + shortDate(i.start) + (i.end ? ', until ' + shortDate(i.end) : '') : i.end ? 'Until ' + shortDate(i.end) : i.start ? 'Since ' + shortDate(i.start) : '';
   const span = ms => { const m = Math.round(ms / 60000); return m < 2 ? 'under a minute' : m < 90 ? m + ' minutes' : Math.round(m / 60) + ' hours'; };
   const ago = ms => Math.round(ms / 60000) < 2 ? 'just now' : span(ms) + ' ago';
-  function card(i) {
+  function titles(i) {
     const ds = i.directions, opposite = ds.length === 2 && ((ds.includes('northbound') && ds.includes('southbound')) || (ds.includes('eastbound') && ds.includes('westbound')));
     const dirs = ds.length >= 3 ? 'all directions' : opposite ? 'both directions' : ds.map(dir).join(' & ');
-    const title = (i.roads.join(' / ') || 'Road work') + (dirs ? ' · ' + dir(dirs) : ''), seg = i.from && i.to ? i.from + ' to ' + i.to : i.from || i.to || '';
+    return { title: (i.roads.join(' / ') || 'Road work') + (dirs ? ' · ' + dir(dirs) : ''), seg: i.from && i.to ? i.from + ' to ' + i.to : i.from || i.to || '' };
+  }
+  function card(i) {
+    const { title, seg } = titles(i);
     const d = nearest(i);
     return '<article class="rw-card" data-status="' + i.status + '"' + (i.ids.includes(focusId) ? ' data-focus="1"' : '') + ' data-id="' + esc(i.id) + '"><span class="rw-tile" aria-hidden="true"><i data-lucide="' + (i.status === 'closed' ? 'octagon-x' : 'construction') + '"></i></span><div><b>' + esc(title) + '</b>' +
       (seg ? '<small>' + esc(seg) + '</small>' : '') + (i.description ? '<p>' + esc(i.description) + '</p>' : '') + '<small class="rw-meta">' + esc([dates(i), Number.isFinite(d) ? miles(d).toFixed(1) + ' mi away' : ''].filter(Boolean).join(' · ')) + '</small></div><button type="button" class="button" data-roadwork="show" data-id="' + esc(i.id) + '" aria-label="Show ' + esc(title) + ' on the map">Show</button></article>';
@@ -206,5 +212,7 @@ window.OrientRoadwork = (() => {
     clearInterval(timer); timer = setInterval(() => { if (!document.hidden) refresh(); }, FRESH);
     refresh();
   }
-  return { init, refresh, open, validate, view: () => { const m = api.map && api.map(); return m ? { center: m.getCenter().toArray(), zoom: m.getZoom() } : null; }, project: (lng, lat) => { const m = api.map && api.map(); if (!m) return null; const p = m.project([lng, lat]), r = m.getCanvas().getBoundingClientRect(); return { x: r.left + p.x, y: r.top + p.y }; }, state: () => ({ source: source && source.name, items: data ? data.items.length : 0, drawn }), mapLayers: () => { const m = api.map && api.map(); if (!m || !m.getSource(SRC)) return null; return { layers: LAYERS.filter(id => m.getLayer(id)), features: m.getSource(SRC).serialize().data.features.length }; } };
+  return { init, refresh, open, validate, source: () => source, shown: () => shownNow(), setClosuresView: on => { viewOn = !!on; return refresh(true); }, setShown: v => { const p = prefs(); p.show = !!v; jset(PREF, p); return refresh(true); }, summary: () => ({ counts: counts(), age: age(), updated: data && data.updated, loaded: !!data, sources: data ? data.sources : [] }),
+    list: (km = 80) => groups().filter(g => near(g, km)).sort((a, b) => nearest(a) - nearest(b)).map(g => ({ id: g.id, status: g.status, upcoming: g.upcoming, ...titles(g), description: g.description, when: dates(g), meters: nearest(g) })),
+    describe: id => { const g = data && groupOf(id); return g ? { kind: 'roadwork', id: g.id, status: g.status, upcoming: g.upcoming, ...titles(g), description: g.description, when: dates(g), meters: nearest(g) } : null; }, show, view: () => { const m = api.map && api.map(); return m ? { center: m.getCenter().toArray(), zoom: m.getZoom() } : null; }, project: (lng, lat) => { const m = api.map && api.map(); if (!m) return null; const p = m.project([lng, lat]), r = m.getCanvas().getBoundingClientRect(); return { x: r.left + p.x, y: r.top + p.y }; }, state: () => ({ source: source && source.name, items: data ? data.items.length : 0, drawn }), mapLayers: () => { const m = api.map && api.map(); if (!m || !m.getSource(SRC)) return null; return { layers: LAYERS.filter(id => m.getLayer(id)), features: m.getSource(SRC).serialize().data.features.length }; } };
 })();

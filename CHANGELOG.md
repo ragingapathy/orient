@@ -1,5 +1,17 @@
 # Orient Changelog
 
+## 2026-10-11 — The Civic tab
+
+- **Civic is a tab of its own**, just before Gidgit (which stays last): the city right now, on one screen. A strip of tiles (weather and alerts, roads closed nearby, incidents, license plate readers within 5 miles) jumps to its section: weather and alerts, road work, incidents, state traffic cameras, license plate readers, and **Useful nearby** (air quality, fuel context and park amenities). The "Useful nearby" button that sat in the header, and its modal, are folded in here and gone from the header.
+- **Layers on the map.** Incidents, traffic cameras and plate readers draw on the map with their own icons, clusters at city scale, and a facing arrow on each plate reader. Every layer is on while you are on the Civic tab; elsewhere only the ones you chose to keep (the pin beside each switch).
+- **Hover cards** on a road, incident, camera or plate reader (desktop): the closure and its dates, a camera's current picture, and for a plate reader who runs it, what make it is and which way it faces, with its field of view drawn on the map. On a phone a tap opens the same detail.
+- **Cameras.** Ohio's traffic cameras (86 in the Toledo region) open as a live picture that refreshes every few seconds, straight from ODOT's own server, only when you open one.
+- **License plate readers** come from what volunteers have mapped on OpenStreetMap, the data DeFlock maps: 591 in the Toledo region today. The Civic tab counts them near you by operator and make, says plainly what they are, and credits OpenStreetMap (ODbL) and DeFlock.
+- **Data pipeline.** The commons repository's scheduled "Live city data" workflow (`commons-template/`, every half hour; plate readers daily) reads OHGO with the maintainer's key and OpenStreetMap, and publishes `roadwork.json`, `incidents.json`, `cameras.json` and `alpr.json` on a `live-data` branch. Orient downloads those files; nothing about you is sent. A source that fails keeps its last good data for a while.
+- **Closures** is also a filter chip in Explore (beside Specials and Open now): it opens the closures list and shows only closures and incidents on the map until you pick another filter or leave Explore.
+- Typing in the search bar or choosing a park from Useful nearby takes you back to Explore.
+- New checks: `civic-board-check.cjs` (14 browser cases), `live-data-check.cjs` (7 offline cases), and the road-work and civic checks updated for the new names.
+
 ## 2026-10-11 — Road work and closures
 
 - **What is under construction, and which roads are closed**, drawn on the map (closures solid red, lane restrictions dashed orange, work starting soon faded, lanes-open work grey-green, each start marked with a dot) and listed under a new construction button on the map tools. Tapping a road on the map opens its card first; *Show* on a card zooms to it.
@@ -435,3 +447,24 @@
 - Review JSON bundles from files or public GitHub snapshots, choose coordinate matches, and accept individual sourced claims separately from private notes.
 - Preserve multiple independent source identities, detect duplicate/changed claims, review contested/retired updates, and export merged public bundles without private map bookkeeping.
 - Add strict protocol validation, a fictional snapshot, contributor documentation, and firewall/browser regression checks.
+
+
+### Civic context and gas observations — 2026-10-10
+
+- Added Useful nearby with park-level Toledo amenities, preliminary AirNow readings and accurately labeled weekly EIA averages from official key-free feeds.
+- Added gas station price reports with grade, cash/card/membership conditions and observation time; reports persist privately with export/sync and can be explicitly reviewed for commons sharing.
+- Added a separate attributed civic-feed format, GitHub publisher workflow and source selection. AirNow publication requires guideline acknowledgment; unconfirmed Toledo republication is excluded. Civic data does not draw from private map or neighbor records.
+
+
+### Wi-Fi place details and overlay
+
+- Place cards can record Wi-Fi access, coverage, outlets, seating, availability hours, a published source and a personal confirmation date. Unknown details stay unknown.
+- Civic now lists nearby recorded Wi-Fi places, five at a time, with a free-public filter and an optional map overlay.
+- Details travel with private map exports and sync; they are not automatically published. No device scanning or neighbor records are used. This first version uses deliberately entered place details, not an automatic directory feed.
+
+
+### Civic section navigation
+
+- Sticky Overview, Conditions, Cameras and Amenities tabs replace the long Civic dashboard. Overview keeps weather, air quality and links into the detailed sections.
+- Selection is remembered on this device. Keyboard navigation supports arrow keys, Home and End. Section changes preserve map position and overlay settings.
+- Saved the preceding Civic UI in the sibling orient-checkpoints directory before this layout change.

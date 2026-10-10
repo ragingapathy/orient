@@ -1,6 +1,6 @@
 'use strict';
-// Fetches the road-work feeds listed in roadwork.config.json and writes one small file, roadwork.json, that Orient reads.
-//   node tools/fetch-roadwork.cjs [--config roadwork.config.json] [--previous previous.json] [--out roadwork.json]
+// Reads the work-zone (WZDx) feeds in a config and builds roadwork.json. Used by fetch-live.cjs, and runnable on its own:
+//   node tools/fetch-roadwork.cjs [--config live.config.json] [--previous previous.json] [--out roadwork.json]
 // API keys come from environment variables (GitHub Actions secrets) and are never written anywhere or printed.
 // One feed failing never empties the file: its last good data is kept for up to six hours.
 
@@ -27,13 +27,11 @@ async function fetchFeed(feed, key) {
   } finally { clearTimeout(timer); }
 }
 
-async function main() {
-  const root = path.join(__dirname, '..');
-  const config = JSON.parse(fs.readFileSync(path.resolve(arg('config', path.join(root, 'roadwork.config.json'))), 'utf8'));
-  let previous = null; try { previous = JSON.parse(fs.readFileSync(path.resolve(arg('previous', 'previous.json')), 'utf8')); } catch { /* the first run has none */ }
-  const now = new Date(), items = [], sources = [];
+// config: { name, bbox, feeds: [...] }; previous: the last published roadwork.json or null
+async function buildRoadwork(config, previous, now = new Date(), env = process.env) {
+  const items = [], sources = [];
   for (const feed of config.feeds || []) {
-    const key = feed.auth && feed.auth.secretEnv ? process.env[feed.auth.secretEnv] : '';
+    const key = feed.auth && feed.auth.secretEnv ? env[feed.auth.secretEnv] : '';
     const entry = { id: feed.id, name: feed.name, publisher: feed.publisher || '', license: feed.license || 'CC0-1.0', homepage: feed.homepage || '' };
     try {
       const res = await fetchFeed(feed, key);
@@ -42,7 +40,7 @@ async function main() {
         const { items: got, skipped } = normalize(res.json, { source: feed.id, bbox: config.bbox, now });
         items.push(...got); Object.assign(entry, { status: 'ok', fetched: now.toISOString(), count: got.length, skipped });
       }
-    } catch (e) { entry.status = 'failed'; entry.note = String(e.message || e).replace(/s+/g, ' ').slice(0, 120); }
+    } catch (e) { entry.status = 'failed'; entry.note = String(e.message || e).replace(/\s+/g, ' ').slice(0, 120); }
     if (entry.status !== 'ok') {
       // keep the last good data for a while, so one bad half hour does not blank the map
       const was = previous && Array.isArray(previous.sources) ? previous.sources.find(x => x.id === feed.id && (x.status === 'ok' || x.status === 'stale')) : null;
@@ -53,9 +51,17 @@ async function main() {
     }
     sources.push(entry);
   }
-  const out = { format: 'orient-roadwork', version: 1, updated: now.toISOString(), area: { name: config.name || '', bbox: config.bbox || null }, sources, items };
+  return { format: 'orient-roadwork', version: 1, updated: now.toISOString(), area: { name: config.name || '', bbox: config.bbox || null }, sources, items };
+}
+
+async function main() {
+  const root = path.join(__dirname, '..');
+  const raw = JSON.parse(fs.readFileSync(path.resolve(arg('config', path.join(root, 'live.config.json'))), 'utf8'));
+  const config = raw.wzdx ? { name: raw.name, bbox: raw.bbox, feeds: raw.wzdx.feeds } : raw;
+  let previous = null; try { previous = JSON.parse(fs.readFileSync(path.resolve(arg('previous', 'previous.json')), 'utf8')); } catch { /* the first run has none */ }
+  const out = await buildRoadwork(config, previous);
   fs.writeFileSync(path.resolve(arg('out', 'roadwork.json')), JSON.stringify(out) + '\n');
-  console.log('road work: ' + items.length + ' items; ' + out.sources.map(s => s.id + ' ' + s.status).join(', '));
+  console.log('road work: ' + out.items.length + ' items; ' + out.sources.map(s => s.id + ' ' + s.status).join(', '));
 }
 if (require.main === module) main().catch(e => { console.error('road work fetch failed: ' + (e && e.message)); process.exit(1); });
-module.exports = { fetchFeed };
+module.exports = { fetchFeed, buildRoadwork };

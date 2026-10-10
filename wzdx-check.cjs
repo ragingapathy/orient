@@ -92,11 +92,11 @@ const feed = (...features) => ({ type: 'FeatureCollection', features });
     assert.deepEqual(await fetchFeed({ url: base, auth: { secretEnv: 'K' } }, ''), { skipped: 'no key set (K)' }); server.close();
   });
   await t('the workflow is scheduled, never runs for pull requests, and only publishes its own branch', () => {
-    const w = fs.readFileSync(path.join(__dirname, 'commons-template', '.github', 'workflows', 'roadwork.yml'), 'utf8');
-    assert.match(w, /schedule:/); assert.doesNotMatch(w, /pull_request/); assert.match(w, /contents: write/); assert.match(w, /roadwork-data/); assert.match(w, /secrets\.OHGO_API_KEY/);
+    const w = fs.readFileSync(path.join(__dirname, 'commons-template', '.github', 'workflows', 'live.yml'), 'utf8');
+    assert.match(w, /schedule:/); assert.doesNotMatch(w, /pull_request/); assert.match(w, /contents: write/); assert.match(w, /live-data/); assert.match(w, /secrets\.OHGO_API_KEY/);
     assert.doesNotMatch(w, /echo .*secrets/i); assert.match(w, /--force/);
-    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'commons-template', 'roadwork.config.json'), 'utf8'));
-    assert.equal(cfg.feeds[0].auth.secretEnv, 'OHGO_API_KEY'); assert.equal(cfg.feeds[0].url, 'https://publicapi.ohgo.com/api/work-zones/wzdx/4.2'); assert.equal(cfg.bbox.length, 4);
+    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'commons-template', 'live.config.json'), 'utf8'));
+    assert.equal(cfg.wzdx.feeds[0].auth.secretEnv, 'OHGO_API_KEY'); assert.equal(cfg.wzdx.feeds[0].url, 'https://publicapi.ohgo.com/api/work-zones/wzdx/4.2'); assert.equal(cfg.bbox.length, 4);
   });
   console.log('PASS: ' + n + ' WZDx road-work cases');
 })().catch(e => { console.error(e); process.exit(1); });

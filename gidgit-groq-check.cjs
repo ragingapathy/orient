@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict'),G=require('./gidgit.cjs');
+const places=[{id:'secret-id',name:'Private Cafe',category:'Coffee',note:'secret-note',hours:'secret-hours',people:'secret-person',coordinates:[1,2]}];
+const base={intent:'find',terms:['coffee'],mustMatch:['coffee'],openNow:false,unvisited:false,placeId:'',field:'',value:'',message:''};
+(async()=>{const old=process.env.GROQ_API_KEY;try{
+ delete process.env.GROQ_API_KEY;
+ await assert.rejects(()=>G.ask({provider:'groq',query:'Find coffee',places}),/server API key/);
+ process.env.GROQ_API_KEY='fixture-key';let sent;
+ const mock=plan=>async(url,options)=>{assert.equal(url,'https://api.groq.com/openai/v1/chat/completions');sent=JSON.parse(options.body);assert.equal(options.headers.Authorization,'Bearer fixture-key');return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(plan)}}]}));};
+ let answer=await G.ask({provider:'groq',query:'Find coffee',contextPlaceId:'secret-id',places},{fetcher:mock(base)});
+ assert.equal(answer.engine.provider,'Groq');assert.equal(answer.privacy,'question-only');assert.equal(sent.messages[1].content,'Find coffee');assert.equal(sent.response_format.json_schema.strict,true);
+ for(const secret of ['Private Cafe','secret-id','secret-note','secret-hours','secret-person'])assert.equal(JSON.stringify(sent).includes(secret),false);
+ const edit={...base,intent:'update',field:'note',value:'Has patio'};
+ answer=await G.ask({provider:'groq',query:'Remember here: Has patio',contextPlaceId:'secret-id',places},{fetcher:mock(edit)});assert.equal(answer.plan.placeId,'secret-id');
+ answer=await G.ask({provider:'groq',query:'Remember at Private Cafe: Has patio',places},{fetcher:mock({...edit,placeId:'Private Cafe'})});assert.equal(answer.plan.placeId,'secret-id');
+ answer=await G.ask({provider:'groq',query:'Remember here: Has patio',contextPlaceId:'secret-id',places},{fetcher:mock({...edit,placeId:'Invented Cafe'})});assert.equal(answer.plan.intent,'clarify');
+ answer=await G.ask({provider:'groq',query:'Remember at Private Cafe: Has patio',places:[...places,{...places[0],id:'duplicate'}]},{fetcher:mock({...edit,placeId:'Private Cafe'})});assert.equal(answer.plan.intent,'clarify');
+ await assert.rejects(()=>G.ask({provider:'groq',query:'coffee',places},{fetcher:async()=>new Response('{}',{status:429})}),/quota/);
+ await assert.rejects(()=>G.ask({provider:'groq',query:'coffee',places},{fetcher:async()=>new Response('<html>',{status:200})}),/unreadable/);
+ await assert.rejects(()=>G.ask({provider:'groq',query:'coffee',places},{fetcher:async()=>new Response('{}',{status:401})}),/API key/);
+ console.log('Groq pipeline: question-only payload, strict schema, local edit resolution, ambiguity, missing key, quota, auth and malformed replies passed.');
+ }finally{if(old===undefined)delete process.env.GROQ_API_KEY;else process.env.GROQ_API_KEY=old;}})().catch(e=>{console.error(e);process.exitCode=1;});

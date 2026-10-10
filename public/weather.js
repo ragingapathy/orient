@@ -117,6 +117,12 @@ window.OrientWeather = (() => {
     if (s.day && (s.kind === 'none' || (s.kind === 'clouds' && s.level <= 1)) && s.feels >= 10 && s.feels <= 27) return out('lovely', 'It’s ' + temp(s.temp) + ' and ' + s.label.toLowerCase() + ': a nice time to be outside.');
     return out('fine', '');
   }
+  // A short summary for the Civic tab.
+  function brief() {
+    if (!fc || !prefs().show) return null;
+    const c = fc.current, d = fc.daily;
+    return { temp: temp(c.temperature_2m), label: cond(c.weather_code)[0], icon: iconOf(c.weather_code, c.is_day), detail: 'High ' + temp(d.temperature_2m_max[0]) + ' · Low ' + temp(d.temperature_2m_min[0]) + ' · ' + outlook(), alerts: alerts.map(a => ({ event: a.event, severity: a.severity || '', headline: a.headline || '', area: a.areaDesc || '' })) };
+  }
   let lastMood = null, soon = 0;
   // The app may still be starting up when a cached forecast arrives, so drawing again waits a moment and skips an open dialog.
   // It also never redraws under a finger: a drag on the briefing drawer, say, must not be interrupted.
@@ -124,6 +130,7 @@ window.OrientWeather = (() => {
   function drawSoon() { clearTimeout(soon); soon = setTimeout(() => { if (pressed || document.querySelector('dialog[open]')) return drawSoon(); try { api.render(); } catch { /* the next change draws it */ } }, 250); }
   function everywhere() {
     setChip(); applyFx(); dressToday(); if (dialog && dialog.open) renderReport();
+    document.dispatchEvent(new Event('orient-weather'));
     // Today and "Get me out" lean on the weather; when it first arrives or its mood changes, draw them again.
     const j = judge(), sig = j ? j.mood + '|' + j.text : '';
     if (sig !== lastMood) { const first = lastMood === null; lastMood = sig; if ((!first || sig) && api.render) drawSoon(); }
@@ -296,5 +303,5 @@ window.OrientWeather = (() => {
     clearInterval(timer); timer = setInterval(() => { if (!document.hidden) refresh(); }, FRESH);
     refresh();
   }
-  return { init, refresh, open, summarize, cond, snapshot, judge, state: () => ({ fc, alerts, units: units() }) };
+  return { init, refresh, open, summarize, cond, snapshot, judge, brief, state: () => ({ fc, alerts, units: units() }) };
 })();

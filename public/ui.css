@@ -415,3 +415,6 @@ dialog fieldset>legend{padding:0 6px;font-size:10px;font-weight:700;letter-spaci
 .set-card .open-export{display:grid;gap:10px;align-items:stretch}
 .set-card .open-export-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .set-card .open-export-buttons .button{width:100%}
+
+/* Gidgit shares the Orient wordmark face. */
+#gidgit-dialog #gidgit-title{font-family:Isometra,system-ui,sans-serif;font-weight:400;letter-spacing:.7px}

@@ -8,7 +8,7 @@ window.OrientPlaces=(()=>{
  function sanitize(p){
   if(!p||!/^((osm-(node|way|relation)-\d+)|(tile-[a-z0-9]+))$/.test(p.id)||typeof p.name!=='string'||!Array.isArray(p.coordinates)||p.coordinates.length!==2||!p.coordinates.every(Number.isFinite)||Math.abs(p.coordinates[0])>180||Math.abs(p.coordinates[1])>85)return null;
   const type=p.id.split('-')[1],id=p.id.split('-')[2];
-  const iconName=['book-open','gamepad-2','dices','puzzle','library','coffee','utensils','glass-water','users','palette','film','drama','trees','landmark','map-pin'].includes(p.icon)?p.icon:'map-pin';
+  const iconName=['book-open','gamepad-2','dices','puzzle','library','coffee','utensils','glass-water','users','palette','film','drama','trees','landmark','fuel','map-pin'].includes(p.icon)?p.icon:'map-pin';
   const tile=p.id.startsWith('tile-');
   const obj={id:p.id,name:p.name.slice(0,150),kind:String(p.kind||'Place').slice(0,80),icon:iconName,group:String(p.group||'other').slice(0,40),coordinates:p.coordinates,demo:false,mapLabelOnly:tile,sourceURL:tile?`https://www.openstreetmap.org/?mlat=${p.coordinates[1]}&mlon=${p.coordinates[0]}#map=18/${p.coordinates[1]}/${p.coordinates[0]}`:`https://www.openstreetmap.org/${type}/${id}`,website:tile?'':safeURL(p.website)};
   for(const key of ['address','hours','phone','wheelchair','operator','description','retrievedAt','osmEditedAt'])obj[key]=String(p[key]||'').slice(0,key==='description'?800:500);

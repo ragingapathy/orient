@@ -2,11 +2,19 @@
    Nothing here changes what a dialog does. */
 'use strict';
 (function () {
+  // Native dialog backdrops target the dialog itself. Require the gesture to
+  // start and finish outside, so dragging out of a form never dismisses it.
+  let backdropStart=null;
+  const outside=(dialog,event)=>{const r=dialog.getBoundingClientRect();return event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom;};
+  document.addEventListener('pointerdown',e=>{backdropStart=e.target instanceof HTMLDialogElement&&e.target.open&&outside(e.target,e)?e.target:null;},true);
+  document.addEventListener('pointercancel',()=>{backdropStart=null;},true);
+  document.addEventListener('click',e=>{const dialog=backdropStart;backdropStart=null;if(dialog&&e.target===dialog&&dialog.open&&outside(dialog,e)){e.preventDefault();e.stopPropagation();dialog.close();}},true);
+
   // an icon for each dialog, so a header reads at a glance
   const ICONS = {
     'settings-dialog': 'sliders-horizontal', 'add-dialog': 'plus', 'category-dialog': 'tag', 'home-dialog': 'house', 'area-dialog': 'map-pinned',
     'commons-dialog': 'users', 'takeout-dialog': 'map-pinned', 'dir-dialog': 'navigation', 'neighbor-dialog': 'user-round',
-    'outing-dialog': 'footprints', 'photo-dialog': 'camera', 'website-dialog': 'globe', 'social-dialog': 'share-2', 'circuit-dialog': 'route', 'circuits-browser': 'route', 'circuit-editor': 'route', 'collections-dialog': 'layers', 'journey-dialog': 'sparkles', 'event-dialog': 'calendar-plus', 'weather-dialog': 'cloud-sun', 'roadwork-dialog': 'construction', 'lore-dialog': 'scroll-text', 'knowledge-dialog': 'notebook-pen',
+    'outing-dialog': 'footprints', 'photo-dialog': 'camera', 'website-dialog': 'globe', 'social-dialog': 'share-2', 'circuit-dialog': 'route', 'circuits-browser': 'route', 'circuit-editor': 'route', 'collections-dialog': 'layers', 'journey-dialog': 'sparkles', 'event-dialog': 'calendar-plus', 'weather-dialog': 'cloud-sun', 'roadwork-dialog': 'construction', 'board-dialog': 'landmark', 'lore-dialog': 'scroll-text', 'knowledge-dialog': 'notebook-pen',
   };
   function dress(dialog) {
     const head = dialog.querySelector('.panel-heading'); if (!head || head.querySelector('.dlg-ico')) return;

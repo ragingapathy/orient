@@ -1,0 +1,26 @@
+{
+  "name": "Toledo region",
+  "bbox": [-84.3, 41.2, -82.7, 42.1],
+  "wzdx": {
+    "feeds": [
+      {
+        "id": "ohgo",
+        "name": "Ohio roads (OHGO)",
+        "publisher": "Ohio Department of Transportation",
+        "homepage": "https://www.ohgo.com/",
+        "license": "CC0-1.0",
+        "url": "https://publicapi.ohgo.com/api/work-zones/wzdx/4.2",
+        "auth": { "secretEnv": "OHGO_API_KEY", "header": "Authorization", "prefix": "APIKEY " }
+      }
+    ]
+  },
+  "ohgo": {
+    "base": "https://publicapi.ohgo.com",
+    "secretEnv": "OHGO_API_KEY",
+    "publisher": "Ohio Department of Transportation",
+    "homepage": "https://www.ohgo.com/",
+    "cameras": true,
+    "incidents": true
+  },
+  "alpr": { "enabled": true, "minHours": 20 }
+}

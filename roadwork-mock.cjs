@@ -16,4 +16,4 @@ const roadwork = (opts = {}) => ({
     item('script', 'restricted', ['<img src=x onerror=alert(1)>'], [[-83.45, 41.7], [-83.44, 41.71]], { description: '<script>alert(1)</script> Right lane closed' }),
   ],
 });
-module.exports = { roadwork, ROADWORK_URL: 'https://raw.githubusercontent.com/ragingapathy/toledo-commons/roadwork-data/roadwork.json' };
+module.exports = { roadwork, ROADWORK_URL: 'https://raw.githubusercontent.com/ragingapathy/toledo-commons/live-data/roadwork.json' };

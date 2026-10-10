@@ -9,3 +9,8 @@ data/
 
 # Scratch files
 transcript-formatted.txt
+
+# Server credentials
+.env
+.env.*
+!.env.example

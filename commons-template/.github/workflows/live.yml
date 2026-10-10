@@ -1,0 +1,54 @@
+name: Live city data
+
+# Every half hour, read public civic sources for this region and publish small files Orient can download:
+#   https://raw.githubusercontent.com/<owner>/<repo>/live-data/roadwork.json    work zones and closures (WZDx)
+#   https://raw.githubusercontent.com/<owner>/<repo>/live-data/incidents.json   accidents and hazards reported by the state
+#   https://raw.githubusercontent.com/<owner>/<repo>/live-data/cameras.json     state traffic cameras
+#   https://raw.githubusercontent.com/<owner>/<repo>/live-data/alpr.json        license plate readers mapped on OpenStreetMap (refreshed daily)
+# They go on their own branch as one commit that is replaced each time, so the repository's history does not grow.
+# API keys live in Settings > Secrets and variables > Actions (OHGO_API_KEY for Ohio). Nothing here runs for pull requests.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-data
+  cancel-in-progress: true
+
+jobs:
+  civic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: Fetch the last published files (to keep them if a source fails)
+        run: |
+          mkdir previous
+          git fetch --depth=1 origin live-data || true
+          for f in roadwork incidents cameras alpr; do
+            git show FETCH_HEAD:$f.json > previous/$f.json 2>/dev/null || rm -f previous/$f.json
+          done
+
+      - name: Fetch and normalise the sources
+        run: node tools/fetch-live.cjs --previous-dir previous --out-dir out
+        env:
+          OHGO_API_KEY: ${{ secrets.OHGO_API_KEY }}
+
+      - name: Publish
+        run: |
+          set -e
+          cd out
+          git init -q -b live-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add *.json
+          git commit -q -m "Live data, $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" live-data

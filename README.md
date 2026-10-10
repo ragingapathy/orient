@@ -95,3 +95,21 @@ Orient’s application code is licensed under [PolyForm Noncommercial 1.0.0](LIC
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; basemap by [OpenFreeMap](https://openfreemap.org/). Vendored libraries and fonts retain their own licenses. See the [user guide](docs/user-guide.md#credits-and-license) and `public/vendor/` for credits.
 
 **Start with one place. Make it easier for someone to go. Build from there.**
+
+### Optional Groq for Gidgit
+
+Choose Groq in Field kit → Gidgit settings after configuring the server. Groq receives only the question you type, never your saved map records or selected-place identity. Anything written into the question itself is sent. Matching, hours checks and edit review stay in Orient. There is no automatic cloud fallback.
+
+Set `GROQ_API_KEY` in the server environment. For Docker Compose, put `GROQ_API_KEY=your-key` in a local `.env` file (ignored by Git), then run `docker compose up -d --force-recreate orient` to apply it. Do not put keys in browser code, map exports, or commits. Native Node deployments must supply the environment variable themselves; Node does not automatically read `.env` here.
+
+The initial model is `openai/gpt-oss-20b`. Free-tier quota failures produce a readable message without switching providers. A selected provider is saved per browser. Cloud edits resolve an explicitly named place locally, or use the selected context when no name is supplied, and always require review before saving.
+
+### Useful nearby and gas reports
+
+The accessibility icon in the header opens Useful nearby: Toledo park amenities, preliminary regional AirNow observations, and weekly EIA fuel averages. This uses the chosen area, never GPS. Toledo pins identify the park containing an amenity, not its precise fixture. Access and seasonal availability may differ. Outside Toledo, amenities require another supported source; empty results are not a claim that none exist.
+
+AirNow is fetched from its public reporting-area file, and EIA averages from its official public RSS feed. Users need no API keys. Ohio is explicitly labeled statewide; selected Midwest areas use the regional average. Other areas can configure an appropriate civic publisher. Sources are cached, timestamped, and expired rather than presented as current forever.
+
+A Gas station category gives a place a fuel-report card. Record grade, USD per US gallon, price conditions and observation time. Reports persist with map exports and paired sync. They stay private until Share opens a reviewed commons contribution. Reports are observations, not guaranteed current prices; they are never silently averaged into a city statistic.
+
+City publishers can use `commons-template/civic.config.json` and the Civic data workflow. See [civic data setup](commons-template/CIVIC-DATA.md). Public AirNow publication requires completing its Data Exchange Guidelines requirements; the workflow refuses publication until acknowledged. Toledo park republication remains excluded pending reuse terms. No civic feed is published by merely viewing it in Orient.

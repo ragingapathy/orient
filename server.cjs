@@ -46,6 +46,7 @@ http.createServer((req,res)=>{
   if(url.startsWith('/api/commons/')){commonsPublish(req,res,url,json,sync);return;}
   if(url==='/api/geocode'){lookup(req,res);return;}
   if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
+  if(url==='/api/civic'){if(!sync.authorized(req)){json(res,401,{error:'Pair this browser to read civic sources.'});return;}require('./civic.cjs').handle(req,res,json);return;}
   if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}
   if(sync.handle(req,res,url,json))return;
   if(url==='/api/backups'){if(!sync.trusted(req)){json(res,403,{error:'Backups are managed only on the computer that runs Orient.'});return;}if(req.method==='POST'){try{const r=backup.take();json(res,r.skipped?409:200,r.skipped?{error:r.skipped}:{...r,...backup.list()});}catch(e){json(res,500,{error:e.message});}return;}if(req.method==='GET'){json(res,200,backup.list());return;}res.writeHead(405,{Allow:'GET, POST'});res.end();return;}
