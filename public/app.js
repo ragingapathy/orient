@@ -153,7 +153,7 @@
       const button=marker.getElement();button.dataset.placeId=p.id;button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
       button.classList.toggle('lit-open',state.filter==='Open now');
       button.classList.toggle('discovered',!isMarked(p.id)&&/^(osm-|tile-)/.test(p.id));
-      button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(store.visited.includes(p.id)?'check':p.icon)}</span><span class="pin-label">${escapeHTML(p.name)}</span>`;
+      button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(p.icon)}</span><span class="pin-label">${escapeHTML(p.name)}</span>`;
     }
     OrientCircuits.syncMap(map,!!state.circuitMap&&state.tab==='My Map'&&!state.list);
     OrientJourney.syncMarkers(map,state.tab==='My Map'&&!state.list&&!state.collectionId);

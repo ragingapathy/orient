@@ -27,12 +27,13 @@ const base = () => ({
   const saved = p => p.evaluate(() => JSON.parse(localStorage.getItem('orient-field-map-v1')));
   const openCard = async (p, name) => { await p.locator('[data-action=list]:visible').first().click().catch(() => {}); await p.locator('.row[data-place]').filter({ hasText: name }).first().click(); await p.locator('.peekhead .tile-pick').waitFor(); };
   try {
-    await t('a saved pin carries a small gold star, not a red alert dot; a visited pin has its check instead', async () => {
+    await t('a saved pin carries a small gold star, not a red alert dot; a visited pin keeps its icon and gets a small check badge', async () => {
       const store = { ...base(), saved: ['local-a'], visited: ['local-b'] }; const { ctx, p } = await open(store, {}, 2);
       const badge = id => p.evaluate(i => { const pin = document.querySelector(`.map-marker[data-place-id="${i}"] .pin`), s = getComputedStyle(pin, '::after'); return { content: s.content, image: s.backgroundImage, w: s.width }; }, id);
       const a = await badge('local-a'); assert.notEqual(a.content, 'none'); assert.match(a.image, /^url\("data:image\/svg\+xml/); assert.match(decodeURIComponent(a.image), /<path d='M12 2\.5l2\.9/, 'a star shape'); assert.match(decodeURIComponent(a.image), /fill='#e0a643'/, 'gold, nothing like the accent red');
       assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector('.map-marker[data-place-id="local-a"] .pin'), '::after').backgroundColor !== 'rgb(202, 91, 48)'), true, 'not the accent colour');
-      assert.equal((await badge('local-b')).content, 'none', 'visited shows its check instead');
+      const v = await badge('local-b'); assert.notEqual(v.content, 'none'); assert.match(decodeURIComponent(v.image), /M4.5 12.5l5 5 10-11/, 'a check badge'); assert.notEqual(v.image, a.image, 'not the star');
+      assert.equal(await pinIcon(p, 'local-b'), 'utensils', 'a visited pin keeps its own icon'); assert.equal(await p.locator('.map-marker[data-place-id="local-b"] .pin').evaluate(e => e.classList.contains('visited')), true);
       assert.deepEqual(p.errors, []); await ctx.close();
     });
     await t('generic food and drink places get a fitting icon from their name; real coffee shops keep the cup', async () => {
