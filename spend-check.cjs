@@ -130,7 +130,9 @@ const withSpend = () => ({
       await ctx.close();
     });
     await t('spending is never part of what the commons or the insights read', async () => {
-      for (const f of ['public/insights.js', 'public/commons.js', 'public/commons-data.js', 'public/social.js']) assert.doesNotMatch(fs.readFileSync(require('node:path').join(__dirname, f), 'utf8'), /spend|ownership/i, f);
+      for (const f of ['public/commons.js', 'public/commons-data.js', 'public/social.js']) assert.doesNotMatch(fs.readFileSync(require('node:path').join(__dirname, f), 'utf8'), /spend|ownership/i, f);
+      // the insights drawer may show it on this device through OrientSpend, but never copies spending into its own numbers
+      assert.doesNotMatch(fs.readFileSync(require('node:path').join(__dirname, 'public/insights.js'), 'utf8').replace(/OrientSpend/g, ''), /(src|store)[.]spend|ownership/);
     });
     await t('on a phone the section and the summary fit the screen', async () => {
       const { ctx, p } = await open(withSpend(), { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -159,6 +161,15 @@ const withSpend = () => ({
       assert.deepEqual(months[5].slice(0, 3), [700, 0, 0], 'the current month holds the local purchase from today and nothing else');
       const heights = await tr.locator('.spend-col').evaluateAll(l => l.map(c => c.getBoundingClientRect().height)); assert.ok(Math.max(...heights) > 20 && heights.some(h => h === 0 || h < Math.max(...heights)), 'bars are scaled to the biggest month');
       assert.equal(await p.evaluate(() => document.querySelector('.spend-summary').scrollWidth <= document.querySelector('.spend-summary').clientWidth + 1), true); assert.deepEqual(p.errors, []); await ctx.close();
+    });
+    await t('the map view of My Map shows the money too, inside Your map so far, and the range chips repaint it', async () => {
+      const { ctx, p } = await open({ ...withSpend(), visited: ['local-a'] }); await p.locator('.bottom-nav [data-tab="My Map"]').click();
+      const head = p.locator('#insights .ins-head'); await head.waitFor(); assert.match(await head.innerText(), /[$]60 spent/, 'the closed drawer says so');
+      if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
+      const card = p.locator('#insights .ins-money .spend-summary'); await card.waitFor(); assert.match(await card.innerText(), /78%[^]*stayed local/);
+      await card.locator('[data-spend-range="30"]').click(); await p.waitForFunction(() => /last 30 days/.test(document.querySelector('#insights .ins-money')?.innerText || ''), null, { timeout: 4000 });
+      await p.locator('#insights .ins-money .spend-row').first().click(); await p.locator('.peekhead h2').waitFor(); assert.match(await p.locator('.peekhead h2').innerText(), /Glass City Roasters/);
+      assert.deepEqual(p.errors, []); await ctx.close();
     });
     console.log('PASS: ' + n + ' spending cases');
   } finally { await browser.close(); }

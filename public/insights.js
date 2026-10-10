@@ -204,9 +204,12 @@
     const ago = d.ago.length ? '<section class="ins-card ins-ago"><span class="ins-kicker">' + (d.ago[0].exact ? 'A year ago today' : 'Around this time') + '</span>' + d.ago.slice(0, 3).map(a => '<p><b>' + (a.yearsAgo === 1 ? 'A year ago' : a.yearsAgo + ' years ago') + (a.exact ? '' : ', around now') + '</b> you went to ' + a.places.map(esc).join(', ') + '.</p>').join('') + '</section>' : '';
     const built = '<section class="ins-card"><span class="ins-kicker">What you are building</span><ul class="ins-tally">' + tally.filter(([k]) => b[k]).map(([k, l, i]) => '<li><i data-lucide="' + i + '" aria-hidden="true"></i><b data-count="' + b[k] + '">' + b[k] + '</b><span>' + l + '</span></li>').join('') + '</ul>'
         + (tally.every(([k]) => !b[k]) ? '<p class="ins-line">Add a place, a note, a photo or a rating and it shows up here.</p>' : '') + '</section>';
-    if (!d.total) return '<div class="ins-empty"><b>' + (d.savedCount || b.placesAdded ? 'Ready when you are.' : 'Your map is just beginning.') + '</b><p>Tap the check beside the bookmark each time you go somewhere. Your rhythm, your regulars and your year will fill in here.</p></div>' + built + '<p class="ins-fine">Worked out on this device from your own map. Nothing here is sent anywhere, and nothing is a target.</p>';
+    // the same card the My Map list shows, so the money is found on the map view too
+    const money = window.OrientSpend ? OrientSpend.summary() : '', moneyCard = money ? '<section class="ins-card ins-money">' + money + '</section>' : '';
+    if (!d.total) return '<div class="ins-empty"><b>' + (d.savedCount || b.placesAdded ? 'Ready when you are.' : 'Your map is just beginning.') + '</b><p>Tap the check beside the bookmark each time you go somewhere. Your rhythm, your regulars and your year will fill in here.</p></div>' + built + '<p class="ins-fine">Worked out on this device from your own map. Nothing here is sent anywhere, and nothing is a target.</p>' + moneyCard;
     return '<div class="ins-hero">' + hero.map(([n, l]) => '<div><b data-count="' + n + '">' + n + '</b><span>' + l + '</span></div>').join('') + '</div>'
       + ago
+      + moneyCard
       + '<section class="ins-card"><span class="ins-kicker">Your rhythm</span>' + (d.topDow === null ? '<p class="ins-line">Once visits carry a date, your week appears here.</p>' : '<p class="ins-headline"><strong>' + d.topDowName + '</strong> are your day.</p>' + bars()
         + '<p class="ins-line">' + plural(d.last7, 'visit') + ' this week, ' + plural(d.last30, 'visit') + ' in the last 30 days' + (d.bestWeek ? '. Your best week was ' + short(d.bestWeek.start) + ' to ' + short(d.bestWeek.end) + ' with ' + d.bestWeek.visits + '.' : '.') + '</p>'
         + '<span class="ins-sub">The last twelve weeks</span>' + heat() + (d.topBand ? '<p class="ins-line">You tend to go in the <strong>' + d.topBand + '</strong>.</p>' : '')) + '</section>'
@@ -222,6 +225,7 @@
   function teaser() {
     if (!data || (!data.total && !data.savedCount)) return 'Where you go, and what you are building';
     const bits = [plural(data.placesVisited, 'place') + ' visited']; if (data.last7) bits.push(plural(data.last7, 'visit') + ' this week'); else if (data.toTry) bits.push(data.toTry + ' to try');
+    const spent = window.OrientSpend ? OrientSpend.rollup(0).total : 0; if (spent) bits.push(OrientSpend.fmt(spent) + ' spent');
     return bits.join(' · ');
   }
   function build() {
@@ -246,6 +250,7 @@
     }
   }
   function onClick(e) {
+    if (e.target.closest('[data-spend-range]')) { setTimeout(() => { refresh(); paint(); }, 80); return; } // spend.js saves the range; repaint after it has
     const t = e.target.closest('[data-ins]'), y = e.target.closest('[data-ins-year]'), c = e.target.closest('[data-ins-copy]');
     if (t) { expanded = !expanded; try { localStorage.setItem(OPEN, expanded ? '1' : '0'); } catch { /* fine */ } refresh(); paint(); if (expanded) drawer.querySelector('.ins-head').scrollIntoView?.({ block: 'nearest' }); }
     else if (y) { picked = Number(y.dataset.insYear); const sc = drawer.querySelector('.ins-body').scrollTop; paint(); drawer.querySelector('.ins-body').scrollTop = sc; }

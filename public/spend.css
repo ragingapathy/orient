@@ -62,3 +62,5 @@
 .spend-col i.loc{background:var(--loc)}.spend-col i.chn{background:var(--chn)}
 .spend-col i.uns{background:repeating-linear-gradient(135deg,var(--uns) 0 4px,#dfe7e1 4px 8px)}
 .spend-month span{margin-top:5px;font-size:11px;color:var(--muted)}
+
+.ins-money .spend-summary{margin:0;padding:0;border:0;background:none}

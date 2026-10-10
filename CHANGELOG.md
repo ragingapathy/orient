@@ -9,7 +9,8 @@
 - Your CSV and GeoJSON exports gain `spent` and `ownership` columns; the full map export, backups and sync carry the records (entries merge between devices). Spending is never read by the commons or the insights.
 - **Month by month.** Once two of the last six months have spending, the My Map card shows them side by side, each bar split local / chain / not sorted yet.
 - **Same as last time.** Once a place has spending, one tap writes the latest amount for today.
-- New check `spend-check.cjs` (16 cases).
+- **On the map view too.** Where your money goes also sits inside Your map so far on My Map (the closed drawer says how much you have spent), not only in the list view.
+- New check `spend-check.cjs` (17 cases).
 
 ## 2026-10-11 — Orient is an app
 
