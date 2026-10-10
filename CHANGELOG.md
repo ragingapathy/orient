@@ -1,5 +1,9 @@
 # Orient Changelog
 
+## 2026-10-11 — v0.8.2
+
+Since v0.8.0: crowded pins fold into one button, saved pins wear a gold star and visited pins a check badge, you can pick an icon for any place, the road-work button is gone from the map, a rewritten README, the checks are green and run on GitHub, and plain 12-hour times with a full-height phone screen. The dated entries below have the details.
+
 ## 2026-10-11 — Plain times, and a full-height phone screen
 
 - **Times read like people say them.** Calendar entries, the Today lines, the outing card and website findings showed 24-hour times (17:00–19:00). They now read 5:00–7:00 pm, and a 24-hour locale still sees 24-hour times.
