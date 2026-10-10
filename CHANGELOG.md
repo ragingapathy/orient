@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-11 — The panels join in
+
+- **Collections and the Add form** follow the shared dialog shell: icon tile, title, switches, cards. Codex’s separate `modal-system.css` and the supplied `gidgit.png` are retired in favour of `ui.css` and the pixel mascot (Gidgit is being reworked separately).
+- **Explore, My Map and the place card** use the same language: place rows as cards, My Map blocks as cards with tag chips, an orange saved tile and a green visited tile on the place card, facts as pills, folds as cards, a green gradient on the daily outing.
+- **Milestones and local lore** get an icon, a gradient balance tile, chip tabs and rounded progress bars.
+- `ui-check.cjs` now has 13 cases and guards the panels, including a regression where the Create a collection button turned white on white.
+
 ## 2026-10-11 — One design language
 
 - **A shared visual language**, taken from Your map so far, now carries the rest of the app (`ui.css`, `ui.js`, `mascot.js`, written up in `docs/design-language.md`): soft cards, uppercase kickers, tinted icon tiles, gradient hero tiles, switches instead of tick boxes, one warm accent, a gentle rise, and no motion under reduced-motion settings.

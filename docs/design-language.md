@@ -27,6 +27,10 @@ Colour: `--green` for primary, `--accent` (orange) for emphasis and kickers, `--
 
 Every `<dialog>` is styled by `ui.css`, including ones made in JavaScript. To get the standard look, give the dialog a `.panel-heading` containing an `<h2>` and a close button, and add its id to the `ICONS` map in `ui.js` for its header icon. Inside, use cards, rows and `.button` (add `.primary` for the one main action, `.danger` for destructive ones). Keep ids, `data-` attributes and visible button names: tests and code depend on them.
 
+## Panels
+
+The Explore briefing, the My Map list and the place card use the same pieces without being dialogs: place rows are cards (`.row`), the blocks stacked in My Map (`.collection-summary`, `.circuit-summary`, `.visit-summary`, `.neighbor-guide`) are cards with a bold title and a small `.tag` chip, a saved place is an orange tile and a counted visit a green one, facts are small bordered pills, and the folds in the expanded place card are cards that open in place. The one big action in a panel is a gradient-green `.button.primary`. The styles live in the last sections of `ui.css`; `style.css` keeps layout.
+
 ## Motion
 
 Things rise in (about 0.3s). The mascot bobs, blinks, wiggles when thinking, hops when it has an answer. All of it stops under `prefers-reduced-motion`; use `@media(prefers-reduced-motion:reduce)` for anything new.

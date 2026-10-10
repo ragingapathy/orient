@@ -6,7 +6,7 @@
   const ICONS = {
     'settings-dialog': 'sliders-horizontal', 'add-dialog': 'plus', 'category-dialog': 'tag', 'home-dialog': 'house', 'area-dialog': 'map-pinned',
     'commons-dialog': 'users', 'takeout-dialog': 'map-pinned', 'dir-dialog': 'navigation', 'neighbor-dialog': 'user-round',
-    'outing-dialog': 'footprints', 'photo-dialog': 'camera', 'website-dialog': 'globe', 'social-dialog': 'share-2', 'circuit-dialog': 'route', 'circuits-browser': 'route', 'circuit-editor': 'route', 'collections-dialog': 'layers', 'knowledge-dialog': 'notebook-pen',
+    'outing-dialog': 'footprints', 'photo-dialog': 'camera', 'website-dialog': 'globe', 'social-dialog': 'share-2', 'circuit-dialog': 'route', 'circuits-browser': 'route', 'circuit-editor': 'route', 'collections-dialog': 'layers', 'journey-dialog': 'sparkles', 'lore-dialog': 'scroll-text', 'knowledge-dialog': 'notebook-pen',
   };
   function dress(dialog) {
     const head = dialog.querySelector('.panel-heading'); if (!head || head.querySelector('.dlg-ico')) return;
