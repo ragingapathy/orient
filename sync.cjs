@@ -89,4 +89,4 @@ function handle(req, res, url, json) {
   }
   res.writeHead(405, { Allow: 'GET, PUT' }); res.end(); return true;
 }
-module.exports = { handle, trusted, token };
+module.exports = { handle, trusted, token, authorized };

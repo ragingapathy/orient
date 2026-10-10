@@ -9,6 +9,7 @@ const {geocode}=require('./geocode.cjs');
 const {nearby}=require('./places.cjs');
 const website=require('./website.cjs');
 const sync=require('./sync.cjs');
+const gidgit=require('./gidgit.cjs');
 const geocodeCache = new Map();
 let geocodeBusy = false, lastGeocode = 0;
 function json(res, status, data) {
@@ -41,6 +42,8 @@ http.createServer((req,res)=>{
   let url;
   try { url = decodeURIComponent(new URL(req.url,'http://localhost').pathname); } catch {res.writeHead(400);res.end('Bad request');return;}
   if(url==='/api/geocode'){lookup(req,res);return;}
+  if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
+  if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}
   if(sync.handle(req,res,url,json))return;
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}

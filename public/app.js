@@ -8,7 +8,7 @@
   // Places come from catalog.local.js (yours, not committed) or catalog.sample.js (a few made-up examples).
   const demoPlaces = Array.isArray(window.ORIENT_CATALOG) ? window.ORIENT_CATALOG : [];
   const threads = [];
-  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils',Other:'map-pin'};
+  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee',Other:'map-pin'};
   const cleanCategory=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,'').trim().replace(/\s+/g,' ').slice(0,48):'';
   const categoryIcon=kind=>kindIcons[kind]||(/auto|mechanic|repair/i.test(kind)?'wrench':'map-pin');
   function cleanData(raw) {
@@ -38,7 +38,7 @@
   const allPlaces=()=>[...new Map([...demoPlaces.filter(p=>store.useCatalog&&(!p.demo||store.showDemo)),...store.custom,...(store.osm||[]),...discoveries.values()].map(p=>[p.id,enrichments.has(p.id)?{...p,...enrichments.get(p.id),id:p.id,name:p.name,coordinates:p.coordinates,note:p.note}:p])).values()].map(p=>store.details?.[p.id]?.category?{...p,baseKind:p.kind,kind:store.details[p.id].category,icon:categoryIcon(store.details[p.id].category)}:p);
   const placeById=id=>allPlaces().find(p=>p.id===id);
   const isMarked=id=>store.saved.includes(id)||store.visited.includes(id);
-  function personalCategories(){return [...new Set([...store.custom.map(p=>p.kind).filter(k=>!Object.hasOwn(kindIcons,k)),...Object.values(store.details||{}).map(v=>v.category).filter(Boolean)])].sort((a,b)=>a.localeCompare(b));}
+  function personalCategories(){return [...new Set([...allPlaces().map(p=>p.kind),...Object.values(store.details||{}).map(v=>v.category)].map(cleanCategory).filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
   function categoryOptions(){return [...new Set([...Object.keys(kindIcons),...personalCategories()])];}
   function refreshCategoryOptions(){document.querySelector('#place-categories').innerHTML=categoryOptions().map(k=>`<option value="${escapeHTML(k)}"></option>`).join('');}
   function canonicalCategory(value){const clean=cleanCategory(value);return categoryOptions().find(k=>k.toLocaleLowerCase()===clean.toLocaleLowerCase())||clean;}
@@ -48,11 +48,13 @@
   const distanceMiles=p=>OrientPlaces.distance(state.origin,p.coordinates)/1609.344;
   const activeFilters=()=>Object.entries(filterDefaults).filter(([k,v])=>state[k]!==v).map(([k])=>[k,state[k]]);
   function filterChips(){return '<div class="active-filters">'+activeFilters().map(([k,v])=>`<button class="button" data-clear-filter="${k}" aria-label="Remove ${escapeHTML(v)} filter">${escapeHTML(v)} ×</button>`).join('')+(state.filter!=='Everything'?`<button class="button" data-filter="Everything" aria-label="Remove ${escapeHTML(state.filter)} filter">${escapeHTML(state.filter)} ×</button>`:'')+((activeFilters().length||state.filter!=='Everything')?'<button class="button" data-action="clear-filters">Clear filters</button>':'')+'</div>';}
-  function exploreControls(compact=false){const select=(key,label,options)=>`<label>${label}<select data-explore-filter="${key}" aria-label="${label}">${options.map(v=>`<option ${state[key]===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}</select></label>`;return '<div class="explore-filter-grid'+(compact?' list-filter-grid':'')+'">'+select('category','Category',[...new Set(['All categories','Food & drink','Shops','Resources','Public spaces','Other',...personalCategories()])])+select('relationship','Your relationship',['Any','Unvisited','Saved','Visited','Rated'])+select('happening','What’s happening',['Any time','Specials today','Upcoming events'])+select('radius','Within',['Any distance','1 mile','3 miles','5 miles','10 miles'])+select('sort','Sort by',['Nearby first','Name A–Z'])+'</div>'+(compact?'':'<p class="fine">Distance from '+(state.originLabel||store.home?.name||'your chosen area')+'. Upcoming events cover the next 7 days. Unknown hours aren’t treated as open.</p><button class="button" data-action="filter-center">Measure from map center</button><button class="button" data-action="filters">Done</button>');}
-  function visiblePlaces(){let list=allPlaces().filter(p=>(state.tab!=='My Map'||isMarked(p.id)||discoveries.has(p.id))&&(!state.query||`${p.name} ${p.kind} ${p.event||''} ${p.address} ${p.note||''} ${(p.specials||[]).map(s=>s.title).join(' ')}`.toLowerCase().includes(state.query))&&(state.filter!=='Specials'||p.specials?.length>0)&&(state.filter!=='Open now'||(p.open===true&&!p.demo))&&(state.filter!=='Free events'||p.eventPrice==='Free'));
+  function exploreControls(compact=false){const select=(key,label,options)=>`<label>${label}<select data-explore-filter="${key}" aria-label="${label}">${options.map(v=>`<option ${state[key]===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}</select></label>`;return '<div class="explore-filter-grid'+(compact?' list-filter-grid':'')+'">'+select('category','Category',[...new Set(['All categories','Food & drink','Shops','Resources','Public spaces','Other',...categoryOptions()])])+select('relationship','Your relationship',['Any','Unvisited','Saved','Visited','Rated'])+select('happening','What’s happening',['Any time','Specials today','Upcoming events'])+select('radius','Within',['Any distance','1 mile','3 miles','5 miles','10 miles'])+select('sort','Sort by',['Nearby first','Name A–Z'])+'</div>'+(compact?'':'<p class="fine">Distance from '+(state.originLabel||store.home?.name||'your chosen area')+'. Upcoming events cover the next 7 days. Unknown hours aren’t treated as open.</p><button class="button" data-action="filter-center">Measure from map center</button><button class="button" data-action="filters">Done</button>');}
+  const hoursFor=p=>OrientWebsite.hoursFor(p,store.details?.[p.id]?.hours||'');
+  const opening=p=>p.demo?{state:'unknown',label:'Demo hours'}:OrientHours.status(hoursFor(p),new Date(),OrientHome.timeZone());
+  function visiblePlaces(){let list=allPlaces().filter(p=>(state.tab!=='My Map'||isMarked(p.id)||discoveries.has(p.id))&&(!state.query||`${p.name} ${p.kind} ${p.event||''} ${p.address} ${p.note||''} ${(p.specials||[]).map(s=>s.title).join(' ')}`.toLowerCase().includes(state.query))&&(state.filter!=='Specials'||p.specials?.length>0)&&((state.filter!=='Open now')||opening(p).state==='open')&&(state.filter!=='Free events'||p.eventPrice==='Free'));
     if(state.tab!=='Explore')return list;
     let happening=null;if(state.happening!=='Any time'){const from=OrientCalendar.today(),to=state.happening==='Specials today'?from:OrientDates.fromNum(OrientDates.toNum(from)+6);happening=new Set(OrientCalendar.occurrences(OrientWebsite.allEvents(),from,to).filter(e=>state.happening!=='Specials today'||e.kind==='Special').map(e=>e.placeId));}
-    list=list.filter(p=>(state.category==='All categories'||categoryOf(p)===state.category)&&(state.relationship==='Any'||(state.relationship==='Unvisited'?!store.visited.includes(p.id):state.relationship==='Saved'?store.saved.includes(p.id):state.relationship==='Visited'?store.visited.includes(p.id):!!store.ratings?.[p.id]))&&(!happening||happening.has(p.id))&&(state.radius==='Any distance'||distanceMiles(p)<=parseFloat(state.radius)));
+    list=list.filter(p=>(state.category==='All categories'||categoryOf(p)===state.category||p.kind===state.category)&&(state.relationship==='Any'||(state.relationship==='Unvisited'?!store.visited.includes(p.id):state.relationship==='Saved'?store.saved.includes(p.id):state.relationship==='Visited'?store.visited.includes(p.id):!!store.ratings?.[p.id]))&&(!happening||happening.has(p.id))&&(state.radius==='Any distance'||distanceMiles(p)<=parseFloat(state.radius)));
     return list.sort((a,b)=>state.sort==='Nearby first'?distanceMiles(a)-distanceMiles(b)||a.name.localeCompare(b.name):a.name.localeCompare(b.name));
   }
 
@@ -146,6 +148,7 @@
       let marker=markers.get(p.id);
       if(!marker){const button=document.createElement('button');button.type='button';button.className='map-marker';button.addEventListener('click',e=>{e.stopPropagation();selectPlace(p.id);});marker=new maplibregl.Marker({element:button,anchor:'center'}).setLngLat(p.coordinates).addTo(map);markers.set(p.id,marker);}
       const button=marker.getElement();button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
+      button.classList.toggle('lit-open',state.filter==='Open now');
       button.classList.toggle('discovered',!isMarked(p.id)&&/^(osm-|tile-)/.test(p.id));
       button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(store.visited.includes(p.id)?'check':p.icon)}</span>${p.id===state.selected?`<span class="pin-label">${escapeHTML(p.kind)}</span>`:''}`;
     }
@@ -156,13 +159,15 @@
   }
   function updateFog() {
     const fog=$('#fog');
-    const enabled=store.fog&&state.tab==='My Map'&&!state.list;
+    const night=state.filter==='Open now'&&['Explore','My Map'].includes(state.tab)&&!state.list;
+    const enabled=night||(store.fog&&state.tab==='My Map'&&!state.list);
+    fog.classList.toggle('night',night);$('.world').classList.toggle('open-map',night);
     fog.style.opacity=enabled?'.9':'0';
-    OrientFog.setActive(enabled);
+    OrientFog.setActive(enabled&&!night);
     if(!enabled||!map)return;
-    const marked=[...allPlaces().filter(p=>isMarked(p.id)),...OrientNeighbors.entries().filter(n=>n.coordinates)];
+    const marked=night?visiblePlaces():[...allPlaces().filter(p=>isMarked(p.id)),...OrientNeighbors.entries().filter(n=>n.coordinates)];
     if(!marked.length){fog.style.setProperty('--fog-mask','none');return;}
-    const holes=marked.map(p=>{const pt=map.project(p.coordinates);return `radial-gradient(circle 165px at ${Math.round(pt.x)}px ${Math.round(pt.y)}px,transparent 36%,rgba(0,0,0,.08) 48%,#000 100%)`;});
+    const holes=marked.map(p=>{const pt=map.project(p.coordinates);return `radial-gradient(circle ${night?125:165}px at ${Math.round(pt.x)}px ${Math.round(pt.y)}px,transparent ${night?18:36}%,rgba(0,0,0,.08) 48%,#000 100%)`;});
     fog.style.setProperty('--fog-mask',holes.join(','));fog.style.maskComposite='intersect';fog.style.webkitMaskComposite='source-in';
   }
   function renderSheet(p) {
@@ -200,7 +205,7 @@
   function renderPanel(visible) {
     if(state.tab==='My Map')visible=visible.filter(p=>isMarked(p.id));
     const panel=$('#panel');
-    panel.hidden=!!state.circuitMap||!!state.loreMap||!!state.neighborId||!state.list&&!state.thread&&['Explore','My Map'].includes(state.tab)&&visible.length>0;
+    panel.hidden=(state.filter==='Open now'&&!state.list&&['Explore','My Map'].includes(state.tab))||!!state.circuitMap||!!state.loreMap||!!state.neighborId||!state.list&&!state.thread&&['Explore','My Map'].includes(state.tab)&&visible.length>0;
     if(panel.hidden){panel.innerHTML='';return;}
     if(state.tab==='Today'){
       OrientToday.render(panel,state.query);
@@ -220,12 +225,15 @@
   }
   function empty(title,copy){return `<div class="empty">${icon('compass')}<h3>${title}</h3><p>${copy}</p></div>`;}
   function render(){
+    refreshCategoryOptions();
     if(window.OrientHome)OrientHome.refresh();
+    if(window.OrientGidgit)OrientGidgit.refresh();
     const visible=visiblePlaces();
     if(!visible.some(p=>p.id===state.selected))state.selected=visible[0]?.id||null;
     const p=placeById(state.selected);
     document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===state.tab));
     $('#context').textContent=state.tab==='My Map'?`${store.saved.length} SAVED · ${store.visited.length} VISITED · PRIVATE`:state.tab==='Today'?(store.home?.name||'YOUR CITY')+' · TODAY':state.tab==='Calendar'?(store.home?.name||'YOUR CITY')+' · CALENDAR':state.tab==='Community'?'TOLEDO · COMMUNITY':state.filter==='Everything'?(store.home?.name||'YOUR CITY')+' · DISCOVER':`${(store.home?.name||"YOUR CITY").toUpperCase()} · ${state.filter.toUpperCase()}`;
+    const night=state.filter==='Open now';$('#open-map-legend').hidden=state.list||!night||!['Explore','My Map'].includes(state.tab);if(night){const unknown=allPlaces().filter(p=>opening(p).state==='unknown').length;$('#open-map-legend').textContent=visible.length+' open by listed hours · '+unknown+' with unknown hours · '+OrientHome.timeZone()+'. Holiday changes may differ.';}
     $('#journey-tool').hidden=state.tab!=='My Map';
     $('#circuits-tool').hidden=state.tab!=='My Map';
     $('#tools').hidden=!['Explore','My Map'].includes(state.tab)||state.list;
@@ -317,7 +325,7 @@
     if(b.dataset.place){selectPlace(b.dataset.place,{expand:b.dataset.expand==='true'});return;}
     if(b.dataset.thread){state.thread=b.dataset.thread;state.tab='Community';render();return;}
     if(b.dataset.clearFilter){state[b.dataset.clearFilter]=filterDefaults[b.dataset.clearFilter];render();return;}
-    if(b.dataset.filter){state.filter=b.dataset.filter;state.filters=false;render();return;}
+    if(b.dataset.filter){state.filter=b.dataset.filter;if(state.filter==='Open now'){state.circuitMap=false;state.loreMap=false;state.neighborId=null;}state.filters=false;render();return;}
     if(b.dataset.location!==undefined){
       const result=lookupResults[Number(b.dataset.location)];if(!result)return;
       const form=$('#add-form');form.elements.lat.value=result.coordinates[1];form.elements.lng.value=result.coordinates[0];form.elements.address.value=result.address.slice(0,250);
@@ -395,15 +403,17 @@
   new ResizeObserver(()=>{map?.resize();updateFog();$('.world').style.setProperty('--sheet-height',`${$('#sheet').offsetHeight+8}px`);}).observe($('.world'));
   new ResizeObserver(()=>{$('.world').style.setProperty('--sheet-height',`${$('#sheet').offsetHeight+8}px`);}).observe($('#sheet'));
   const privatePlaceAPI={store:()=>store,places:allPlaces,showDemo:()=>store.showDemo,save,render,select:id=>selectPlace(id,{expand:true}),keep:id=>{const p=placeById(id);if(!p)return;if(/^(osm-|tile-)/.test(id)&&!store.osm.some(x=>x.id===id))store.osm.push(OrientPlaces.sanitize(p));if(!store.saved.includes(id))store.saved.push(id);}};
+  setInterval(()=>{if(document.visibilityState==='visible'&&state.filter==='Open now')render();},30000);
   OrientNeighbors.init({store:()=>store,save,map:()=>map,show:id=>{const n=OrientNeighbors.get(id);if(!n)return;state.circuitMap=false;state.loreMap=false;state.drawerStop=0;state.neighborId=id;state.tab='My Map';state.list=false;state.expanded=true;state.filters=false;render();if(n.coordinates)focusPlace(n);},back:()=>{state.neighborId=null;state.tab='My Map';state.list=true;render();}});
   OrientHome.init({...privatePlaceAPI,preview:coordinates=>map?.easeTo({center:coordinates,zoom:11,duration:400}),set:home=>{const previous=store.home;store.home=home;if(!save()){store.home=previous;return false;}state.origin=[...home.coordinates];state.originLabel=home.name;state.selected=null;state.query='';$('#search').value='';state.tab='Explore';state.list=false;state.expanded=false;state.circuitMap=false;state.loreMap=false;state.neighborId=null;Object.assign(state,filterDefaults);render();map?.easeTo({center:home.coordinates,zoom:12,duration:400});$('#settings-dialog').close();toast('Your home area is '+home.name+'.');return true;}});
   OrientCalendar.init(privatePlaceAPI);
   OrientPhotos.init({...privatePlaceAPI,toast,startMemory:()=>{cancelLookup();resetSite();$('#add-dialog').close();},mapCenter:()=>{if(!mapLoaded||!map)return null;const p=map.getCenter();return [p.lng,p.lat];},select:id=>{state.query='';$('#search').value='';selectPlace(id,{expand:true});}});
   OrientWebsite.init({...privatePlaceAPI,toast});
+  OrientGidgit.init({...privatePlaceAPI,toast,selected:()=>state.selected,origin:()=>state.origin,show:id=>{state.filter='Everything';Object.assign(state,filterDefaults);state.query='';$('#search').value='';state.tab='My Map';state.list=false;selectPlace(id,{expand:true});}});
   OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:async raw=>{if(OrientCatalog.needed(raw))await OrientCatalog.load();const previous=store.home;store=cleanData(raw);if(JSON.stringify(previous)!==JSON.stringify(store.home)){state.origin=store.home?.coordinates||[0,20];state.originLabel=store.home?.name||'your chosen area';if(store.home)map?.jumpTo({center:store.home.coordinates,zoom:12});}try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
   OrientTakeout.init({store:()=>store,places:allPlaces,origin:()=>state.origin,icon:categoryIcon,save,render,keepOsm,addVisit:(id,day)=>OrientVisits.add(id,day),visitDays:id=>OrientVisits.entries(id)});
   OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
-  OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
+  OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.filter='Everything';state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
   OrientOutings.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area',useMapCenter:()=>{if(!map){toast('The map is still loading.');return false;}const c=map.getCenter();state.origin=[c.lng,c.lat];state.originLabel='chosen map center';render();return true;}});
   OrientToday.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area'});

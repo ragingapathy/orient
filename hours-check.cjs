@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),H=require('./public/hours.js');
+const at=(text,instant,zone='America/New_York')=>H.status(text,new Date(instant),zone).state;
+const weekly='Mon-Fri 9am-5pm; Sat 10am-2pm; Sun closed';
+assert.equal(H.parse(weekly).valid,true);assert.equal(H.parse(H.parse(weekly).normalized).normalized,H.parse(weekly).normalized);
+assert.equal(at(weekly,'2026-10-09T13:00:00Z'),'open');assert.equal(at(weekly,'2026-10-09T21:00:00Z'),'closed');
+assert.equal(at('Daily 09:00-17:00','2026-10-09T13:30:00Z','America/Chicago'),'closed');
+assert.equal(at('Daily 09:00-17:00','2026-10-09T14:00:00Z','America/Chicago'),'open');
+assert.equal(at('Fri 9-1am; Sat closed','2026-10-10T04:30:00Z'),'open');
+assert.equal(at('Fri 8pm-2am; Sat closed','2026-10-10T05:00:00Z'),'open');assert.equal(at('Fri 8pm-2am; Sat closed','2026-10-10T06:00:00Z'),'closed');
+assert.equal(at('Daily 9am-noon, 2pm-5pm','2026-10-09T17:00:00Z'),'closed');assert.equal(at('Daily 9am-noon, 2pm-5pm','2026-10-09T18:00:00Z'),'open');
+assert.equal(H.parse(H.parse('24/7').normalized).valid,true);assert.equal(H.parse('Mon-Fri:9am-5pm').valid,true);
+for(const text of ['24/7','Daily 00:00-24:00','Weekdays 9-5pm; Weekends closed','Mo-Fr 09:00-17:00; Sa,Su off'])assert.equal(H.parse(text).valid,true,text);
+for(const text of ['Mon-Fri 9-5','Daily 25:00-29:00','Daily 9am-5pm; PH off','By appointment','Mon 9am-5pm; Mon closed','Daily 13pm-5pm','Mon-Fri 9:75-17:00']){assert.equal(H.parse(text).valid,false,text);assert.equal(at(text,'2026-10-09T16:00:00Z'),'unknown');}
+assert.equal(at('Mon 9am-5pm','2026-10-09T16:00:00Z'),'unknown');assert.equal(at('Sun 1am-3am','2026-11-01T06:30:00Z'),'open');
+for(const text of ['8AM-2AM Daily','11AM - 8PM DAILY','9am-5pm Mon-Fri','10am-2pm weekends'])assert.equal(H.parse(text).valid,true,text);
+assert.equal(H.parse('8AM-2AM Daily').normalized,H.parse('Mo-Su 08:00-02:00').normalized);
+assert.equal(at('8AM-2AM Daily','2026-10-10T05:59:00Z'),'open');assert.equal(at('8AM-2AM Daily','2026-10-10T06:00:00Z'),'closed');assert.equal(at('8AM-2AM Daily','2026-10-10T11:59:00Z'),'closed');assert.equal(at('8AM-2AM Daily','2026-10-10T12:00:00Z'),'open');
+assert.equal(at('11AM - 8PM DAILY','2026-10-09T15:00:00Z'),'open');assert.equal(at('11AM - 8PM DAILY','2026-10-10T00:00:00Z'),'closed');
+assert.equal(H.parse('9-5 Daily').valid,false);assert.equal(H.parse('8AM-2AM Daily except holidays').valid,false);
+console.log('Hours: normalization, weekly ranges, split shifts, overnight rollover, exact closing, time zones/DST and conservative unknown handling passed.');

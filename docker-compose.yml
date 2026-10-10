@@ -16,6 +16,8 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: "4173"
+      ORIENT_GIDGIT_URL: "${ORIENT_GIDGIT_URL:-http://host.docker.internal:11434}"
+      ORIENT_GIDGIT_MODEL: "${ORIENT_GIDGIT_MODEL:-qwen3.5:9b}"
       # Connections from this computer reach the container through Docker, not loopback. Safe only because the
       # port below is published on 127.0.0.1; requests that came through a tunnel are still recognised and refused.
       ORIENT_TRUST_LOCAL_HOST: "1"

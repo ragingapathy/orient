@@ -1,5 +1,21 @@
 # Orient Changelog
 
+## 2026-10-09 — Gidgit, an optional local map companion
+
+- Added a per-device Field kit opt-in. Gidgit appears as a fifth navigation button only when enabled; no model requests run until the user asks.
+- Saved-map queries use a local Ollama model (qwen3.5:9b by default), with structured search/edit plans. The app grounds suggestions in saved records and computes hours/distance itself. There is no cloud fallback or invented inventory/price claim.
+- Supports editable, reviewed hours, note, and category drafts. Saving is explicit, notes append, and stale/invalid drafts are blocked. Requests do not become stored chat history.
+- Excludes dedicated people fields, neighbors, photos and coordinate fields from model context. Bounds context and inference time; reports partial context, connection failures, cancellation, and pairing requirements. The server requires the same local/paired authorization as map sync.
+- Verified disabled visibility and zero automatic requests, mobile/desktop drawer, saved-map shopping recommendations, private context boundary, map navigation, save/discard and preference persistence. Ran the complete browser workflow against the actual local model and verified live paired/unpaired API behavior.
+
+## 2026-10-09 — Weekly hours and a city lit by open places
+
+- Added local hours parsing with live feedback in the Hours editor. Recognized schedules save in a uniform weekly format; ambiguous and unsupported text stays intact for review and never counts as open. Supports days-first and time-first wording (including 8AM-2AM Daily and 11AM - 8PM DAILY), day ranges, split shifts, overnight spans, 24-hour days, closed days, and home-area time zones. Unlisted days remain unknown.
+- Place cards show current open/closed status from personal, website, or map hours. The existing Open now filter now uses parsed schedules instead of a static flag.
+- The existing Open now filter activates night mode: a dark city with warm lights around places open by listed hours. Unknown schedules are excluded and counted; holiday exceptions remain unverified. The view refreshes every 30 seconds and handles zero open places without covering the map.
+- Strengthened fog contrast and curl movement, kept canvas work capped, and retained reduced-motion and pause behavior.
+- Verified parser boundaries, overnight and split shifts, ambiguous input, time zones/DST, mobile/desktop visuals, editing and reload, moving fog and reduced motion, plus automatic closing-time updates.
+
 ## 2026-10-09 — v0.6.0: Make Orient yours, wherever you live
 
 - Added first-run city/town search and confirmation, with home area controls in the Field kit. GPS and a home address are unnecessary.
@@ -246,3 +262,10 @@
 - Details and calendar entries persist with existing version-1 maps and export/import. Adding knowledge or an entry saves the place; deleting a personal place removes its linked entries and details.
 - Calendar browser checks passed for recurrence, skipped dates, series editing/deletion, persistence, export/import, and responsive widths. Map, personal-place, search, private-draft, and nearby-discovery regression checks passed; the live basemap loaded.
 - No notification delivery, calendar subscriptions, public sharing, per-occurrence editing, or timezone selector yet. Opening hours remain details rather than recurring entries.
+
+### Gidgit prompts and category choices
+- Example prompts hide when typing or choosing an example, and remain hidden after a query.
+- Explore filters include Coffee shop, Thrift store, and categories from place records and saved edits; category suggestions refresh with the map.
+
+### Gidgit search corrections
+- Removed persistent example pills. Recognize coffeeshop and thriftstore spellings; separate suggestions for multi-category requests. Ignore model-invented open-now/unvisited restrictions when the request does not ask for them. Future-visit requests clearly distinguish current hours from an unchecked future visit.
