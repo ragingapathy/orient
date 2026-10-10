@@ -7,6 +7,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      only:
+        description: "Only these checks, space separated (for example: ui address). Empty runs all."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -24,4 +29,4 @@ jobs:
           node-version: lts/*
       - run: npm install --no-save playwright
       - run: npm run check
-      - run: node run-checks.cjs
+      - run: node run-checks.cjs ${{ inputs.only }}

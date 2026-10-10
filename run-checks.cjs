@@ -56,7 +56,7 @@ const ready = url => new Promise((resolve, reject) => {
       const status = code === 0 ? (/^SKIP:/m.test(out) && !/^(PASS|ok)/m.test(out) ? 'skip' : 'pass') : 'fail';
       const r = { name: file.replace(/-check\.cjs$/, ''), status, seconds: Math.round((Date.now() - t0) / 100) / 10, out };
       results.push(r); console.log(({ pass: 'pass', fail: 'FAIL', skip: 'skip' })[status] + '  ' + r.name + '  (' + r.seconds + 's)');
-      if (status === 'fail') console.log(out.trim().split('\n').slice(0, 8).map(l => '      ' + l.slice(0, 200)).join('\n'));
+      if (status === 'fail') console.log(out.trim().split('\n').slice(0, 30).map(l => '      ' + l.slice(0, 240)).join('\n'));
       resolve();
     });
   });
