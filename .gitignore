@@ -6,3 +6,6 @@ Thumbs.db
 public/catalog.local.js
 
 data/
+
+# Scratch files
+transcript-formatted.txt
