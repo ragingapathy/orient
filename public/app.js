@@ -8,7 +8,7 @@
   // Places come from catalog.local.js (yours, not committed) or catalog.sample.js (a few made-up examples).
   const demoPlaces = Array.isArray(window.ORIENT_CATALOG) ? window.ORIENT_CATALOG : [];
   const threads = [];
-  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf',Other:'map-pin'};
+  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf','Civic rooms':'landmark',Other:'map-pin'};
   const cleanCategory=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,'').trim().replace(/\s+/g,' ').slice(0,48):'';
   const categoryIcon=kind=>kindIcons[kind]||(/auto|mechanic|repair/i.test(kind)?'wrench':'map-pin');
   function cleanData(raw) {
