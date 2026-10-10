@@ -366,3 +366,21 @@ dialog.gidgit-settings::backdrop{background:#142e2d70;backdrop-filter:blur(5px)}
 .milestone progress::-moz-progress-bar{background:var(--green);border-radius:999px}
 .milestone-heading h3,.lore-heading h3,#journey-dialog h3,#lore-dialog h3{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
 .journey-balance :is(span,p,small,div){margin:0;color:#e7f2ea;opacity:1}
+/* ---------- the little things that were left: labels, disclosures, weekday chips ---------- */
+dialog label:not(.toggle-row):not(.import-label):not(.day-chip){font-size:12px;font-weight:600;color:var(--muted)}
+dialog label:not(.toggle-row) input:not([type=checkbox]):not([type=radio]):not([type=file]),dialog label:not(.toggle-row) textarea,dialog label:not(.toggle-row) select{margin-top:5px}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;list-style:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--green)}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary::-webkit-details-marker{display:none}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary::after{content:"";flex-shrink:0;width:8px;height:8px;margin-right:4px;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .2s}
+dialog details[open]:not(.collection-disclosure):not(.ui-more)>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+dialog fieldset{margin:12px 0;padding:10px 12px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+dialog fieldset>legend{padding:0 6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+#event-dialog fieldset{display:flex;flex-wrap:wrap;gap:6px}
+#event-dialog fieldset>legend{flex-basis:100%}
+#event-dialog fieldset label{display:inline-flex;align-items:center;margin:0;padding:0}
+#event-dialog fieldset input[type=checkbox]{position:absolute;opacity:0;width:1px;height:1px}
+#event-dialog fieldset label{position:relative;min-width:44px;min-height:40px;justify-content:center;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+#event-dialog fieldset label:has(input:checked){border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#event-dialog fieldset label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){dialog details>summary::after,#event-dialog fieldset label{transition:none}}
