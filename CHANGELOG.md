@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## Reviewed GitHub publishing
+
+- Replace the download-only contribution endpoint with Publish contribution: select a commons repository, connect GitHub once, review the public bundle, and submit a pull request from Orient.
+- Create a dedicated branch and contribution file, fork when needed, and reuse existing requests on identical retries. Nothing is directly merged.
+- Store per-browser GitHub connections encrypted on the Orient computer, outside private map backups and public bundles; retain optional file download.
+- Validate public payloads again on the server; require local/paired access; add endpoint, mocked GitHub, and browser checks.
+
 ## 2026-10-09 — v0.7.0: Explore starts with possibilities
 
 - Open Explore with the daily briefing, remaining specials, nearby service hours and saved/unvisited suggestions. Startup never selects an arbitrary catalog place.

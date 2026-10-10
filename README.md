@@ -34,7 +34,7 @@ A map can tell you where something is. A small observation can make it easier to
 >
 > “This stretch of the river is quiet.”
 
-In Orient, choose **Share this note** on a place, edit the part you want to contribute, and review the complete public file before downloading it. The original note stays private and unchanged. Each shared claim carries a kind, observation date, source identity, and optional credit. Places are anchored by latitude and longitude, with no OSM identity requirement.
+In Orient, choose **Share this note** on a place, edit the part you want to contribute, and review the complete public bundle before pressing **Publish contribution**. Orient submits a GitHub pull request for maintainer review. The original note stays private and unchanged. Each shared claim carries a kind, observation date, source identity, and optional credit. Places are anchored by latitude and longitude, with no OSM identity requirement.
 
 Someone else can load that bundle, review individual claims, and decide what belongs on their map. Nearby coordinates suggest matches; the person importing chooses whether to link an existing place or create a new one. Shared observations sit in a compact fold with attribution, separate from private notes.
 
@@ -44,7 +44,7 @@ Someone else can load that bundle, review individual claims, and decide what bel
 
 You can maintain a Toledo commons. Someone else can maintain another Toledo commons. A third person can combine contributions from both while preserving their original source identities. A source ID records provenance; it grants no ownership of a city.
 
-GitHub carries reviewed JSON snapshots, pull requests, forks, and history. Orient provides the interface for reviewing and combining them. The first working loop supports file import/export and public GitHub snapshot loading. Publishing is manual, and nothing pulls or uploads in the background.
+GitHub carries reviewed JSON snapshots, pull requests, forks, and history. Orient provides the interface for reviewing and combining them. The first working loop supports file import/export and public GitHub snapshot loading. Publishing is explicitly triggered in Orient, which creates the branch, contribution file, and pull request. Nothing pulls or uploads in the background.
 
 **Try the loop:** [commons guide](commons/README.md) · [fictional example bundle](commons/examples/toledo.snapshot.json) · [public schemas](commons/schema/)
 
@@ -60,7 +60,7 @@ node server.cjs
 
 Open [localhost:4173](http://127.0.0.1:4173), choose your home city, and add a place you know or want to try. A fresh map does not load the author’s private Toledo catalog.
 
-For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. A downloaded bundle can be submitted through a reviewed pull request to a commons repository of your choice.
+For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. Connect GitHub once, choose the destination commons repository, and press **Publish contribution**. Orient submits the pull request and shows its link. Downloading a file remains an optional fallback.
 
 Docker, phone pairing, backups, Google Maps imports, local AI setup, and the fuller feature reference are in the [user guide](docs/user-guide.md). Development history is in the [changelog](CHANGELOG.md).
 
@@ -84,7 +84,7 @@ Run `npm run check` for syntax checks and `node commons-check.cjs` for the publi
 
 The private map and reviewed commons loop work today. The project is early, interfaces are evolving, and setup is still aimed at people comfortable running a small server. Source identities are attribution, not verified authorship. Observations can age; dates, sources, and contested or retired status help keep that visible.
 
-There is no automatic GitHub publishing, hosted multi-user service, or invisible contribution pipeline. Those are decisions to make together as the project grows.
+GitHub publishing is available after one-time connection in Orient. This self-hosted version connects with an access token stored encrypted on the Orient computer; a GitHub sign-in flow without token setup remains future work. There is no hosted multi-user service or background contribution pipeline.
 
 ## License and credits
 

@@ -10,6 +10,7 @@ const {nearby}=require('./places.cjs');
 const website=require('./website.cjs');
 const sync=require('./sync.cjs');
 const gidgit=require('./gidgit.cjs');
+const commonsPublish=require('./commons-publish.cjs').createHandler();
 const geocodeCache = new Map();
 let geocodeBusy = false, lastGeocode = 0;
 function json(res, status, data) {
@@ -41,6 +42,7 @@ async function lookup(req, res) {
 http.createServer((req,res)=>{
   let url;
   try { url = decodeURIComponent(new URL(req.url,'http://localhost').pathname); } catch {res.writeHead(400);res.end('Bad request');return;}
+  if(url.startsWith('/api/commons/')){commonsPublish(req,res,url,json,sync);return;}
   if(url==='/api/geocode'){lookup(req,res);return;}
   if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
   if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}
