@@ -8,7 +8,7 @@
   // Places come from catalog.local.js (yours, not committed) or catalog.sample.js (a few made-up examples).
   const demoPlaces = Array.isArray(window.ORIENT_CATALOG) ? window.ORIENT_CATALOG : [];
   const threads = [];
-  const kindIcons = {'Gas station':'fuel','Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf','Civic rooms':'landmark',Other:'map-pin'};
+  const kindIcons = {'Gas station':'fuel','Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'utensils','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf','Civic rooms':'landmark',Other:'map-pin'};
   const cleanCategory=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,'').trim().replace(/\s+/g,' ').slice(0,48):'';
   const categoryIcon=kind=>kindIcons[kind]||(/auto|mechanic|repair/i.test(kind)?'wrench':'map-pin');
   function cleanData(raw) {
@@ -35,7 +35,7 @@
   let mapLoaded=false,toastTimer;
   const discoveries=new Map(),enrichments=new Map(),nearbyStates=new Map();
   let discoveryBusy=false;
-  const allPlaces=()=>[...new Map([...demoPlaces.filter(p=>store.useCatalog&&(!p.demo||store.showDemo)),...store.custom,...(store.osm||[]),...discoveries.values()].map(p=>[p.id,enrichments.has(p.id)?{...p,...enrichments.get(p.id),id:p.id,name:p.name,coordinates:p.coordinates,note:p.note}:p])).values()].map(p=>store.details?.[p.id]?.category?{...p,baseKind:p.kind,kind:store.details[p.id].category,icon:categoryIcon(store.details[p.id].category)}:p);
+  const allPlaces=()=>[...new Map([...demoPlaces.filter(p=>store.useCatalog&&(!p.demo||store.showDemo)),...store.custom,...(store.osm||[]),...discoveries.values()].map(p=>[p.id,enrichments.has(p.id)?{...p,...enrichments.get(p.id),id:p.id,name:p.name,coordinates:p.coordinates,note:p.note}:p])).values()].map(p=>store.details?.[p.id]?.category?{...p,baseKind:p.kind,kind:store.details[p.id].category,icon:categoryIcon(store.details[p.id].category)}:p).map(p=>OrientIcons.iconFor(p,store.details));
   const placeById=id=>allPlaces().find(p=>p.id===id);
   const isMarked=id=>store.saved.includes(id)||store.visited.includes(id);
   const collected=id=>(store.collections||[]).some(c=>c.places.includes(id));
@@ -439,6 +439,7 @@
   OrientBoard.init({origin:()=>state.origin,map:()=>map,tab:()=>state.tab,label:()=>state.originLabel||store.home?.name||'',render:()=>render()});
   OrientMapLabels.init({map:()=>map,markers:()=>markers,selected:()=>state.selected,priority:id=>(id===state.selected?1000:0)+(store.visited.includes(id)?120:store.saved.includes(id)?100:isMarked(id)?50:10)+(store.ratings?.[id]||0),info:id=>{const p=placeById(id);if(!p)return null;const o=opening(p);return {name:p.name,kind:p.kind,address:p.address||'',status:/^(Open|Closed)/.test(o?.label||'')?o.label:'',visits:OrientVisits.line(id),saved:store.saved.includes(id)};}});
   OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
+  OrientIcons.init({store:()=>store,places:allPlaces,save,render,keepOsm});
   OrientSpend.init({store:()=>store,places:allPlaces,save,render,keepOsm,selected:()=>state.selected});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.filter='Everything';state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});

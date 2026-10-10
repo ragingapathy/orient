@@ -1,0 +1,16 @@
+/* The icon picker, and the icon on a place card that opens it. */
+.peekhead .tile-pick{position:relative;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+.tile-pick .tile-edit{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:18px;height:18px;border:1.5px solid var(--surface);border-radius:50%;background:var(--green);color:var(--on);opacity:.92}
+.tile-pick .tile-edit svg{width:10px;height:10px}
+.tile-pick:hover .tile-edit,.tile-pick:focus-visible .tile-edit{background:var(--accent)}
+.tile-pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+#icon-dialog .icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:7px;margin:6px 0 4px}
+#icon-dialog .icon-choice{display:grid;place-items:center;aspect-ratio:1;min-height:46px;padding:0;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--green);cursor:pointer}
+#icon-dialog .icon-choice svg{width:21px;height:21px}
+#icon-dialog .icon-choice:hover{background:var(--land)}
+#icon-dialog .icon-choice:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#icon-dialog .icon-choice.on{background:var(--green);border-color:var(--green);color:var(--on);box-shadow:var(--lift-sm)}
+#icon-dialog .icon-foot{display:flex;gap:8px;justify-content:space-between;margin:16px 0 8px}
+#icon-dialog .icon-foot .button{flex:1}
+#icon-dialog .icon-foot .button[disabled]{opacity:.5;cursor:default}

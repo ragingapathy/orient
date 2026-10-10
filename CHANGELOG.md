@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-11 — Icons that mean something
+
+- **A star, not a red dot.** Saved places on the map now wear a tiny gold star instead of the red dot, which looked like an alert on every pin. Visited places still show their check.
+- **Pick your own icon.** Tap the icon on a place card to choose another from a set of about eighty (food and drink, shops, culture, outdoors, services, markers). The choice is kept for that place only, and "Use the usual icon" undoes it.
+- **Better usual icons.** "Food & drink" places no longer all wear a coffee cup: they get a fork and knife, or a croissant, pizza, sandwich, ice cream or beer glass when the name says so, and "beverages" and "Shopping" get their own. Real coffee shops keep the cup.
+- New check `icons-check.cjs` (7 cases).
+
 ## 2026-10-11 — The road-work button is gone from the map
 
 - The construction-cone button (with its red dot) no longer sits among the map controls. Closures and construction are still one tap away: the line on Today opens the list, and the Civic tab has the road work card and the Closures view in Explore. The switch in the field kit still turns road work on or off.
