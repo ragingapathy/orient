@@ -56,6 +56,25 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
       assert.match(await d.locator('[aria-label^="Show I-75"]').first().getAttribute('aria-label'), /Show I-75/);
       assert.match(await d.locator('.fine').innerText(), /Ohio Department of Transportation/); assert.match(await d.locator('.fine').innerText(), /not navigation/);
     });
+    await t('both directions of one closure are a single card, and ALL CAPS road names are tidied', async () => {
+      const file = roadwork(), base = file.items[0], same = { description: 'State Route 64 at State Route 295 closed for a culvert replacement', from: '', to: '' };
+      file.items = [
+        { ...base, ...same, id: 'ohgo:pair-n', roads: ['S BERKEY SOUTHERN RD'], direction: 'northbound', geometry: [[-83.56, 41.64], [-83.56, 41.65]] },
+        { ...base, ...same, id: 'ohgo:pair-s', roads: ['S BERKEY SOUTHERN RD'], direction: 'southbound', geometry: [[-83.5601, 41.65], [-83.5601, 41.64]] },
+        { ...base, id: 'ohgo:other', status: 'restricted', roads: ['US 23', 'N MAIN ST'], direction: 'eastbound', description: 'Right lane closed', geometry: [[-83.6, 41.7], [-83.59, 41.7]] },
+      ];
+      const p = await open({ file }); await tool(p).waitFor({ state: 'attached' }); await p.waitForFunction(() => OrientRoadwork.mapLayers());
+      assert.match(await tool(p).getAttribute('aria-label'), /1 closed nearby/, 'one road closed, not two');
+      assert.equal((await p.evaluate(() => OrientRoadwork.mapLayers())).features, 6, 'the map still draws every direction');
+      await browse(p); await tool(p).click(); const d = p.locator('#roadwork-dialog'); await d.locator('.rw-card').first().waitFor();
+      assert.equal(await d.locator('.rw-card').count(), 2); assert.deepEqual(await d.locator('.rw-tiles .ui-tile b').allInnerTexts(), ['1', '1', '0']);
+      assert.match(await d.locator('.rw-card').first().innerText(), /S Berkey Southern Rd · Both directions/);
+      assert.match(await d.locator('.rw-card').nth(1).innerText(), /US 23 \/ N Main St · Eastbound/, 'route numbers and compass letters keep their capitals');
+      // an intersection closed on all four approaches reads as one closure, in every direction
+      const four = roadwork(), b0 = four.items[0]; four.items = ['northbound', 'southbound', 'eastbound', 'westbound'].map(dr => ({ ...b0, id: 'ohgo:x-' + dr, direction: dr, roads: ['STRAYER RD'], description: 'US 20A at Strayer Road closed for a roundabout' }));
+      const q = await open({ file: four }); await q.waitForFunction(() => OrientRoadwork.mapLayers()); await browse(q); await tool(q).click();
+      assert.equal(await q.locator('#roadwork-dialog .rw-card').count(), 1); assert.match(await q.locator('#roadwork-dialog .rw-card').innerText(), /Strayer Rd · All directions/);
+    });
     await t('text from the file is shown as text, never as markup', async () => {
       const p = await open(); await browse(p); await tool(p).click(); const d = p.locator('#roadwork-dialog'); await d.locator('.rw-card').first().waitFor();
       assert.equal(await d.locator('img, script').count(), 0); assert.match(await d.innerText(), /<script>alert\(1\)<\/script> Right lane closed/);

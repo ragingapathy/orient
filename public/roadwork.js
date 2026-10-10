@@ -36,9 +36,27 @@ window.OrientRoadwork = (() => {
   // ----- which file belongs to this area -----
   const origin = () => { const o = api && api.origin && api.origin(); return o && o.length === 2 && o.every(Number.isFinite) ? o : null; };
   function sourceFor(o) { if (!o) return null; let best = null, bd = Infinity; for (const s of SOURCES) { const d = OrientPlaces.distance(o, s.center); if (d <= s.km * 1000 && d < bd) { best = s; bd = d; } } return best; }
-  const nearest = item => { const o = origin(); return o ? Math.min(...item.geometry.map(c => OrientPlaces.distance(o, c))) : Infinity; };
+  // A feed lists one entry per direction of travel, so a closure arrives twice. People think of it as one road closed,
+  // so the list and the counts work with groups: the same project (status, dates and description) is one card.
+  const KEEP = new Set(['US', 'SR', 'CR', 'IR', 'I', 'TR', 'N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']);
+  const pretty = name => name.split(' ').map(w => /[0-9]/.test(w) || KEEP.has(w) || w !== w.toUpperCase() ? w : w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+  let groupCache = null;
+  function groups() {
+    if (groupCache && groupCache.data === data) return groupCache.list;
+    const by = new Map();
+    for (const i of data ? data.items : []) {
+      const key = [i.status, i.upcoming, i.start, i.end, i.description || i.id].join('|'); let g = by.get(key);
+      if (!g) { g = { id: i.id, ids: [], status: i.status, upcoming: i.upcoming, start: i.start, end: i.end, description: i.description, from: i.from, to: i.to, roads: [], directions: [], items: [] }; by.set(key, g); }
+      g.ids.push(i.id); g.items.push(i);
+      for (const r of i.roads) { const p = pretty(r); if (!g.roads.includes(p) && g.roads.length < 3) g.roads.push(p); }
+      if (i.direction && !g.directions.includes(i.direction)) g.directions.push(i.direction);
+    }
+    const list = [...by.values()]; groupCache = { data, list }; return list;
+  }
+  const groupOf = id => groups().find(g => g.ids.includes(id));
+  const nearest = g => { const o = origin(); return o ? Math.min(...g.items.flatMap(i => i.geometry).map(c => OrientPlaces.distance(o, c))) : Infinity; };
   const miles = m => (m / 1609.344);
-  const near = (item, km) => nearest(item) <= km * 1000;
+  const near = (g, km) => nearest(g) <= km * 1000;
 
   // ----- the map layer -----
   const feature = (i, kind, coords) => ({ type: 'Feature', properties: { id: i.id, status: i.status, upcoming: i.upcoming }, geometry: kind === 'Point' ? { type: 'Point', coordinates: coords } : { type: 'LineString', coordinates: coords } });
@@ -97,7 +115,7 @@ window.OrientRoadwork = (() => {
   // ----- the button, the Today line and the list -----
   const counts = () => {
     const c = { closed: 0, restricted: 0, soon: 0 };
-    for (const i of data ? data.items : []) { if (!near(i, 25)) continue; if (i.upcoming) c.soon++; else if (i.status === 'closed') c.closed++; else if (i.status === 'restricted') c.restricted++; }
+    for (const i of groups()) { if (!near(i, 25)) continue; if (i.upcoming) c.soon++; else if (i.status === 'closed') c.closed++; else if (i.status === 'restricted') c.restricted++; }
     return c;
   };
   function setTool() {
@@ -128,21 +146,23 @@ window.OrientRoadwork = (() => {
   const span = ms => { const m = Math.round(ms / 60000); return m < 2 ? 'under a minute' : m < 90 ? m + ' minutes' : Math.round(m / 60) + ' hours'; };
   const ago = ms => Math.round(ms / 60000) < 2 ? 'just now' : span(ms) + ' ago';
   function card(i) {
-    const title = (i.roads.join(' / ') || 'Road work') + (i.direction ? ' · ' + dir(i.direction) : ''), seg = i.from && i.to ? i.from + ' to ' + i.to : i.from || i.to || '';
+    const ds = i.directions, opposite = ds.length === 2 && ((ds.includes('northbound') && ds.includes('southbound')) || (ds.includes('eastbound') && ds.includes('westbound')));
+    const dirs = ds.length >= 3 ? 'all directions' : opposite ? 'both directions' : ds.map(dir).join(' & ');
+    const title = (i.roads.join(' / ') || 'Road work') + (dirs ? ' · ' + dir(dirs) : ''), seg = i.from && i.to ? i.from + ' to ' + i.to : i.from || i.to || '';
     const d = nearest(i);
-    return '<article class="rw-card" data-status="' + i.status + '"' + (i.id === focusId ? ' data-focus="1"' : '') + ' data-id="' + esc(i.id) + '"><span class="rw-tile" aria-hidden="true"><i data-lucide="' + (i.status === 'closed' ? 'octagon-x' : 'construction') + '"></i></span><div><b>' + esc(title) + '</b>' +
+    return '<article class="rw-card" data-status="' + i.status + '"' + (i.ids.includes(focusId) ? ' data-focus="1"' : '') + ' data-id="' + esc(i.id) + '"><span class="rw-tile" aria-hidden="true"><i data-lucide="' + (i.status === 'closed' ? 'octagon-x' : 'construction') + '"></i></span><div><b>' + esc(title) + '</b>' +
       (seg ? '<small>' + esc(seg) + '</small>' : '') + (i.description ? '<p>' + esc(i.description) + '</p>' : '') + '<small class="rw-meta">' + esc([dates(i), Number.isFinite(d) ? miles(d).toFixed(1) + ' mi away' : ''].filter(Boolean).join(' · ')) + '</small></div><button type="button" class="button" data-roadwork="show" data-id="' + esc(i.id) + '" aria-label="Show ' + esc(title) + ' on the map">Show</button></article>';
   }
   function render() {
     if (!dialog) return;
     const body = dialog.querySelector('[data-rw-body]'); if (!data) { body.innerHTML = '<p class="sub">Road work isn’t available right now.</p>'; return; }
-    const items = data.items.filter(i => near(i, 80)).sort((a, b) => nearest(a) - nearest(b)), c = counts();
-    const groups = [['closed', 'Closed', items.filter(i => i.status === 'closed' && !i.upcoming)], ['restricted', 'Lane restrictions', items.filter(i => (i.status === 'restricted' || i.status === 'unknown') && !i.upcoming)], ['soon', 'Starting soon', items.filter(i => i.upcoming)], ['open', 'Work nearby, lanes open', items.filter(i => i.status === 'open' && !i.upcoming)]];
-    if (focusId) for (const g of groups) { const k = g[2].findIndex(i => i.id === focusId); if (k > 0) g[2].unshift(...g[2].splice(k, 1)); }
+    const items = groups().filter(i => near(i, 80)).sort((a, b) => nearest(a) - nearest(b)), c = counts();
+    const sections = [['closed', 'Closed', items.filter(i => i.status === 'closed' && !i.upcoming)], ['restricted', 'Lane restrictions', items.filter(i => (i.status === 'restricted' || i.status === 'unknown') && !i.upcoming)], ['soon', 'Starting soon', items.filter(i => i.upcoming)], ['open', 'Work nearby, lanes open', items.filter(i => i.status === 'open' && !i.upcoming)]];
+    if (focusId) for (const g of sections) { const k = g[2].findIndex(i => i.ids.includes(focusId)); if (k > 0) g[2].unshift(...g[2].splice(k, 1)); }
     const stale = age() > OLD, srcs = data.sources.filter(s => s.status !== 'skipped');
     body.innerHTML = '<div class="rw-tiles"><div class="ui-tile orange"><b>' + c.closed + '</b><span>closed within 15 mi</span></div><div class="ui-tile gold"><b>' + c.restricted + '</b><span>lane restrictions</span></div><div class="ui-tile teal"><b>' + c.soon + '</b><span>starting soon</span></div></div>' +
       (stale ? '<p class="rw-warn" role="status">This information is ' + esc(span(age())) + ' old and may be out of date.</p>' : '') +
-      groups.map(([k, label, list]) => list.length ? '<section class="rw-section"><h3 class="ui-kicker">' + label + ' · ' + list.length + '</h3>' + list.slice(0, more[k] ? 80 : 12).map(card).join('') + (list.length > 12 && !more[k] ? '<button type="button" class="button full" data-roadwork="more" data-group="' + k + '">Show all ' + list.length + '</button>' : '') + '</section>' : '').join('') +
+      sections.map(([k, label, list]) => list.length ? '<section class="rw-section"><h3 class="ui-kicker">' + label + ' · ' + list.length + '</h3>' + list.slice(0, more[k] ? 80 : 12).map(card).join('') + (list.length > 12 && !more[k] ? '<button type="button" class="button full" data-roadwork="more" data-group="' + k + '">Show all ' + list.length + '</button>' : '') + '</section>' : '').join('') +
       (items.length ? '' : '<p class="rw-empty">Nothing is listed for this area right now.</p>') +
       '<p class="fine">Updated ' + esc(data.updated ? ago(age()) : 'at an unknown time') + ', from ' + (srcs.length ? srcs.map(s => (s.homepage ? '<a href="' + esc(s.homepage) + '" target="_blank" rel="noopener">' + esc(s.publisher || s.name) + '</a>' : esc(s.publisher || s.name)) + (s.status === 'stale' ? ' (last good copy)' : '') + (s.license ? ', ' + esc(s.license) : '')).join('; ') : 'public road-work feeds') + '. This is for awareness, not navigation: closures change quickly, so trust signs and the agency’s own map when you drive. Orient fetches one public file and sends nothing about you.</p>';
     try { window.lucide && window.lucide.createIcons(); } catch { /* decoration */ }
@@ -158,9 +178,9 @@ window.OrientRoadwork = (() => {
     render(); if (!dialog.open) dialog.showModal(); try { window.lucide && window.lucide.createIcons(); } catch { /* decoration */ }
   }
   function show(id) {
-    const item = data && data.items.find(i => i.id === id), map = api.map && api.map(); if (!item || !map) return;
+    const item = data && groupOf(id), map = api.map && api.map(); if (!item || !map) return;
     dialog && dialog.close();
-    const xs = item.geometry.map(c => c[0]), ys = item.geometry.map(c => c[1]);
+    const pts = item.items.flatMap(i => i.geometry), xs = pts.map(c => c[0]), ys = pts.map(c => c[1]);
     map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 90, maxZoom: 15.5, duration: 600 });
   }
   function onClick(e) {
