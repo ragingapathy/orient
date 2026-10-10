@@ -82,9 +82,10 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
       await p.evaluate(() => OrientBoard.flyTo(-83.640, 41.640, 15.5)); await p.waitForTimeout(2200);
       // the reader at 41.640,-83.560 faces 345 degrees
       await p.evaluate(() => OrientBoard.flyTo(-83.560, 41.640, 16)); await p.waitForTimeout(2200);
-      await hoverAt(p, -83.560, 41.640);
-      const card = p.locator('.civic-hover'); await card.waitFor();
-      const text = await card.innerText(); assert.match(text, /License plate reader/i); assert.match(text, /Flock Safety · Toledo Police Department/); assert.match(text, /faces north \(345°\)|faces northwest \(345°\)/);
+      // the reader's layer can take a moment to draw on a slow machine; until it has, the closure line under it answers instead
+      const card = p.locator('.civic-hover'); let text = '';
+      for (let k = 0; k < 8; k++) { await hoverAt(p, -83.560, 41.640); await card.waitFor(); text = await card.innerText(); if (/License plate reader/i.test(text)) break; await p.mouse.move(5, 300); await p.waitForTimeout(800); }
+      assert.match(text, /License plate reader/i); assert.match(text, /Flock Safety · Toledo Police Department/); assert.match(text, /faces north \(345°\)|faces northwest \(345°\)/);
       assert.equal(await p.evaluate(() => OrientBoard.hoverCount()), 1, 'the field of view of the reader is drawn on the map');
       await p.mouse.move(5, 300); await p.waitForTimeout(300); assert.equal(await card.isVisible(), false, 'it goes away when the pointer leaves'); assert.equal(await p.evaluate(() => OrientBoard.hoverCount()), 0, 'and so does the view');
     });
