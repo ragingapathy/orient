@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-11 — Names on the map, and a hover card
+
+- **Pins now carry the place’s name**, not its category (the selected pin used to show “Public space”). From a close zoom, names appear in order of how much a place matters to you: the selected place, then visited, saved, your own and catalogue places, then the rest. A name is skipped if it would sit on another name or on another pin, so a busy street stays readable. Zoomed out, the map is not covered in text.
+- **Hover card on desktop.** Hovering a pin (or focusing it with the keyboard) shows a small card: name, type, open or closed now from the hours Orient has parsed, address, and your visits (“Been here 2 times · last today”). It stays inside the map, never blocks the pin underneath, and Escape dismisses it. Touch screens get names but no hover card, since there is no hover.
+- New check `map-labels-check.cjs`: label content, a geometric guarantee that no name overlaps another name or pin, zoom gating, the selected place always named, hover and Escape behaviour, and a touch device.
+
 ## 2026-10-11 — Filled in for you, and clone counts
 
 - **Prefill.** When the home city is within 60 miles of Toledo, **Share this note** fills in `ragingapathy/toledo-commons` as the destination (a destination you chose before still wins), and **Place commons** fills in the Toledo snapshot address to follow. Elsewhere nothing is filled in.

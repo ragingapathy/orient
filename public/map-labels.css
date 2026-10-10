@@ -1,0 +1,11 @@
+/* Names on the map pins, and the desktop hover card. Which names show is decided in map-labels.js. */
+.map-marker .pin-label{visibility:hidden;max-width:150px;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:600;line-height:1.25;padding:2px 7px;top:47px;border-radius:7px;box-shadow:0 1px 3px #17302c26}
+.map-marker .pin-label.on{visibility:visible}
+.map-marker:hover,.map-marker:focus-visible{z-index:3}
+.hover-card{position:absolute;z-index:6;max-width:260px;min-width:170px;padding:10px 12px;border:1px solid var(--edge);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 8px 24px #17302c33;pointer-events:none;display:grid;gap:3px;font-size:12px;line-height:1.35}
+.hover-card[hidden]{display:none}
+.hover-card strong{font-size:14px;line-height:1.25}
+.hover-card .hc-kind,.hover-card .hc-hint{color:var(--muted);font-size:11px}
+.hover-card .hc-status{font-weight:600}.hover-card .hc-status.open{color:var(--green)}.hover-card .hc-status.closed{color:var(--muted)}
+.hover-card .hc-hint{margin-top:3px;padding-top:5px;border-top:1px solid var(--edge)}
+@media (hover:none),(pointer:coarse){.hover-card{display:none!important}}

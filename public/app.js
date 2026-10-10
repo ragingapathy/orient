@@ -147,14 +147,15 @@
     for(const p of visible){
       let marker=markers.get(p.id);
       if(!marker){const button=document.createElement('button');button.type='button';button.className='map-marker';button.addEventListener('click',e=>{e.stopPropagation();selectPlace(p.id);});marker=new maplibregl.Marker({element:button,anchor:'center'}).setLngLat(p.coordinates).addTo(map);markers.set(p.id,marker);}
-      const button=marker.getElement();button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
+      const button=marker.getElement();button.dataset.placeId=p.id;button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
       button.classList.toggle('lit-open',state.filter==='Open now');
       button.classList.toggle('discovered',!isMarked(p.id)&&/^(osm-|tile-)/.test(p.id));
-      button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(store.visited.includes(p.id)?'check':p.icon)}</span>${p.id===state.selected?`<span class="pin-label">${escapeHTML(p.kind)}</span>`:''}`;
+      button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(store.visited.includes(p.id)?'check':p.icon)}</span><span class="pin-label">${escapeHTML(p.name)}</span>`;
     }
     OrientCircuits.syncMap(map,!!state.circuitMap&&state.tab==='My Map'&&!state.list);
     OrientJourney.syncMarkers(map,state.tab==='My Map'&&!state.list);
     OrientNeighbors.syncMarkers(map,state.tab==='My Map'&&!state.list,state.query);
+    OrientMapLabels.refresh();
     updateFog();
   }
   function updateFog() {
@@ -419,6 +420,7 @@
   OrientGidgit.init({...privatePlaceAPI,toast,selected:()=>state.selected,origin:()=>state.origin,show:id=>{state.filter='Everything';Object.assign(state,filterDefaults);state.query='';$('#search').value='';state.tab='My Map';state.list=false;selectPlace(id,{expand:true});}});
   OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:async raw=>{if(OrientCatalog.needed(raw))await OrientCatalog.load();const previous=store.home;store=cleanData(raw);if(JSON.stringify(previous)!==JSON.stringify(store.home)){state.origin=store.home?.coordinates||[0,20];state.originLabel=store.home?.name||'your chosen area';if(store.home)map?.jumpTo({center:store.home.coordinates,zoom:12});}try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
   OrientTakeout.init({store:()=>store,places:allPlaces,origin:()=>state.origin,icon:categoryIcon,save,render,keepOsm,addVisit:(id,day)=>OrientVisits.add(id,day),visitDays:id=>OrientVisits.entries(id)});
+  OrientMapLabels.init({map:()=>map,markers:()=>markers,selected:()=>state.selected,priority:id=>(id===state.selected?1000:0)+(store.visited.includes(id)?120:store.saved.includes(id)?100:isMarked(id)?50:10)+(store.ratings?.[id]||0),info:id=>{const p=placeById(id);if(!p)return null;const o=opening(p);return {name:p.name,kind:p.kind,address:p.address||'',status:/^(Open|Closed)/.test(o?.label||'')?o.label:'',visits:OrientVisits.line(id),saved:store.saved.includes(id)};}});
   OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.filter='Everything';state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
