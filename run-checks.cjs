@@ -3,6 +3,7 @@
 //     node run-checks.cjs                  every check
 //     node run-checks.cjs spend icons      just those
 //     node run-checks.cjs --list           what there is
+//     node run-checks.cjs --shard 2/3      every third check, starting at the second (how GitHub splits the work across machines)
 //     node run-checks.cjs --jobs 3         three at a time (faster; a few checks start servers of their own, so 1 is the safest)
 // Needs Playwright with Chrome: install it (npm i playwright) or point ORIENT_PLAYWRIGHT at an existing playwright folder.
 // A check that prints "SKIP:" (for example one that needs a private catalog) counts as skipped, not failed.
@@ -16,10 +17,11 @@ const { spawn } = require('node:child_process');
 
 const args = process.argv.slice(2);
 const jobsAt = args.indexOf('--jobs'), jobs = jobsAt >= 0 ? Math.max(1, Number(args[jobsAt + 1]) || 1) : 1;
-const names = args.filter((a, i) => !a.startsWith('--') && !(jobsAt >= 0 && i === jobsAt + 1));
+const shardAt = args.indexOf('--shard'), shard = shardAt >= 0 ? String(args[shardAt + 1]).split('/').map(Number) : null;
+const names = args.filter((a, i) => !a.startsWith('--') && !(jobsAt >= 0 && i === jobsAt + 1) && !(shardAt >= 0 && i === shardAt + 1));
 const all = fs.readdirSync(__dirname).filter(f => /-check\.cjs$/.test(f)).sort();
 if (args.includes('--list')) { console.log(all.map(f => f.replace(/-check\.cjs$/, '')).join('\n')); process.exit(0); }
-const wanted = names.length ? names.map(n => { const f = n.replace(/(-check)?(\.cjs)?$/, '') + '-check.cjs'; if (!all.includes(f)) { console.error('No check called ' + n); process.exit(2); } return f; }) : all;
+const picked = names.length ? names.map(n => { const f = n.replace(/(-check)?(\.cjs)?$/, '') + '-check.cjs'; if (!all.includes(f)) { console.error('No check called ' + n); process.exit(2); } return f; }) : all;
 
 function findPlaywright() {
   if (process.env.ORIENT_PLAYWRIGHT) return process.env.ORIENT_PLAYWRIGHT;
@@ -33,6 +35,8 @@ const ready = url => new Promise((resolve, reject) => {
   const tick = () => http.get(url, r => { r.resume(); resolve(); }).on('error', () => Date.now() - t0 > 15000 ? reject(new Error('the test server did not start')) : setTimeout(tick, 200));
   tick();
 });
+
+const wanted = shard && shard[1] > 0 ? picked.filter((_, i) => i % shard[1] === shard[0] - 1) : picked;
 
 (async () => {
   const playwright = findPlaywright();

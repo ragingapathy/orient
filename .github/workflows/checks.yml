@@ -19,6 +19,10 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]   # three machines each run a third of the checks, so the map-heavy ones are not starved of CPU
     timeout-minutes: 30
     env:
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"   # the runner already has Google Chrome, which the checks drive
@@ -29,4 +33,4 @@ jobs:
           node-version: lts/*
       - run: npm install --no-save playwright
       - run: npm run check
-      - run: node run-checks.cjs --jobs 3 ${{ inputs.only }}
+      - run: node run-checks.cjs --shard ${{ matrix.shard }}/3 ${{ inputs.only }}
