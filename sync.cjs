@@ -5,6 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const backup = require('./backup.cjs');
 const dir = process.env.ORIENT_DATA_DIR || path.join(__dirname, 'data');
 const stateFile = path.join(dir, 'orient-state.json');
 const tokenFile = path.join(dir, 'sync-token.txt');
@@ -80,6 +81,7 @@ function handle(req, res, url, json) {
         if (!st || typeof st !== 'object' || Array.isArray(st) || st.version !== 1) { json(res, 400, { error: 'That is not an Orient map.' }); return; }
         const s = load();
         if (!Number.isInteger(input.baseRev) || input.baseRev !== s.rev) { json(res, 409, { rev: s.rev, updatedAt: s.updatedAt, state: s.state }); return; }
+        backup.beforeWrite(s, st); // keeps a copy of the map as it was if this write shrinks it sharply
         current = { rev: s.rev + 1, updatedAt: new Date().toISOString(), state: st };
         writeAtomic(stateFile, JSON.stringify(current), 0o600);
         json(res, 200, { rev: current.rev, updatedAt: current.updatedAt });

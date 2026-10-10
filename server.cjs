@@ -9,6 +9,7 @@ const {geocode}=require('./geocode.cjs');
 const {nearby}=require('./places.cjs');
 const website=require('./website.cjs');
 const sync=require('./sync.cjs');
+const backup=require('./backup.cjs');backup.start();
 const gidgit=require('./gidgit.cjs');
 const commonsPublish=require('./commons-publish.cjs').createHandler();
 const geocodeCache = new Map();
@@ -47,6 +48,7 @@ http.createServer((req,res)=>{
   if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
   if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}
   if(sync.handle(req,res,url,json))return;
+  if(url==='/api/backups'){if(!sync.trusted(req)){json(res,403,{error:'Backups are managed only on the computer that runs Orient.'});return;}if(req.method==='POST'){try{const r=backup.take();json(res,r.skipped?409:200,r.skipped?{error:r.skipped}:{...r,...backup.list()});}catch(e){json(res,500,{error:e.message});}return;}if(req.method==='GET'){json(res,200,backup.list());return;}res.writeHead(405,{Allow:'GET, POST'});res.end();return;}
   if(url==='/api/repo-stats'){if(!sync.trusted(req)){json(res,403,{error:'Project stats are shown only on the computer that runs Orient.'});return;}let stats={repos:{}};try{stats=JSON.parse(fs.readFileSync(path.join(process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),'repo-stats.json'),'utf8'));}catch{}json(res,200,stats);return;}
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}

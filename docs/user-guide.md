@@ -114,6 +114,25 @@ Place hours accept `Second Wednesday 9am-11am`, `First and third Tuesday 4pm-6pm
 
 Monthly service windows appear as derived entries in Calendar and Today (nearby services within 10 miles), with Edit place hours rather than duplicate saved events. Regular weekly business hours do not flood Calendar. Natural-language calendar entry also recognizes ordinal weekdays; the monthly editor exposes a human-readable pattern field. Saved event patterns and hours survive existing backups and sync. Run `node recurring-hours-check.cjs` and `node recurring-hours-ui-check.cjs` for coverage.
 
+## Backups and restore
+
+The map copy this computer keeps for sync (`data/orient-state.json`) is backed up automatically into `data/backups/`:
+
+- **One file per day**, refreshed every hour while the map changes, so today’s copy is never more than an hour old and yesterday’s is the final state of yesterday. Two weeks of days are kept, then the Sunday copies for eight more weeks. Days are UTC.
+- **Verified.** A copy is written, read back and checked before it replaces another, and a damaged or empty live map is never copied over a good backup.
+- **A safety copy before a large deletion.** If a sync write would shrink the map by more than 40% (a reset, a sync mistake), the map as it was is saved first as `orient-state-before-change-…json`. At most one an hour; the newest five are kept.
+- **Your field kit → Backups** (on this computer only) shows the last good backup, can **Back up now**, and lists every copy.
+
+To go back to an earlier copy:
+
+```
+node restore-backup.cjs                 # list the copies
+node restore-backup.cjs 2026-10-10      # restore that day (or --latest)
+docker compose restart                  # so Orient reads the restored file
+```
+
+The restore saves the map as it is now first (`before-restore`), checks the chosen copy, and writes it with a newer revision. Phones and other browsers then follow it, and anything added after that copy was made is removed from them as well, because restoring means going back. Export in Your field kit first if you want to keep something from now. Backups are not encrypted and sit beside the live copy, so they are only as private as that folder: if `data/` is inside a cloud-synced folder such as OneDrive, so are they. Browsers keep their own copies as well, and **Export my map** still makes a file you can keep anywhere.
+
 ## Project stats
 
 `node repo-stats.cjs` records GitHub’s traffic numbers (clones, page views, stars, forks) for the project’s repositories into `data/repo-stats.json`, which Your field kit shows as **Project stats** on the computer that runs Orient and nowhere else. GitHub keeps only 14 days and shows them only to the repository owner, so run the script at least every two weeks to keep a history. On Windows, `.schedule-repo-stats.ps1` installs a weekly task (Sundays 09:00, hidden, runs at the next opportunity if the computer was off; `-Day` and `-At` change the time, `-Remove` takes it away) and `dataepo-stats-last-run.txt` shows the latest run’s output. It uses `GITHUB_TOKEN` or the GitHub login git already has, and never prints or saves it. Set `ORIENT_STATS_REPOS=owner/a,owner/b` to choose the repositories. Clone counts include bots, mirrors and your own machines: a rough signal, not a head count. Orient itself does not report who uses it.

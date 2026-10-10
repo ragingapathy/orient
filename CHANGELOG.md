@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-11 — Automatic backups of the synced map
+
+- The computer running Orient now backs up the one copy phones sync against (`data/orient-state.json`) into `data/backups/`. One file per day, refreshed hourly while the map changes; two weeks of days kept, then Sundays for eight weeks. Every copy is written, read back and checked before it replaces another, and an empty or damaged live map is never copied over a good backup.
+- **A safety copy before a large deletion.** A sync write that would cut the map by more than 40% (for example **Reset this browser’s map**, which syncs as a deletion) first saves the map as it was. One an hour at most; the newest five are kept.
+- **Your field kit → Backups**, on this computer only: last good backup, **Back up now**, and the list of copies. Through the public address the server refuses it.
+- `restore-backup.cjs` lists copies and restores one: it saves the current map first, checks the copy, writes it with a newer revision, and reminds you to `docker compose restart`. Devices follow the restored map, including its removals.
+- New check `backup-check.cjs` (8 cases: verification, rotation over 60 simulated days, the shrink guard through the real sync endpoint, restore, trust rules, the panel). Needs a server restart.
+
 ## 2026-10-11 — Names on the map, and a hover card
 
 - **Pins now carry the place’s name**, not its category (the selected pin used to show “Public space”). From a close zoom, names appear in order of how much a place matters to you: the selected place, then visited, saved, your own and catalogue places, then the rest. A name is skipped if it would sit on another name or on another pin, so a busy street stays readable. Zoomed out, the map is not covered in text.
