@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bundle.schema.json",
+  "title": "Orient coordinate commons bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "sources",
+    "places",
+    "claims"
+  ],
+  "properties": {
+    "format": {
+      "const": "orient-commons"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "sources": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "license"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "license": {
+            "const": "CC-BY-4.0"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://"
+          }
+        }
+      }
+    },
+    "places": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "id",
+          "name",
+          "coordinates"
+        ],
+        "properties": {
+          "source_id": {
+            "$ref": "#/$defs/id"
+          },
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "coordinates": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180
+              },
+              {
+                "type": "number",
+                "minimum": -85,
+                "maximum": 85
+              }
+            ],
+            "items": false
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "claim"
+        ],
+        "properties": {
+          "source_id": {
+            "$ref": "#/$defs/id"
+          },
+          "claim": {
+            "$ref": "claim.schema.json"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "maxLength": 80
+    }
+  }
+}

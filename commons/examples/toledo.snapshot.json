@@ -1,0 +1,39 @@
+{
+  "format": "orient-commons",
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "toledo-example",
+      "name": "Fictional Toledo commons",
+      "license": "CC-BY-4.0"
+    }
+  ],
+  "places": [
+    {
+      "source_id": "toledo-example",
+      "id": "river-bench",
+      "name": "Example river bench (fictional)",
+      "coordinates": [
+        -83.539,
+        41.655
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "source_id": "toledo-example",
+      "claim": {
+        "schema_version": 1,
+        "id": "bench-seating",
+        "place_id": "river-bench",
+        "kind": "seating",
+        "observation": "A fictional example: a place to sit and watch the river without buying anything.",
+        "source": {
+          "type": "personal_observation"
+        },
+        "asserted_on": "2026-10-09",
+        "status": "active"
+      }
+    }
+  ]
+}

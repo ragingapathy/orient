@@ -5,7 +5,7 @@ window.OrientHome=(()=>{
   const legacy=()=>({name:'Toledo',label:'Toledo, Ohio',coordinates:[-83.539,41.655],timeZone:'America/New_York'});
   function clean(raw){if(!raw||typeof raw.name!=='string'||!raw.name.trim()||!Array.isArray(raw.coordinates)||raw.coordinates.length!==2||!raw.coordinates.every(Number.isFinite)||Math.abs(raw.coordinates[0])>180||Math.abs(raw.coordinates[1])>85)return null;let timeZone=String(raw.timeZone||'America/New_York');try{new Intl.DateTimeFormat('en',{timeZone});}catch{timeZone='America/New_York';}return {name:raw.name.trim().slice(0,100),label:String(raw.label||raw.name).slice(0,250),coordinates:[...raw.coordinates],timeZone};}
   const home=()=>api?.store().home||null;
-  const timeZone=()=>home()?.timeZone||'America/New_York';
+  const timeZone=()=>window.OrientAreas?.area()?.timeZone||home()?.timeZone||'America/New_York';
   function open(){
     controller?.abort();candidate=null;results=[];prompting=!home();
     if(!dialog){dialog=document.createElement('dialog');dialog.id='home-dialog';dialog.setAttribute('aria-labelledby','home-title');document.body.append(dialog);dialog.addEventListener('close',()=>{controller?.abort();if(home())api.preview(home().coordinates);});

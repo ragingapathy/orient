@@ -1,117 +1,93 @@
 # Orient
 
-A personal tool for getting to know a city. I'm building it for Toledo, Ohio, and I use it to keep track of places I've been, places I'd like to go, and the small things worth remembering about them.
+**Get to know your city. Help someone else feel at home in theirs.**
 
-**Right now there is no reason for anyone else to use it.** It is an early prototype, it changes often, nothing about it is finished, and I'm not offering support. It is public because it's easier to keep my work in one place, and because someone might find a piece of it useful.
+Orient began in Toledo, Ohio, with a personal question: *How can a map nudge me to leave the house and explore?*
 
-## What it does
+A comic shop I keep meaning to visit. Coffee before the thrift store. A quiet bench by the river. Somewhere I can walk into alone and feel comfortable. The useful parts of a city often come from trying a place, talking to someone, and remembering one small thing.
 
-Orient is a private map that lives in your browser.
+Orient gives those things a home: a private map that becomes more familiar as you use it. Now it also has a way to share the knowledge you choose to contribute, through a place commons carried by GitHub.
 
-- On first use, choose a city or town and confirm it as your home area. Explore distances, Today and outing suggestions start there; **Field kit → Change home area** moves that starting point while keeping saved places. No GPS or home address is needed. Calendar time zone starts with the device setting and can be changed during setup. Fresh maps do not load the Toledo catalog; existing maps retain their data and starting area.
-- Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS, no automatic check-in, and no account.
-- Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
-- Optionally enable **Gidgit** in the Field kit. It adds an optional fourth navigation button on that device for saved-map questions and reviewed hours, note, or category updates. It stays hidden when disabled and sends nothing until you ask. It uses local Ollama on the Orient computer, defaults to the installed `qwen3.5:9b`, and has no cloud fallback. A public browser must already be paired for sync.
-- Keep your own notes, ratings, and categories for each place. Enter weekly hours such as **Mon-Fri 9am-5pm; Sat 10am-2pm; Sun closed** to normalize the schedule and calculate current opening status. Unknown or ambiguous hours remain text for review.
-- Select the existing **Open now** filter to darken the city and light up places open by their listed schedules. It uses your home-area time zone and refreshes every 30 seconds; unlisted days and unsupported holiday rules are not guessed.
-- The Add menu starts with **Photo + note** or **Name of place**. Choose Name of place to reveal the full place form, including address and website tools; Back returns to the two choices.
-- **Add a place → Photo + note** creates a standalone photo memory: pick a picture, optionally write a note, and save. No name, category, or address form is required. GPS supplies the pin coordinates; without readable GPS, center the map first and explicitly choose **Use map center**. Attaching to an existing place is optional rather than automatic. A photo memory opens with its picture and note as the main content and survives sync and backups.
-- Photo uploads read embedded GPS locally before resizing. **My Map → List → Add a place photo** starts from an image; a place card’s Add a photo uses the same destination picker. Known places within 100 m are suggested; a match is preselected only within 35 m with at least a 15 m lead over the next candidate. Check the destination, choose another place, or name a new place at the photo’s coordinates. Missing/unsupported GPS falls back to manual selection. No reverse geocoder or image upload service is used. The saved JPEG copy has its embedded metadata removed. GPS reading uses vendored [exifr 7.1.3](https://github.com/MikeKovarik/exifr), MIT license in `public/vendor/exifr-LICENSE.txt`.
-- Append photos to any place—shops, parks, benches, or your own discoveries—with an editable note per photo. Open **Photos & notes** in the expanded place card, choose a file or take a photo, and save. Smaller JPEG copies are kept with the private map, including sync and JSON backups; originals stay untouched. Adding is limited to 12 photos per place, about 110 KB per photo, and about 1.3 MB of compressed images across the album to fit current browser/sync storage. Orient reports capacity errors rather than evicting existing photos. HEIC works only when the browser can decode it; otherwise choose JPEG/PNG. Map imports accept up to 3 MB.
-- Bring in your own Google Maps data from a Google Takeout export: saved lists (the CSV files in the Saved folder), Saved Places, and optionally Timeline visits. See Importing from Google below.
-- Open directions in the maps app you prefer: Apple Maps, Google Maps, Waze or OpenStreetMap, or let Orient choose on a phone. The choice is kept on each device.
-- Make short outings ("circuits") from places you've saved, and see them on the map.
-- Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
-- Today’s events and specials also inform outing suggestions, with the specific reason, listed time, and source shown on the recommendation. Timed listings must fit the available outing window; listed today does not mean open now.
-- On Explore’s daily start view, use **Get me out for a bit** for up to two small outings based on available time, walking or driving, spending intentions, and people energy. Suggestions run locally and favor saved, unvisited places; ratings of 1–2 are excluded. Travel is estimated, hours and atmosphere are unverified, and dollar budgets are reminders until prices are known. No-spend plans suggest outdoor walks. Preferences last only until the page reloads; the starting point is your chosen home area or a map center you choose, never GPS.
-- Look up an address or a business name, and optionally read a place's own website for its hours, phone number and published events.
-- Your map is kept in the browser and synced to the computer running Orient, so a phone and a laptop show the same places and visits (see Syncing below). It can also be exported and imported as a file. Fog covers the parts of the map you haven't marked yet.
+**There is a reason to join now. Try it where you live. Bring a little local knowledge. Help us build what comes next.**
 
-The feature-by-feature record of how it got here is in [CHANGELOG.md](CHANGELOG.md).
+## Your map stays yours
 
-## Running it
+Start in your own city. Save places, add notes and photos, remember visits, make a small circuit for Sunday, or find a reason to get out today. Fog gives way as you mark your map. Open now lights up places with recognized opening hours.
 
-You need Node.js 18 or later. There is nothing to install or build.
+- **Explore with a little direction.** A compact daily briefing surfaces specials, nearby service hours, and places you’ve saved but haven’t tried. Expand it when you want a nudge; keep the map in view when you don’t.
+- **Take your map somewhere else.** Tap the city beside search to explore Detroit, Ann Arbor, Cleveland, or your own destination. Recent areas remember their map positions. Home stays home.
+- **Remember what matters to you.** Personal categories, ratings, notes, photos, recurring events, and circuits make the map useful on your terms. Add a photo and a note without filling out a business profile.
+- **Use the information a place publishes.** Address lookup and a reviewed website reader help fill in hours, contact details, social links, and readable calendar data.
+- **Ask for help if you want it.** Gidgit is an optional local AI companion for questions about your saved map and reviewed detail updates. It stays hidden when disabled and uses local Ollama, with no cloud fallback.
 
-```
+No account is needed. Your map is stored in your browser, with private sync to the computer running Orient for paired devices. Public contributions use a separate, explicit flow.
+
+## The place commons
+
+A map can tell you where something is. A small observation can make it easier to go:
+
+> “You can browse without buying.”
+>
+> “There’s seating where you can stay a while.”
+>
+> “This stretch of the river is quiet.”
+
+In Orient, choose **Share this note** on a place, edit the part you want to contribute, and review the complete public file before downloading it. The original note stays private and unchanged. Each shared claim carries a kind, observation date, source identity, and optional credit. Places are anchored by latitude and longitude, with no OSM identity requirement.
+
+Someone else can load that bundle, review individual claims, and decide what belongs on their map. Nearby coordinates suggest matches; the person importing chooses whether to link an existing place or create a new one. Shared observations sit in a compact fold with attribution, separate from private notes.
+
+**The neighbor guide never participates.** People fields, visit histories, saved lists, photos, circuits, and calendar data are excluded from public bundles. The contributor reviews the chosen text for personal information before sharing it.
+
+### Multiple commons, even in the same city
+
+You can maintain a Toledo commons. Someone else can maintain another Toledo commons. A third person can combine contributions from both while preserving their original source identities. A source ID records provenance; it grants no ownership of a city.
+
+GitHub carries reviewed JSON snapshots, pull requests, forks, and history. Orient provides the interface for reviewing and combining them. The first working loop supports file import/export and public GitHub snapshot loading. Publishing is manual, and nothing pulls or uploads in the background.
+
+**Try the loop:** [commons guide](commons/README.md) · [fictional example bundle](commons/examples/toledo.snapshot.json) · [public schemas](commons/schema/)
+
+## Run it in your city
+
+You need Node.js 18 or later. There are no app dependencies to install and no build step.
+
+```sh
+git clone https://github.com/ragingapathy/orient.git
+cd orient
 node server.cjs
 ```
 
-To keep it running in the background and bring it back after a restart, use Docker instead (`docker compose up -d`; see `docker-compose.yml`). It reads this folder, keeps your data in `./data`, and publishes the port on this computer only.
+Open [localhost:4173](http://127.0.0.1:4173), choose your home city, and add a place you know or want to try. A fresh map does not load the author’s private Toledo catalog.
 
-Then open http://127.0.0.1:4173. On Windows, `.\start.ps1` does the same thing, and `.\start.ps1 -Port 4174` picks another port. The server only listens on this computer unless you set `HOST` yourself.
+For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. A downloaded bundle can be submitted through a reviewed pull request to a commons repository of your choice.
 
-## Places
+Docker, phone pairing, backups, Google Maps imports, local AI setup, and the fuller feature reference are in the [user guide](docs/user-guide.md). Development history is in the [changelog](CHANGELOG.md).
 
-A fresh copy starts with four made-up example places (`public/catalog.sample.js`) so the map isn't empty. They are labeled as demos, can be hidden from the field kit, and are not real businesses.
+## Come build with us
 
-To start with your own places instead, create `public/catalog.local.js`. It is ignored by git, loads first, and replaces the examples. It should set `window.ORIENT_CATALOG` to a list shaped like the one in the sample file. Nothing from anyone's local catalog is part of this repository.
+This is a working prototype with room for other people’s ideas and judgment. You don’t need to be in Toledo, and you don’t need to write code to help shape it.
 
-## Syncing between devices
+- **Try a real outing.** Tell us where Orient helped you leave the house, where it got in the way, and what you needed that it didn’t know.
+- **Start a local commons.** Contribute a few useful observations, review someone else’s, or maintain a snapshot for your city. A small, cared-for collection is a good beginning.
+- **Make the interface better.** Help with mobile interactions, accessibility, clearer language, and making useful information fit a small screen.
+- **Build the next piece.** Better commons review and merging, easier GitHub contributions, more reliable hours parsing, and thoughtful ways to turn saved places into actual outings are all welcome directions.
+- **Bring a different perspective.** What makes a place approachable depends on the person. Help us ask better questions and represent observations with enough context to be useful.
 
-A browser's storage belongs to one address, so a laptop at `127.0.0.1` and a phone at your public address would otherwise each keep their own map. To keep them the same, the computer running Orient holds one copy in `data/orient-state.json` (ignored by git), and each browser keeps its own copy too, so it still works offline.
+[Open an issue](https://github.com/ragingapathy/orient/issues) with an idea, a bug, or something you learned using it. For a change, fork the repo and open a pull request explaining what it helps someone do. For a larger change, start with an issue so we can work through the shape together. Use fictional places and notes in examples; keep personal exports and local catalogs out of commits.
 
-- Open Orient on that computer, choose the settings button, then **Pair a phone**. Enter the address your phone uses and open the link it makes on the phone once. The phone then syncs whenever it can reach the computer.
-- That computer, opened directly, is trusted. Anything arriving through a tunnel or over the network needs the pairing key, which is made on first use and shown only on that computer. **Make a new key** unpairs every phone.
-- Edits made on two devices are merged, not overwritten: visits and saved places from both are kept, and something you removed stays removed. If you change the very same single value on both, the device that syncs last wins.
-- The computer has to be on for other devices to update. Set `ORIENT_SYNC=off` to turn the sync endpoints off, and `ORIENT_DATA_DIR` to keep the copy elsewhere.
-- Whoever holds the key can read and change your map, so keep it to yourself.
+The app is plain JavaScript and CSS in `public/`, with a small Node server in `server.cjs`. No framework or compilation pipeline stands between you and an experiment. The commons protocol and UI live in `public/commons-data.js` and `public/commons.js`; the format and contribution workflow are documented in [commons/README.md](commons/README.md).
 
-## Importing from Google
+Run `npm run check` for syntax checks and `node commons-check.cjs` for the public-data protocol checks. Browser checks use Playwright and Chrome; see the [user guide](docs/user-guide.md#checks) for setup and limitations.
 
-Your places are yours to take out of Google Maps. Request a [Google Takeout](https://takeout.google.com/) export of **Saved** (your lists as CSV files) and **Maps (your places)** (`Saved Places.json`). In Orient, open the settings button, choose **Import from Google**, and pick the files; you can select several at once. Orient reads them in the browser, shows what it found, and adds the places you tick as saved places. Duplicates of places already on your map are skipped, so importing twice is safe.
+## Where things stand
 
-- Many saved-list exports have a name and a Google link but no coordinates. **Look up by name** sends only the place name to the local address reader, which uses Photon, and offers the matches for you to check. A name can match the wrong city, so matches more than 60 miles from your map are left out unless you include them.
-- **Timeline** is optional. If you pick a Timeline file, Orient adds a dated visit only for places that are already on your map (within about 75 metres), one per place per day, and discards everything else in the file unread. This feeds the visit counts and heat map. Files over 200 MB are refused; export a shorter period instead.
-- The readers follow Google's documented export shapes. If a file isn't recognised, the dialog says so.
+The private map and reviewed commons loop work today. The project is early, interfaces are evolving, and setup is still aimed at people comfortable running a small server. Source identities are attribution, not verified authorship. Observations can age; dates, sources, and contested or retired status help keep that visible.
 
-## What leaves your computer
+There is no automatic GitHub publishing, hosted multi-user service, or invisible contribution pipeline. Those are decisions to make together as the project grows.
 
-Only things you ask for:
+## License and credits
 
-- **Map tiles** come from [OpenFreeMap](https://openfreemap.org/), so that service sees the area you're looking at.
-- **Importing from Google** reads your files in the browser. Only place names you choose to look up leave it, as below.
-- **Address and place lookups** go through the local server to the [U.S. Census geocoder](https://geocoding.geo.census.gov/) (street addresses) or [Photon](https://github.com/komoot/photon) (business names), after you press the button. Typing alone sends nothing.
-- **Nearby places** use [Overpass](https://overpass-api.de/) (OpenStreetMap data), with the server limiting how often it asks.
-- **Reading a website** fetches only the address you chose, checks `robots.txt`, refuses private and local addresses, and shows you what it found before anything is saved.
+Orient’s application code is licensed under [PolyForm Noncommercial 1.0.0](LICENSE). Contributions to the place commons use **CC BY 4.0**, as declared in each public bundle. These are separate licenses; contributing an observation does not make your private map public.
 
-Saved places, visits, notes, ratings and circuits are not sent to anyone. They sync only to the computer running Orient, and only from browsers you have paired with it.
+Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; basemap by [OpenFreeMap](https://openfreemap.org/). Vendored libraries and fonts retain their own licenses. See the [user guide](docs/user-guide.md#credits-and-license) and `public/vendor/` for credits.
 
-## How it's put together
-
-- `public/` is the whole app: plain JavaScript and CSS, no build step. `app.js` holds the main flows; the rest are small modules (calendar, circuits, fog, discovery, website reading, and so on).
-- `server.cjs` serves `public/` and a few small endpoints for lookups. `geocode.cjs`, `places.cjs` and `website.cjs` hold the bounded, cached requests.
-- `ical.cjs` and `public/calendar-dates.js` handle recurrence and time zones. The recurrence engine is adapted from [Lateral](https://github.com/ragingapathy/lateral).
-- `public/vendor/` has pinned copies of MapLibre GL JS and Lucide, and the Isometra typeface, each with its license.
-
-## Checks
-
-The `*-check.cjs` files are browser checks written for Playwright and Chrome. They are for my own use and are not a polished test suite. Set `ORIENT_PLAYWRIGHT` to the folder of a Playwright install to run one against a running server. Some checks assume my local catalog and skip themselves without `public/catalog.local.js`. They run in a phone-sized window, so they open the place drawer and its folded rows the way a person would. `npm run check` only checks syntax.
-
-## Credits and license
-
-Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Basemap by OpenFreeMap. See `public/vendor/` for the MapLibre GL JS, Lucide and Isometra licenses.
-
-Orient is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use and change it for noncommercial purposes.
-
-## Explore start view
-
-Explore opens with the daily briefing rather than a selected catalog place. Searching shows results; clearing search or tapping Explore returns to the briefing and clears the selected card. Browse the map and Explore as a list remain available. Navigation is Explore, My Map, and Calendar, with an optional fourth Gidgit button. The briefing and agenda update every 30 seconds and when returning to the app, excluding occurrences whose known end has passed. Unknown end times are labeled and historical entries remain in Month view.
-
-## Gidgit local model
-
-Gidgit calls Ollama from the Orient server, so the phone does not need its own model. The defaults are `http://127.0.0.1:11434` outside Docker and `http://host.docker.internal:11434` inside Docker. `ORIENT_GIDGIT_URL` and `ORIENT_GIDGIT_MODEL` select an existing local Ollama service/model; Compose passes these through (recreate the container after changing them). The endpoint accepts only loopback or Docker host addresses and never downloads a model. Ollama must already be running with that model installed. Gidgit uses [structured outputs](https://docs.ollama.com/capabilities/structured-outputs) for a bounded search/edit plan, not free-form map facts.
-
-Only when asked, Gidgit sends the query and saved-place names, categories, notes, listed hours, ratings, and visit status to local Ollama. Dedicated people fields, neighbors, photos, and coordinate fields are omitted. Requests are session-only and are not stored as chat history. Large contexts are bounded; the interface reports when only part of the saved map was read by the model. Recommendations are resolved against saved records by the app, with current opening status and distance calculated locally. Stock, prices, and holiday exceptions are not verified.
-
-Edits show an editable before/after review and require Save. Notes append to existing notes. Invalid place IDs/fields, oversized entries, and stale drafts are rejected; model failure never changes the map. Local or paired-browser authorization is required by `/api/gidgit`. No cloud-provider credentials or fallback are used.
-
-### Hours parser maintenance
-
-Run `node hours-check.cjs` for generated format-equivalence, normalization round-trip, clock-boundary, and rejection checks. Run `node hours-audit.cjs` to audit the current local map and catalog without modifying data or sending requests. Use `node hours-audit.cjs path/to/export.json --details` to inspect unrecognized schedules locally. Do not commit audit output or personal exports. Extend the format corpus when adding a syntax family; keep ambiguous times and date-specific exceptions out of weekly open-now calculations.
-
-### Monthly service hours
-
-Place hours accept `Second Wednesday 9am-11am`, `First and third Tuesday 4pm-6pm`, `Last Friday 8pm-2am`, and mixed weekly/monthly windows. The existing calendar recurrence engine evaluates actual dates in the home-area time zone. A recognized monthly service schedule counts as closed outside its listed windows. Missing fifth weekdays are skipped, and overnight windows continue into the following day. Holiday/seasonal exceptions, appointment-only text, and start times without an end still need review.
-
-Monthly service windows appear as derived entries in Calendar and Today (nearby services within 10 miles), with Edit place hours rather than duplicate saved events. Regular weekly business hours do not flood Calendar. Natural-language calendar entry also recognizes ordinal weekdays; the monthly editor exposes a human-readable pattern field. Saved event patterns and hours survive existing backups and sync. Run `node recurring-hours-check.cjs` and `node recurring-hours-ui-check.cjs` for coverage.
+**Start with one place. Make it easier for someone to go. Build from there.**

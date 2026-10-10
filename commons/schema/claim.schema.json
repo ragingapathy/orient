@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claim.schema.json",
+  "title": "Orient commons claim record (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "place_id", "kind", "observation", "source", "asserted_on", "status"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "maxLength": 80 },
+    "place_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "kind": {
+      "enum": ["entry", "browse", "seating", "alone", "sensory", "price", "timing", "nature", "other"],
+      "description": "entry: whether/how to walk in; browse: no purchase pressure; seating: can sit and stay; alone: comfort going solo; sensory: noise/light/crowding; price: typical visit cost; timing: best times or recurring moments; nature: non-business discoveries (benches, river stretches, quiet blocks)."
+    },
+    "observation": { "type": "string", "minLength": 3, "maxLength": 400 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "published_source" } } },
+          "then": { "required": ["url", "retrieved_on"] }
+        }
+      ],
+      "properties": {
+        "type": { "enum": ["personal_observation", "published_source"] },
+        "url": { "type": "string", "pattern": "^https://" },
+        "retrieved_on": { "type": "string", "format": "date" }
+      }
+    },
+    "asserted_by": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$", "maxLength": 40 },
+    "asserted_on": { "type": "string", "format": "date" },
+    "affirmations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["on"],
+        "properties": {
+          "by": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$", "maxLength": 40 },
+          "on": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "status": { "enum": ["active", "contested", "retired"] },
+    "superseded_by": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+  }
+}

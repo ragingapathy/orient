@@ -294,3 +294,19 @@
 ### Live agenda eligibility
 - Hide occurrences at their known end time from Agenda, Today, upcoming Explore filters and place next-event previews, using the home time zone and overnight end dates. Unknown-end entries remain labeled; Month retains history and no records are deleted.
 - Refresh Calendar/Today every 30 seconds and on focus/visibility return; preserve list scroll and defer refresh while editing or using a dialog.
+
+### Minimized daily briefing drawer
+- Explore starts with a compact daily briefing strip over the map on mobile and desktop. Tap, drag or use keyboard arrows/Home/End to switch between compact and expanded positions below search.
+- Returning to Explore, clearing search and reloading start minimized. Briefing content scrolls independently; live refresh preserves scroll and does not interrupt a drag.
+- Verified mobile/desktop startup, both drag directions, keyboard control, search/place/Calendar navigation, narrow layout and reload.
+
+### Area switching
+- Tap the city in search to explore another city without changing home or saved places. Search, use device location, or return home.
+- Three recent areas are available in the picker; long press or right-click opens it with recents focused. Each area remembers map position and zoom on this device.
+- Today, nearby discovery, distance sorting, and opening-hour checks use the selected area and its configurable time zone.
+
+### Place commons: reviewed contribution and import
+- Share an explicitly selected place note through an editable public preview and approved JSON download. Neighbor entries and people fields never participate.
+- Review JSON bundles from files or public GitHub snapshots, choose coordinate matches, and accept individual sourced claims separately from private notes.
+- Preserve multiple independent source identities, detect duplicate/changed claims, review contested/retired updates, and export merged public bundles without private map bookkeeping.
+- Add strict protocol validation, a fictional snapshot, contributor documentation, and firewall/browser regression checks.
