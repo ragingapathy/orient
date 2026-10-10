@@ -1,0 +1,34 @@
+name: Check contribution
+
+# Runs on pull requests that touch contributions/. It has no secrets and read-only access, so it is safe for
+# contributions from forks. The checking code is taken from the base branch, not from the pull request, so a
+# contribution cannot change the rules it is checked against.
+on:
+  pull_request:
+    paths:
+      - 'contributions/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the contribution
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out the trusted checking code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: trusted
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate
+        run: node trusted/tools/validate.cjs --base "origin/${{ github.base_ref }}"

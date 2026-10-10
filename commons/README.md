@@ -9,6 +9,10 @@ The private map remains private. A public bundle contains only selected observat
 3. Open **Field kit → Place commons** to review a JSON file or load a public GitHub JSON snapshot. Select individual observations and explicitly choose nearby matches or create coordinate-anchored places. Accepted claims stay separate from private notes.
 4. **Review export of accepted observations** produces a portable merged bundle, preserving originating source IDs. It can include multiple independent Toledo sources. Review it before downloading and publishing.
 
+## Hosting a commons
+
+[`commons-template/`](../commons-template/README.md) is a ready-made repository for the maintainer side. Copy it into a new public GitHub repository and you get a check on every contribution pull request (valid public bundle, append-only, a table of what is proposed, warnings for anything that looks personal or replaces published work) and a `snapshot.json` rebuilt automatically when you merge. The checking code runs from your main branch, so a contribution cannot loosen its own rules. When a commons grows past Orient’s limits it is split into `snapshot.json`, `snapshot-2.json` and so on. `node commons-template-check.cjs` tests all of it offline.
+
 ## GitHub workflow
 
 Commit reviewed bundles to a repository of your choice, for example `cities/toledo/snapshot.json`. Contributions can arrive as separate bundle files through pull requests. A maintainer can import them into Orient, review and accept them, and publish or export a combined snapshot. Preserve claim and source IDs when moving between repositories: the mirror's repository URL is not a new author identity. GitHub commit history retains earlier snapshots.

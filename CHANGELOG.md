@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-11 — A template for hosting a commons
+
+- **`commons-template/`**: a repository to copy for the maintainer side of the place commons. A **Check contribution** workflow runs on every pull request that touches `contributions/` and fails anything that is not a valid, append-only public bundle. It posts a table of the place, a map link for the pin and the full observation, and warns about emails, phone numbers, likely references to a person, replaced observations and moved pins. A **Build snapshot** workflow rewrites `snapshot.json` when a contribution is merged, so followers need only one address.
+- The checking code runs from the base branch, with read-only access and no secrets, so a contribution (including one from a fork) cannot loosen the rules it is checked against. Tested with a pull request that gutted its own validator.
+- Merging follows the protocol: later contributions correct or retire earlier ones, ordered by when they reached the repository’s history, and separate commons stay separate. A commons beyond Orient’s per-file limits is split into `snapshot.json`, `snapshot-2.json`, and so on, each one valid for Orient. Builds are deterministic.
+- The pull request text from the token route now says what happens in a repository that uses the template (restart the server to pick this up).
+- New check `commons-template-check.cjs` (16 offline cases, using throwaway git repositories). The workflows themselves have not run on GitHub yet.
+
 ## 2026-10-11 — Share a note without a GitHub token
 
 - **No token needed.** After the preview, **Open on GitHub to finish** opens GitHub’s own new-file page with `contributions/<hash>.json` filled in. You sign in as yourself and press Propose new file, then Create pull request; GitHub makes the fork. Orient never handles a GitHub credential on this route. The file name and content match what the token route creates, so the two never disagree.
