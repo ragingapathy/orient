@@ -46,7 +46,7 @@ window.OrientDirections = (() => {
   let dlg = null;
   function ask(link) {
     if (!dlg) {
-      dlg = document.createElement('dialog'); dlg.id = 'dir-dialog'; dlg.setAttribute('aria-labelledby', 'dir-title');
+      dlg = document.createElement('dialog'); dlg.id = 'dir-dialog'; dlg.setAttribute('aria-labelledby', 'dir-title'); dlg.dataset.iconless = '';
       dlg.addEventListener('click', e => {
         const b = e.target.closest('[data-dir-app]'); if (!b) { if (e.target.closest('[data-dir-cancel]')) dlg.close(); return; }
         set(b.dataset.dirApp); refresh(); const href = dlg.pendingHref; dlg.close();
@@ -57,7 +57,7 @@ window.OrientDirections = (() => {
     }
     dlg.pendingHref = null;
     const coords = [Number(link.dataset.lng), Number(link.dataset.lat)];
-    dlg.innerHTML = '<h2 id="dir-title">Open directions in…</h2><p class="fine">Your browser can’t tell which maps app you prefer, so choose once. You can change it any time in your field kit.</p><div class="dir-choices">'
+    dlg.innerHTML = '<div class="panel-heading"><h2 id="dir-title">Open directions in…</h2></div><p class="fine">Your browser can’t tell which maps app you prefer, so choose once. You can change it any time in your field kit.</p><div class="dir-choices">'
       + ['apple', 'google', 'waze', 'osm'].map(k => '<button type="button" class="button" data-dir-app="' + k + '">' + APPS[k] + '</button>').join('')
       + '</div><button type="button" class="quiet" data-dir-cancel>Not now</button>';
     dlg.pendingHref = null;

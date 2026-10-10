@@ -1,5 +1,15 @@
 # Orient Changelog
 
+## 2026-10-11 — One design language
+
+- **A shared visual language**, taken from Your map so far, now carries the rest of the app (`ui.css`, `ui.js`, `mascot.js`, written up in `docs/design-language.md`): soft cards, uppercase kickers, tinted icon tiles, gradient hero tiles, switches instead of tick boxes, one warm accent, a gentle rise, and no motion under reduced-motion settings.
+- **Every dialog** now shares one shell, and dialogs made in JavaScript inherit it: an icon tile, a title, a close button, the same button hierarchy and the same fields.
+- **The Field kit is rebuilt** as grouped cards with a jump bar: Your map (home, fog, demo places, directions), Devices & backups (sync and backups with a status dot), Sharing, Gidgit, Your data (export, import and Google import as tiles, reset as a quiet danger row) and About & privacy. Every id, data attribute and button name is unchanged.
+- **The Calendar tab** leads with three numbers (today, this week, next 90 days), the next seven days as a strip that jumps to a day, a quick-add card, an Agenda | Month switch, colour-coded entries by kind with Today and Tomorrow named, shaded busier days in the month view, and an inviting empty state with starter ideas.
+- **Gidgit has a face.** A small pixel mascot in five expressions (idle, blinking, thinking, happy, confused) appears in the Gidgit dialog, on the nav button and in the Field kit. Its mood and its speech-bubble line follow what the dialog is really doing: thinking while it works, happy when it has an answer, confused when something fails. Starter ideas fill the question box. The `gidgit.png` override that was planned is gone.
+- Decorative text drawn by CSS is marked with empty alternative text so it is not read as part of a button’s name.
+- New check `ui-check.cjs` (12 cases: the Field kit and its jump bar, switches, every dialog’s header, the calendar, Gidgit’s moods and faces, the nav button, phone layout, reduced motion).
+
 ## 2026-10-11 — Your map in numbers
 
 - **A retractable drawer on My Map**, in the spot where Explore keeps Today: **Your map so far**, closed by default with a one-line summary ("10 places visited · 3 visits this week"). It steps aside when the list or a place card is open, remembers whether you left it open, and works on a phone as a bottom drawer.

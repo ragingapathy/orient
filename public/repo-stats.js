@@ -17,9 +17,9 @@
           + '<td>' + num(w.clones) + '<small>' + num(w.uniqueCloners) + ' unique</small></td>'
           + '<td>' + total + (days.length ? '<small>since ' + esc(days[0][0]) + '</small>' : '') + '</td></tr>';
       }).join('');
-      box.innerHTML = '<h3>Project stats</h3><table class="stats-table"><thead><tr><th>Repository</th><th>Clones, 14 days</th><th>Recorded</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      box.innerHTML = '<header><span class="set-ico"><i data-lucide="chart-line"></i></span><div><h3>Project stats</h3><small>GitHub clone counts, kept on this computer</small></div></header><table class="stats-table"><thead><tr><th>Repository</th><th>Clones, 14 days</th><th>Recorded</th></tr></thead><tbody>' + rows + '</tbody></table>'
         + '<p class="fine">GitHub’s clone counts include bots, mirrors, security scanners and your own machines, so they are a rough signal, not a head count. Updated ' + esc(String(data.updatedAt || '').slice(0, 10) || 'never') + '. Run <code>node repo-stats.cjs</code> to refresh.</p>';
-      box.hidden = false;
+      box.hidden = false; if (window.lucide) lucide.createIcons();
     } catch { /* leave it hidden */ }
   }
   document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-action="settings"]')) show(); });

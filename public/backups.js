@@ -19,8 +19,9 @@
   }
   function paint(box, data) {
     const good = data.lastGood, c = data.counts;
-    box.innerHTML = '<h3>Backups</h3>'
-      + '<p class="fine" id="backup-line" role="status">' + (good ? 'Last good backup <strong>' + esc(ago(good.modified)) + '</strong> · ' + esc(kb(good.bytes)) + ', ' + good.items + ' saved places and visits.' : 'No backup yet.')
+    box.dataset.state = good ? 'ok' : 'offline';
+    box.innerHTML = '<span class="set-kicker">Backups</span>'
+      + '<p class="ui-status" id="backup-line" role="status">' + (good ? 'Last good backup <strong>' + esc(ago(good.modified)) + '</strong> · ' + esc(kb(good.bytes)) + ', ' + good.items + ' saved places and visits.' : 'No backup yet.')
       + (data.backups.some(b => !b.ok) ? ' <strong>Some copies could not be read.</strong>' : '') + '</p>'
       + '<p class="fine">' + c.daily + ' daily cop' + (c.daily === 1 ? 'y' : 'ies') + (c.extra ? ' and ' + c.extra + ' safety cop' + (c.extra === 1 ? 'y' : 'ies') : '') + ' kept on this computer, in <code>data/backups</code>. Today’s copy refreshes each hour while the map changes; a safety copy is made before any large deletion.</p>'
       + '<div class="settings-actions"><button class="button" type="button" data-backup="now">Back up now</button></div>'

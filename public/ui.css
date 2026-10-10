@@ -1,0 +1,266 @@
+/* Orient's visual language, taken from "Your map so far": soft cards, small uppercase kickers, tinted icon tiles,
+   rounded 16-22px shapes, one warm accent, switches instead of tick boxes, and a gentle rise.
+   It restyles every dialog at once (so dialogs made in JavaScript inherit it) and defines the building blocks
+   used by the Field kit, the calendar and Gidgit. Motion is off under prefers-reduced-motion. */
+
+:root{
+  --card:#ffffffa6;--card-solid:#fcfdf9;--line:var(--edge);
+  --r-sm:12px;--r-md:16px;--r-lg:22px;
+  --lift:0 8px 26px #17302c1f;--lift-sm:0 3px 10px #17302c14;
+  --grad-green:linear-gradient(155deg,#256a56,#17453a);--grad-teal:linear-gradient(155deg,#2d7a62,#1d5a49);
+  --grad-orange:linear-gradient(155deg,#d0663a,#a8472a);--grad-gold:linear-gradient(155deg,#e0a643,#b9801f);
+  --ok:#2f8f5b;--warn:#d9a441;--off:#99a8a3;
+}
+
+/* ---------- the dialog shell ---------- */
+dialog{width:min(500px,calc(100% - 24px));max-height:calc(100dvh - 28px);padding:18px 18px 20px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);box-shadow:var(--lift);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+dialog::backdrop{background:#142e2d70;backdrop-filter:blur(5px)}
+dialog[open]{animation:ui-rise .28s cubic-bezier(.2,.75,.25,1)}
+@keyframes ui-rise{from{opacity:0;transform:translateY(14px) scale(.985)}}
+dialog .panel-heading{display:flex;align-items:center;gap:11px;margin:0 0 12px}
+dialog .panel-heading>h2,dialog>h2{flex:1;min-width:0;margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.25;overflow-wrap:anywhere}
+dialog .panel-heading>button:last-child{margin-left:auto;flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:0;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:20px;line-height:1;cursor:pointer}
+dialog .panel-heading>button:last-child:hover{background:var(--land);color:var(--ink)}
+.dlg-ico{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px;border-radius:13px;background:var(--land);color:var(--green)}.dlg-ico svg{width:21px;height:21px}
+dialog .sub{margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--muted)}
+dialog h3{margin:16px 0 6px;font-size:14px}
+dialog .fine,dialog small{color:var(--muted)}
+dialog .fine{font-size:12px;line-height:1.5}
+
+/* ---------- buttons ---------- */
+dialog .button,.ui-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 16px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:600;line-height:1.2;cursor:pointer;transition:background .15s,box-shadow .15s,transform .15s}
+dialog .button:hover,.ui-button:hover{background:var(--land);box-shadow:var(--lift-sm)}
+dialog .button:active,.ui-button:active{transform:translateY(1px)}
+dialog .button:focus-visible,.ui-button:focus-visible,dialog select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+dialog .button svg{width:17px;height:17px;flex-shrink:0}
+dialog .button.primary,.ui-button.primary{border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+dialog .button.primary:hover{background:linear-gradient(155deg,#2b7a63,#1c5244);box-shadow:var(--lift-sm)}
+dialog .button.danger,.ui-button.danger{border-color:#e6c3b4;background:#fff7f2;color:#a8472a}
+dialog .button.danger:hover{background:#ffeadf}
+dialog .button.full{display:flex;width:100%}
+dialog .button[disabled],dialog .button[aria-disabled=true]{opacity:.5;pointer-events:none}
+dialog .settings-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+dialog .settings-actions>.button{flex:1 1 auto}
+dialog .import-label{position:relative}
+
+/* ---------- fields ---------- */
+dialog input:not([type=checkbox]):not([type=radio]):not([type=file]),dialog textarea,dialog select{width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;color:var(--ink);font:inherit;font-size:14px;box-sizing:border-box}
+dialog textarea{line-height:1.45;resize:vertical}
+dialog input:focus-visible,dialog textarea:focus-visible{outline:3px solid #ca5b3066;outline-offset:0;border-color:var(--accent)}
+dialog label{font-size:13px}
+dialog form>label,dialog .field{display:grid;gap:5px;margin-top:12px;font-weight:600}
+dialog form>label input,dialog form>label textarea,dialog form>label select{font-weight:400}
+
+/* ---------- switches ---------- */
+dialog .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer}
+dialog .toggle-row input[type=checkbox]{appearance:none;-webkit-appearance:none;position:relative;flex-shrink:0;width:46px;height:28px;margin:0;border:0;border-radius:999px;background:#c4d1c8;cursor:pointer;transition:background .2s}
+dialog .toggle-row input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s}
+dialog .toggle-row input[type=checkbox]:checked{background:var(--green)}
+dialog .toggle-row input[type=checkbox]:checked::after{transform:translateX(18px)}
+dialog .toggle-row input[type=checkbox]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+dialog .toggle-row input[type=checkbox]:disabled{opacity:.5;cursor:default}
+
+/* ---------- cards, rows, kickers (the Field kit and others) ---------- */
+.ui-kicker,.set-kicker{display:block;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.set-card{margin:0 0 12px;padding:14px 14px 6px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);scroll-margin-top:62px}
+.set-card>header{display:flex;align-items:center;gap:11px;margin:0 0 6px}
+.set-card>header .set-ico{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;border-radius:12px;background:var(--land);color:var(--green)}
+.set-card>header .set-ico svg{width:19px;height:19px}
+.set-card>header h3{margin:0;font-size:15px}.set-card>header small{display:block;margin-top:1px;font-size:12px}
+.set-card.tone-orange>header .set-ico{background:#f6dccd;color:#a8472a}.set-card.tone-gold>header .set-ico{background:#f4e6c5;color:#8a6212}.set-card.tone-teal>header .set-ico{background:#d4eadf;color:#1d5a49}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid var(--line);min-height:48px}
+.set-card>header+.set-row{border-top:0}
+.set-row>div{display:grid;gap:2px;min-width:0}.set-row b{font-size:14px;font-weight:600}.set-row span,.set-row small{font-size:12px;line-height:1.4;color:var(--muted)}
+.set-row .button{min-height:38px;padding:7px 14px;font-size:13px;flex-shrink:0}
+.set-row select{width:auto;max-width:48%;min-height:38px;font-size:13px}
+.set-row.stack{flex-direction:column;align-items:stretch}
+.set-hint{margin:2px 0 10px;font-size:12px;line-height:1.5;color:var(--muted)}
+
+/* section jump bar */
+.set-nav{position:sticky;top:-18px;z-index:3;display:flex;gap:6px;margin:0 -18px 12px;padding:8px 18px;overflow-x:auto;background:linear-gradient(var(--surface) 80%,transparent);scrollbar-width:none}
+.set-nav::-webkit-scrollbar{display:none}
+.set-nav button{flex-shrink:0;padding:6px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
+.set-nav button:hover{background:var(--land)}.set-nav button[aria-current=true]{border-color:transparent;background:var(--green);color:#f3f8ed}
+
+/* data actions as tiles */
+.set-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 12px}
+.set-tiles .button{flex-direction:column;gap:6px;min-height:78px;padding:12px 6px;font-size:12.5px;text-align:center}
+.set-tiles .button svg{width:22px;height:22px;color:var(--green)}
+@media(max-width:420px){.set-tiles{grid-template-columns:1fr 1fr}.set-tiles .button:last-child{grid-column:1/-1;flex-direction:row;min-height:48px}}
+
+/* status: a coloured dot beside a line of text */
+.ui-status{display:flex;align-items:flex-start;gap:9px;margin:0 0 8px;font-size:13px;line-height:1.45}
+.ui-status::before{content:"";flex-shrink:0;width:9px;height:9px;margin-top:5px;border-radius:50%;background:var(--off);box-shadow:0 0 0 3px #99a8a326}
+[data-state=ok] .ui-status::before{background:var(--ok);box-shadow:0 0 0 3px #2f8f5b26}
+[data-state=syncing] .ui-status::before{background:var(--warn);box-shadow:0 0 0 3px #d9a44133;animation:ui-pulse 1.1s ease-in-out infinite}
+[data-state=offline] .ui-status::before,[data-state=unpaired] .ui-status::before{background:var(--accent);box-shadow:0 0 0 3px #ca5b3026}
+@keyframes ui-pulse{50%{transform:scale(1.35);opacity:.65}}
+
+/* details as quiet disclosure */
+dialog details.ui-more{margin:0 0 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+dialog details.ui-more>summary{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;list-style:none;font-size:14px;font-weight:600;cursor:pointer}
+dialog details.ui-more>summary::-webkit-details-marker{display:none}
+dialog details.ui-more>summary::after{content:"+" / "";margin-left:auto;font-size:19px;font-weight:400;color:var(--muted)}
+dialog details.ui-more[open]>summary::after{content:"\2212" / ""}
+dialog details.ui-more>div{padding:0 14px 12px}
+
+/* chips and pills */
+.ui-chips{display:flex;flex-wrap:wrap;gap:6px}.ui-chip{padding:4px 10px;border-radius:999px;background:var(--land);font-size:12px}
+
+/* the page-level cards used by the calendar and Gidgit */
+.ui-card{padding:13px 14px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.ui-hero{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ui-tile{display:grid;gap:3px;padding:12px 13px 11px;border-radius:var(--r-md);background:var(--grad-green);color:#f3f8ed}
+.ui-tile b{font:800 30px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ui-tile span{font-size:11px;line-height:1.25;opacity:.88}
+.ui-tile.teal{background:var(--grad-teal)}.ui-tile.orange{background:var(--grad-orange)}.ui-tile.gold{background:var(--grad-gold);color:#2e2410}
+
+@media(prefers-reduced-motion:reduce){dialog[open],.ui-status::before,.set-nav button,dialog .button{animation:none!important;transition:none!important}}
+
+/* the old stand-alone box and row styles, folded into the cards */
+.set-card .sync-box{margin:0;padding:12px 0;border:0;border-top:1px solid var(--line)}
+.set-card>header+.sync-box{border-top:0}
+.set-card .sync-box[hidden]{display:none}
+.set-card .sync-box .set-kicker{margin-bottom:6px}
+.set-row.home-setting,.set-row.commons-setting{padding:11px 0}
+.gidgit-setting{padding:0;border:0}
+.set-card .toggle-row{padding:11px 0;border-top:1px solid var(--line)}
+.set-card>header+.toggle-row{border-top:0}
+.set-card .set-row select{max-width:46%}
+.sync-box .settings-actions{margin-top:8px}
+.sync-box label{margin-top:10px}
+.sync-pair{margin-top:10px;padding:12px;border-radius:var(--r-sm);background:var(--land)}
+.sync-pair input{background:#fff}
+.stats-table{margin-bottom:6px}
+
+.set-row.stack select{width:100%;max-width:none}
+
+/* ---------- every dialog speaks the same way ---------- */
+dialog:focus,dialog:focus-visible{outline:none}
+dialog .kicker{margin:0 0 2px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+dialog .panel-heading>div:not([class]){flex:1;min-width:0}
+dialog .panel-heading>div:not([class]) h2{margin:0}
+dialog form>.button,dialog>.button,dialog form>label.button,dialog form>.settings-actions>.button:only-child{display:flex;width:100%;margin-top:10px}
+dialog form>.button.primary{margin-top:14px}
+dialog form>label input[type=file]{display:none}
+dialog p.sub+form,dialog .panel-heading+form{margin-top:0}
+dialog form>.fine,dialog>.fine{margin:12px 0 0}
+dialog .toggle-row{padding:12px 0}
+dialog form .toggle-row{border-top:1px solid var(--line)}
+dialog .neighbor-card,dialog .circuit-summary{border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+dialog .discovery-row,dialog .circuit-list-row{border-radius:var(--r-sm)}
+/* the Gidgit connection dialog had its own older shell */
+dialog.gidgit-settings{width:min(500px,calc(100% - 24px));max-height:calc(100dvh - 28px);padding:18px 18px 20px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--ink)}
+dialog.gidgit-settings label{display:grid;gap:6px;margin:14px 0 0;font-weight:600}
+dialog.gidgit-settings select{width:100%;min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;background:#fff;color:var(--ink)}
+dialog.gidgit-settings::backdrop{background:#142e2d70;backdrop-filter:blur(5px)}
+
+/* =====================  the Calendar tab  ===================== */
+#panel .kicker{margin:0 0 2px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+#panel .calendar-quick,#panel .calendar-toolbar{font-family:inherit}
+.cal-hero{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px}
+.cal-tile{display:grid;gap:2px;padding:11px 12px 10px;border-radius:var(--r-md);background:var(--grad-green);color:#f3f8ed}
+.cal-tile b{font:800 28px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.cal-tile span{font-size:11px;opacity:.88}
+.cal-tile.teal{background:var(--grad-teal)}.cal-tile.orange{background:var(--grad-orange)}
+
+/* the next seven days */
+.cal-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 0 14px}
+.cal-day{display:grid;justify-items:center;gap:1px;padding:7px 0 8px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;transition:background .15s,transform .15s}
+.cal-day small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.cal-day b{font-size:16px;font-variant-numeric:tabular-nums}
+.cal-day i{display:block;width:6px;height:6px;margin-top:2px;border-radius:50%;background:transparent}
+.cal-day i[data-n="1"]{background:var(--green)}.cal-day i[data-n="2"]{background:var(--green);box-shadow:8px 0 0 var(--green);transform:translateX(-4px)}.cal-day i[data-n="3"]{background:var(--accent);box-shadow:8px 0 0 var(--accent),-8px 0 0 var(--accent)}
+.cal-day.today{border-color:var(--accent);box-shadow:0 0 0 2px #ca5b3033}.cal-day:hover{background:var(--land)}.cal-day:active{transform:translateY(1px)}
+.cal-day:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* quick add as a card */
+#panel .calendar-quick{margin:2px 0 12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-md);background:linear-gradient(160deg,#ffffffd9,#e8f0e4)}
+#panel .calendar-quick label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--green)}
+#panel .calendar-quick label svg{width:15px;height:15px;color:var(--accent)}
+#panel .calendar-quick>div{display:flex;gap:8px;margin-top:8px}
+#panel .calendar-quick input{flex:1;min-width:0;min-height:44px;margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font:inherit;font-size:15px}
+#panel .calendar-quick input:focus-visible{outline:3px solid #ca5b3066;outline-offset:0;border-color:var(--accent)}
+#panel .calendar-quick .button{min-height:44px;padding:0 16px;border-radius:var(--r-sm);font-weight:700}
+#panel .button.primary{border:0;background:var(--grad-green);color:#f3f8ed}
+#panel>.button[data-cal=add]{width:100%;margin:0 0 12px;min-height:42px;border:1px dashed #b3c8bb;border-radius:var(--r-sm);background:transparent;color:var(--green);font-weight:600}
+#panel>.button[data-cal=add]:hover{background:var(--land)}
+
+/* Agenda | Month as a switch */
+#panel .calendar-toolbar:has([aria-pressed]){display:flex;gap:4px;width:max-content;max-width:100%;margin:0 0 12px;padding:4px;border-radius:999px;background:var(--land)}
+#panel .calendar-toolbar:has([aria-pressed]) .button{min-height:34px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:600}
+#panel .calendar-toolbar:has([aria-pressed]) .button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:var(--lift-sm)}
+#panel .calendar-toolbar:not(:has([aria-pressed])){padding:2px 0}
+#panel .calendar-toolbar:not(:has([aria-pressed])) strong{font-size:16px}
+#panel .calendar-toolbar:not(:has([aria-pressed])) .button{width:40px;min-height:40px;padding:0;border-radius:12px;background:#fff;border:1px solid var(--line)}
+
+/* agenda */
+#panel .agenda-date{display:flex;align-items:baseline;gap:8px;margin:20px 0 8px;padding-top:0;font-size:13px;font-weight:700;color:var(--ink)}
+#panel .agenda-date em{font-style:normal;padding:2px 9px;border-radius:999px;background:var(--accent);color:#fff8ef;font-size:11px;letter-spacing:.03em}
+#panel .calendar-entry{margin:0 0 8px;padding:10px 12px 10px 14px;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:14px;background:var(--card)}
+#panel .calendar-entry[data-kind=special]{border-left-color:var(--accent)}
+#panel .calendar-entry[data-kind=release]{border-left-color:#d9a441}
+#panel .calendar-entry[data-kind=reminder]{border-left-color:#8b6bb1}
+#panel .calendar-entry[data-kind="service hours"]{border-left-color:#4f8f7f}
+#panel .calendar-entry>button{padding:2px 0;background:none;border:0;color:inherit;font:inherit;cursor:pointer}
+#panel .calendar-entry strong{font-size:14px;line-height:1.3}
+#panel .calendar-entry small{margin-top:3px;font-size:12px;line-height:1.35}
+#panel .calendar-entry p{margin:6px 0 0;font-size:12.5px;line-height:1.45;color:var(--muted)}
+#panel .calendar-entry-actions{margin-top:8px}
+#panel .calendar-entry-actions .button{min-height:32px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}
+
+/* month */
+#panel .calendar-grid{gap:5px;margin:4px 0 14px}
+#panel .calendar-grid>span{padding:2px 0 4px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+#panel .calendar-grid .button{min-height:44px;padding:0;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px;font-weight:600;position:relative}
+#panel .calendar-grid .button[data-n="1"]{background:#e4efe7}#panel .calendar-grid .button[data-n="2"]{background:#c9e0d1}#panel .calendar-grid .button[data-n="3"]{background:#a9cdb8}#panel .calendar-grid .button[data-n="4"]{background:#7fb596;color:#0f3329}
+#panel .calendar-grid .button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px #ca5b3040}
+#panel .calendar-grid b{position:absolute;bottom:3px;right:5px;font-size:9px;color:var(--accent)}
+
+/* nothing planned */
+.cal-empty{display:grid;justify-items:center;gap:6px;padding:26px 12px 18px;text-align:center}
+.cal-empty svg{width:72px;height:72px;margin-bottom:6px}
+.cal-empty b{font-size:15px;color:var(--ink)}.cal-empty p{max-width:30ch;margin:0 0 6px!important;font-size:13px;line-height:1.5;color:var(--muted)}
+.cal-empty .ui-chips{justify-content:center}.cal-empty .ui-chip{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer}.cal-empty .ui-chip:hover{background:var(--land)}
+#panel .fine{font-size:11.5px;line-height:1.5;color:var(--muted)}
+/* the switch and "Add an entry" share a row */
+#panel .cal-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
+#panel .cal-bar .calendar-toolbar{margin:0}
+#panel .cal-bar>.button[data-cal=add]{width:auto;flex-shrink:0;margin:0;padding:0 14px;min-height:40px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--green);font-size:13px;font-weight:700}
+#panel .cal-bar>.button[data-cal=add]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:7px;background:linear-gradient(var(--accent),var(--accent)) center/100% 2px no-repeat,linear-gradient(var(--accent),var(--accent)) center/2px 100% no-repeat}
+#panel .cal-bar>.button[data-cal=add]:hover{background:var(--land)}
+
+/* =====================  Gidgit and its mascot  ===================== */
+.gidgit-mascot{display:grid;place-items:center;flex-shrink:0;width:64px;height:64px;border-radius:19px;background:linear-gradient(155deg,#e6eee1,#cfe2d6);box-shadow:inset 0 0 0 1px var(--line)}
+.gm-sprite{display:block;width:46px;height:46px;background:var(--gm-idle) center/contain no-repeat;image-rendering:pixelated;transform-origin:50% 90%}
+.gidgit-mascot[data-state=idle] .gm-sprite{animation:gm-bob 3.4s ease-in-out infinite,gm-blink 4.6s steps(1,end) infinite}
+.gidgit-mascot[data-state=thinking] .gm-sprite{animation:gm-think .7s ease-in-out infinite}
+.gidgit-mascot[data-state=happy] .gm-sprite{animation:gm-hop .7s cubic-bezier(.3,1.6,.5,1) 1}
+.gidgit-mascot[data-state=confused] .gm-sprite{animation:gm-tilt 1.6s ease-in-out infinite}
+@keyframes gm-bob{50%{transform:translateY(-3px)}}
+@keyframes gm-think{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg) translateY(-2px)}}
+@keyframes gm-hop{0%{transform:translateY(0)}40%{transform:translateY(-9px) scale(1.06)}100%{transform:translateY(0)}}
+@keyframes gm-tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg)}60%{transform:rotate(9deg)}}
+.gidgit-head{align-items:center;gap:13px}.gidgit-head h2{font-size:21px}
+.gidgit-bubble{position:relative;margin:12px 0 14px;padding:11px 14px;border-radius:16px 16px 16px 5px;background:var(--land);font-size:14px;line-height:1.45;color:var(--ink)}
+.gidgit-bubble::before{content:"";position:absolute;left:22px;top:-7px;width:14px;height:14px;background:var(--land);transform:rotate(45deg);border-radius:3px 0 0 0}
+.gidgit-ideas{margin:4px 0 10px}.gidgit-ideas .ui-chip{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer}.gidgit-ideas .ui-chip:hover{background:var(--land)}
+#gidgit-dialog [data-gidgit-result]>*{margin-top:12px}
+#gidgit-dialog [data-gidgit-result] article,#gidgit-dialog [data-gidgit-result] section{padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+#gidgit-dialog .gidgit-ask{display:flex;gap:8px;margin-top:10px}#gidgit-dialog .gidgit-ask .button{margin:0;flex:1}
+#gidgit-dialog details.gidgit-privacy{margin-top:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+#gidgit-dialog details.gidgit-privacy>summary{display:flex;align-items:center;min-height:44px;padding:0 14px;list-style:none;font-size:13px;font-weight:600;cursor:pointer}
+#gidgit-dialog details.gidgit-privacy>summary::-webkit-details-marker{display:none}
+#gidgit-dialog details.gidgit-privacy>summary::after{content:"+" / "";margin-left:auto;font-size:18px;font-weight:400;color:var(--muted)}
+#gidgit-dialog details.gidgit-privacy[open]>summary::after{content:"\2212" / ""}
+#gidgit-dialog details.gidgit-privacy>p{margin:0;padding:0 14px 12px}
+#gidgit-dialog [data-gidgit-status]{min-height:0;margin:10px 0 0;font-size:13px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.gm-sprite{animation:none!important}}
+
+.gidgit-mascot[data-state=thinking] .gm-sprite{background-image:var(--gm-thinking)}
+.gidgit-mascot[data-state=happy] .gm-sprite{background-image:var(--gm-happy)}
+.gidgit-mascot[data-state=confused] .gm-sprite{background-image:var(--gm-confused)}
+@keyframes gm-blink{0%,93%,100%{background-image:var(--gm-idle)}94%,97%{background-image:var(--gm-blink)}}
+/* the small mascot used as an icon: in the nav bar, in cards, in headers */
+.gidgit-mascot.mini{display:inline-grid;width:26px;height:26px;border-radius:0;background:none;box-shadow:none}
+.gidgit-mascot.mini .gm-sprite{width:26px;height:26px}
+.gidgit-mascot.mini[data-state=idle] .gm-sprite{animation:gm-blink 4.6s steps(1,end) infinite}
+.set-ico .gidgit-mascot.mini,.dlg-ico .gidgit-mascot.mini{width:24px;height:24px}.set-ico .gm-sprite,.dlg-ico .gm-sprite{width:24px;height:24px}
+.bottom-nav .gidgit-mascot.mini{width:24px;height:24px}.bottom-nav .gidgit-mascot.mini .gm-sprite{width:24px;height:24px}

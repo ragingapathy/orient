@@ -125,7 +125,7 @@
   }
   function markup() {
     const local = isLocal(), paired = !!readMeta().token;
-    let h = '<h3>Sync</h3><p class="fine" id="sync-line" role="status">' + esc(line()) + '</p>';
+    let h = '<span class="set-kicker">Sync</span><p class="ui-status" id="sync-line" role="status">' + esc(line()) + '</p>';
     if (local) {
       h += '<p class="fine">This computer keeps the one copy of your map. Other devices sync to it, so it has to be on and reachable for them to update.</p>';
       h += '<div class="settings-actions"><button class="button" type="button" data-sync="now">Sync now</button><button class="button" type="button" data-sync="show">Pair a phone</button></div>';
@@ -150,12 +150,13 @@
   function paint() {
     const box = document.getElementById('sync-box'); if (!box) return;
     const lineEl = document.getElementById('sync-line');
+    box.dataset.state = status.kind;
     if (lineEl && box.dataset.shown === (isLocal() ? 'l' : readMeta().token ? 'p' : 'u') + (shownKey ? 'k' : '')) lineEl.textContent = line();
     else render();
   }
   function render() {
     const box = document.getElementById('sync-box'); if (!box) return;
-    box.innerHTML = markup(); box.dataset.shown = (isLocal() ? 'l' : readMeta().token ? 'p' : 'u') + (shownKey ? 'k' : '');
+    box.dataset.state = status.kind; box.innerHTML = markup(); box.dataset.shown = (isLocal() ? 'l' : readMeta().token ? 'p' : 'u') + (shownKey ? 'k' : '');
     if (window.lucide) lucide.createIcons();
   }
   async function onClick(e) {
