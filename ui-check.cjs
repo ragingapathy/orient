@@ -145,7 +145,7 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       const fits = () => m.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('dialog[open]')].every(d => d.scrollWidth <= d.clientWidth + 1));
       await m.click('[data-action="settings"]'); await m.waitForTimeout(400); assert.equal(await fits(), true, 'Field kit'); await m.evaluate(() => document.getElementById('settings-dialog').close());
       await m.click('.bottom-nav [data-tab="Calendar"]'); await m.locator('.cal-hero').waitFor(); assert.equal(await fits(), true, 'calendar');
-      const box = await m.locator('.cal-strip').boundingBox(); assert.ok(box.x >= 0 && box.x + box.width <= 390, 'the week strip fits');
+      await m.locator('.cal-strip').waitFor({ state: 'visible' }); const box = await m.locator('.cal-strip').boundingBox(); assert.ok(box.x >= 0 && box.x + box.width <= 390, 'the week strip fits');
       assert.deepEqual(m.errors, []);
     });
     await t('with reduced motion the dialogs and the mascot stand still', async () => {
