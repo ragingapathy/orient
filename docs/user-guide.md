@@ -114,6 +114,10 @@ Place hours accept `Second Wednesday 9am-11am`, `First and third Tuesday 4pm-6pm
 
 Monthly service windows appear as derived entries in Calendar and Today (nearby services within 10 miles), with Edit place hours rather than duplicate saved events. Regular weekly business hours do not flood Calendar. Natural-language calendar entry also recognizes ordinal weekdays; the monthly editor exposes a human-readable pattern field. Saved event patterns and hours survive existing backups and sync. Run `node recurring-hours-check.cjs` and `node recurring-hours-ui-check.cjs` for coverage.
 
+## Project stats
+
+`node repo-stats.cjs` records GitHub’s traffic numbers (clones, page views, stars, forks) for the project’s repositories into `data/repo-stats.json`, which Your field kit shows as **Project stats** on the computer that runs Orient and nowhere else. GitHub keeps only 14 days and shows them only to the repository owner, so run the script at least every two weeks to keep a history. It uses `GITHUB_TOKEN` or the GitHub login git already has, and never prints or saves it. Set `ORIENT_STATS_REPOS=owner/a,owner/b` to choose the repositories. Clone counts include bots, mirrors and your own machines: a rough signal, not a head count. Orient itself does not report who uses it.
+
 ## Place commons
 
 An explicit, reviewed place-note contribution and commons-bundle import/export loop is available in Field kit. See [commons/README.md](../commons/README.md) for the GitHub workflow, public format, and privacy boundaries. Sharing opens GitHub’s own new-file page with the reviewed file filled in, so no token is needed; publishing from Orient with a token is an optional extra. Neighbor entries never participate.

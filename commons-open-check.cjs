@@ -7,6 +7,7 @@ const { chromium } = require(process.env.ORIENT_PLAYWRIGHT || 'playwright');
 const URL_ = process.env.ORIENT_URL || 'http://127.0.0.1:4173';
 const seed = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.655], timeZone: 'America/New_York' }, useCatalog: false, custom: [{ id: 'local-coffee', name: 'Coffee fixture', kind: 'Coffee shop', coordinates: [-83.539, 41.655], note: 'A quiet place to browse.' }], saved: ['local-coffee'], visited: [], details: { 'local-coffee': { people: 'SECRET EMPLOYEE', note: 'A quiet place to browse.' } }, neighbors: [{ id: 'neighbor-secret', name: 'SECRET NEIGHBOR', note: 'SECRET CONVERSATION', coordinates: [-83.53, 41.65] }] };
 
+const cleveland = { name: 'Cleveland', coordinates: [-81.69, 41.5], timeZone: 'America/New_York' };
 (async () => {
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
@@ -45,6 +46,9 @@ const seed = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.655
     assert.match(dialogText, /A quiet place to browse\./); assert.match(dialogText, /Coffee fixture · Getting in/);
     assert.equal(await p.locator('.commons-preview').isVisible(), false);
     const open = p.getByRole('link', { name: 'Open on GitHub to finish' });
+    assert.equal(await p.locator('#commons-dialog [name=commons-repository]').inputValue(), 'ragingapathy/toledo-commons', 'near Toledo the destination is filled in');
+    await p.locator('#commons-dialog [name=commons-repository]').fill('');
+    await p.getByText('Enter the commons repository to continue.').waitFor();
     assert.equal(await open.getAttribute('aria-disabled'), 'true'); assert.equal(await open.getAttribute('href'), null);
     console.log('ok  the preview is readable, the file is one click away, and the link waits for a repository');
 
@@ -89,6 +93,20 @@ const seed = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.655
     assert.equal(await p.locator('.commons-advanced').evaluate(e => e.open), false);
     await p.getByText('Other ways to share', { exact: true }).click();
     assert.equal(await p.getByRole('button', { name: 'Publish from Orient with a token', exact: true }).isVisible(), true);
+    // 8. near Toledo the snapshot to follow is filled in; in a city with no known commons nothing is
+    const hub = async home => {
+      const q = await ctx.newPage(); q.setDefaultTimeout(8000);
+      await q.route('**/api/commons/github', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ connected: false }) }));
+      await q.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' }));
+      await q.addInitScript(v => { if (sessionStorage.fixture) return; sessionStorage.fixture = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(v)); }, { ...seed, home });
+      await q.goto(URL_); await q.waitForFunction(() => window.OrientCommons);
+      await q.click('[data-action="settings"]'); await q.locator('[data-commons="hub"]').click();
+      const out = { url: await q.locator('#commons-dialog [name=url]').inputValue(), text: await q.locator('#commons-dialog').innerText() }; await q.close(); return out;
+    };
+    const near = await hub(seed.home), far = await hub(cleveland);
+    assert.equal(near.url, 'https://raw.githubusercontent.com/ragingapathy/toledo-commons/main/snapshot.json'); assert.match(near.text, /Toledo commons is filled in for you\./);
+    assert.equal(far.url, ''); assert.doesNotMatch(far.text, /filled in for you/);
+    console.log('ok  near Toledo the destination and the snapshot address are filled in; elsewhere nothing is');
     assert.deepEqual(errors, [], errors.join(' | '));
     console.log('PASS: sharing a note opens GitHub with the contribution filled in, no token needed');
   } finally { await browser.close(); }

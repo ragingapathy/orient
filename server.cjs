@@ -47,6 +47,7 @@ http.createServer((req,res)=>{
   if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
   if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}
   if(sync.handle(req,res,url,json))return;
+  if(url==='/api/repo-stats'){if(!sync.trusted(req)){json(res,403,{error:'Project stats are shown only on the computer that runs Orient.'});return;}let stats={repos:{}};try{stats=JSON.parse(fs.readFileSync(path.join(process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),'repo-stats.json'),'utf8'));}catch{}json(res,200,stats);return;}
   if(url==='/api/website'){
     if(req.method!=='POST'){res.writeHead(405,{Allow:'POST'});res.end();return;}
     (async()=>{try{let body='';for await(const chunk of req){body+=chunk;if(body.length>4096){json(res,413,{error:'Website address is too long.'});return;}}const input=JSON.parse(body);if(typeof input.url!=='string'||input.url.length>2048){json(res,400,{error:'Enter a website address.'});return;}json(res,200,await website.inspect(input.url,{timeZone:typeof input.timeZone==='string'?input.timeZone:undefined}));}catch(e){json(res,e.status||502,{error:e.message||'Website could not be read.'});}})();return;
