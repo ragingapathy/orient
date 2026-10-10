@@ -271,3 +271,147 @@ dialog.gidgit-settings::backdrop{background:#142e2d70;backdrop-filter:blur(5px)}
 .modal-card label{display:block;margin-top:12px;font-size:12px;color:var(--muted)}
 .modal-card label:first-of-type{margin-top:0}
 .modal-card>.button{margin-top:10px}
+
+/* ---------- panels: Explore, My Map and the place card ---------- */
+.sheet,.content-panel.briefing-drawer{box-shadow:0 -8px 28px #17302c1f}
+.content-panel h2{font-weight:700;letter-spacing:-.02em}
+.content-panel .kicker,.sheet .kicker{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--accent)}
+.content-panel .sub{color:var(--muted)}
+.tile{border-radius:13px;background:var(--land);color:var(--green)}
+.tile svg{width:21px;height:21px}
+/* place rows become small cards */
+.row{padding:11px 14px;margin:0 0 8px;min-height:68px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);transition:background .18s,box-shadow .18s,transform .18s}
+.row:hover{background:#fff;box-shadow:var(--lift-sm);transform:translateY(-1px)}
+.row:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row strong{font-weight:700}
+.row small{margin-top:3px}
+.row>svg:last-child{color:var(--muted);flex-shrink:0}
+/* the blocks stacked in My Map */
+.collection-summary,.circuit-summary,.journey-summary,.visit-summary,.neighbor-guide{margin:0 0 12px;padding:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.circuit-summary,.journey-summary{background:var(--card)}
+.nearby-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+.nearby-heading h3,.visit-summary h3{margin:0;font-size:15px;font-weight:700}
+.tag{padding:3px 9px;border-radius:999px;background:var(--land);color:var(--green);font-size:9.5px;font-weight:700;letter-spacing:.08em}
+#panel .collection-summary{padding:14px}
+#panel .collection-summary>[data-collection=new],#panel .circuit-summary>.button,#panel .neighbor-guide>.button,#panel .journey-summary>.button{width:100%}
+.journey-summary{display:grid;gap:10px}
+.journey-summary strong{font-size:15px;font-weight:700}
+.collection-filter{display:flex;align-items:center;gap:10px;margin:0 0 14px;color:var(--muted);font-size:12px}
+.collection-filter select{flex:1;min-height:40px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;color:var(--ink);font:inherit;font-size:14px}
+#panel .button,#sheet .button{min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-weight:600;transition:background .15s,box-shadow .15s}
+#panel .button:hover,#sheet .button:hover{background:var(--land);box-shadow:var(--lift-sm)}
+#panel .button.primary,#sheet .button.primary{border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#panel .button.primary:hover,#sheet .button.primary:hover{background:linear-gradient(155deg,#2b7a63,#1c5244)}
+#panel .circuit-summary>.button,#panel .collection-summary>.button{margin-top:6px}
+.visit-chips .chip,.chip{border-radius:999px;font-weight:600}
+.visit-chips .chip.on{background:var(--grad-green);border-color:transparent}
+/* Explore: the daily briefing */
+.today-heading .kicker{color:var(--accent)}
+.today-heading h2{font-weight:700}
+.outing-invitation{border:0;background:var(--grad-green);box-shadow:var(--lift-sm);transition:transform .2s,box-shadow .2s}
+.outing-invitation:hover{transform:translateY(-1px);box-shadow:var(--lift)}
+.outing-invitation .kicker{color:#f1c9b0;opacity:1}
+.today-section-title h3{font-weight:700}
+.today-card{border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.today-empty{border-color:var(--line);background:var(--card);text-align:center}
+.today-place{border-radius:var(--r-sm);padding:4px 6px;margin:0 -6px;transition:background .15s}.today-place:hover{background:var(--land)}
+.explore-start-actions .button{border-radius:var(--r-sm)}
+.briefing-title strong,.briefing-title h2{font-weight:700}
+.briefing-grip{background:#c4d1c8;width:36px;height:4px}
+/* the place card */
+.grip>span{background:#c4d1c8}
+.placecopy h2{font-weight:700;letter-spacing:-.01em}
+.peekhead .tile{width:46px;height:46px;border-radius:14px}
+.peekhead .save,.peekhead .visit{border-radius:13px;border:1px solid var(--line);background:#fff;transition:background .15s,box-shadow .15s}
+.peekhead .save:hover,.peekhead .visit:hover{box-shadow:var(--lift-sm)}
+.peekhead .save[aria-pressed=true]{border-color:transparent;background:var(--grad-orange);color:#fff}
+.peekhead .visit.counted{border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+.meta b{font-weight:700}
+.place-glance{padding-top:10px;border-top:0}
+.glance-fact{padding:8px 11px;margin:0 0 6px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card);align-items:center}
+.glance-fact svg{margin-top:0;color:var(--green)}
+.eventline{display:inline-flex;margin-top:10px;padding:6px 11px;border-radius:999px;background:var(--land);color:var(--green);font-weight:600}
+.sheet .expand{margin-top:8px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card);font-weight:600}
+.sheet .expand:hover{background:#fff}
+.fold{margin:8px 0;padding:0 14px;border:1px solid var(--line);border-top:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.fold>summary{color:var(--ink)}
+.fold>summary small{padding:2px 8px;border-radius:999px;background:var(--land);color:var(--green);font-weight:600}
+.fold>summary svg{color:var(--muted)}
+.visit-history,.place-photos,.nearby-section{border-top:1px solid var(--line);margin-top:8px;padding-top:0}
+.personal-rating{border:0;margin:6px 0 10px;padding:0}
+.rating-star{color:#d9a441}
+.collection-place{margin:8px 0;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.sheet .actions{gap:8px}
+.sheet .quiet{border-radius:var(--r-sm)}.sheet .quiet.danger{color:#a8472a}
+@media(prefers-reduced-motion:reduce){.row,.outing-invitation,#panel .button,#sheet .button{transition:none}.row:hover,.outing-invitation:hover{transform:none}}
+#panel .collection-summary>[data-collection=new]{display:flex;border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#panel .collection-summary>[data-collection=new]:hover{background:linear-gradient(155deg,#2b7a63,#1c5244)}
+.outing-invitation .kicker{color:#f6e3cf}
+.collection-place{margin:6px 0;padding:0;border:0;background:none}
+.collection-place>.fine{margin:0 0 8px}
+/* ---------- Milestones and local lore ---------- */
+.journey-balance{margin:6px 0 14px;padding:16px 18px;border-radius:var(--r-md);background:var(--grad-teal);color:#f3f8ed;box-shadow:var(--lift-sm)}
+.journey-balance>strong{font:800 46px/1 Inter,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.journey-balance>span{font-size:13px;line-height:1.35;opacity:.92}
+.journey-tabs{margin:0 0 14px}
+.journey-tabs .button{min-height:38px;border-radius:999px;font-size:13px}
+.milestone,.lore-preview{padding:13px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+.milestone.earned{border-color:#a6bca7;background:#e7f0e6}
+.milestone strong{font-size:14px;font-weight:700}
+.milestone>div>span{padding:2px 9px;border-radius:999px;background:var(--land);color:var(--green);font-weight:600;white-space:nowrap}
+.milestone.earned>div>span{background:var(--grad-green);color:#f3f8ed}
+.milestone progress{appearance:none;-webkit-appearance:none;height:6px;border:0;border-radius:999px;background:#d6e0d8;overflow:hidden}
+.milestone progress::-webkit-progress-bar{background:#d6e0d8;border-radius:999px}
+.milestone progress::-webkit-progress-value{background:var(--grad-green);border-radius:999px}
+.milestone progress::-moz-progress-bar{background:var(--green);border-radius:999px}
+.milestone-heading h3,.lore-heading h3,#journey-dialog h3,#lore-dialog h3{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.journey-balance :is(span,p,small,div){margin:0;color:#e7f2ea;opacity:1}
+/* ---------- the little things that were left: labels, disclosures, weekday chips ---------- */
+dialog label:not(.toggle-row):not(.import-label):not(.day-chip){font-size:12px;font-weight:600;color:var(--muted)}
+dialog label:not(.toggle-row) input:not([type=checkbox]):not([type=radio]):not([type=file]),dialog label:not(.toggle-row) textarea,dialog label:not(.toggle-row) select{margin-top:5px}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;list-style:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--green)}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary::-webkit-details-marker{display:none}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary::after{content:"";flex-shrink:0;width:8px;height:8px;margin-right:4px;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .2s}
+dialog details[open]:not(.collection-disclosure):not(.ui-more)>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+dialog details:not(.collection-disclosure):not(.ui-more)>summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+dialog fieldset{margin:12px 0;padding:10px 12px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card)}
+dialog fieldset>legend{padding:0 6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+#event-dialog fieldset{display:flex;flex-wrap:wrap;gap:6px}
+#event-dialog fieldset>legend{flex-basis:100%}
+#event-dialog fieldset label{display:inline-flex;align-items:center;margin:0;padding:0}
+#event-dialog fieldset input[type=checkbox]{position:absolute;opacity:0;width:1px;height:1px}
+#event-dialog fieldset label{position:relative;min-width:44px;min-height:40px;justify-content:center;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+#event-dialog fieldset label:has(input:checked){border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#event-dialog fieldset label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){dialog details>summary::after,#event-dialog fieldset label{transition:none}}
+/* ---------- the filter panel, list filters and the neighbor card ---------- */
+.filter-panel{border-radius:var(--r-lg);box-shadow:var(--lift)}
+.filter-panel .panel-heading strong{font-size:16px;font-weight:700}
+.filter-options button[aria-pressed=true]{background:var(--grad-green);border-color:transparent}
+.filter-panel label,#panel label:not(.rating-star):not(.toggle-row){font-size:12px;font-weight:600;color:var(--muted)}
+.filter-panel select,#panel select{min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background-color:#fff;color:var(--ink);font-size:14px;font-weight:500}
+.filter-panel .button,.filter-panel button.quiet{min-height:40px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-weight:600}
+.filter-panel .button:hover{background:var(--land)}
+.explore-list-heading .kicker{color:var(--accent)}
+.neighbor-card h2{font-weight:700;letter-spacing:-.02em}
+.neighbor-card>.sub{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--ink)}
+.neighbor-card>.fine:first-of-type,.neighbor-card h2+.sub{margin-top:0}
+.neighbor-card h3{margin:16px 0 6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.neighbor-note{padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);line-height:1.55}
+.neighbor-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+.neighbor-actions .button{flex:1 1 auto;min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-weight:600}
+.neighbor-actions .button:first-child{border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+.neighbor-actions .button:last-child{color:#a8472a}
+/* a brand-new My Map leads with the invitation to add a place, before collections and circuits */
+#panel:has(>.collection-summary):not(:has(>.row)){display:flex;flex-direction:column}
+#panel:has(>.collection-summary):not(:has(>.row))>:is(.explore-list-heading,h2,.sub){order:-2}
+#panel:has(>.collection-summary):not(:has(>.row))>button[data-action=add]{order:-1;margin:4px 0 16px;border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#panel:has(>.collection-summary):not(:has(>.row))>button[data-action=add]:hover{background:linear-gradient(155deg,#2b7a63,#1c5244)}
+.open-export{flex-wrap:wrap}
+.open-export-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.open-export-buttons .button{min-height:38px;padding:6px 14px;font-size:13px}
+.open-export>.fine{flex-basis:100%;margin:0}
+.open-export>.fine:empty{display:none}
+.set-card .open-export{display:grid;gap:10px;align-items:stretch}
+.set-card .open-export-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.set-card .open-export-buttons .button{width:100%}

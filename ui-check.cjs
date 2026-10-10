@@ -120,6 +120,25 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       assert.equal(await g.evaluate(() => /gidgit\.png/.test(document.documentElement.outerHTML)), false, 'no outside picture is expected');
     });
 
+    await t('the place card, the My Map blocks and the Explore briefing wear the same cards, tiles and buttons', async () => {
+      const g = await open(base);
+      const lum = c => { const m = c.match(/[0-9.]+/g).map(Number); return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255; };
+      await g.click('.bottom-nav [data-tab="My Map"]'); await g.locator('[data-action=list]:visible').first().click().catch(() => {});
+      await g.locator('#panel .row[data-place]').first().waitFor();
+      const radius = sel => g.locator(sel).first().evaluate(e => parseFloat(getComputedStyle(e).borderTopLeftRadius));
+      assert.equal(await radius('#panel .row'), 16, 'place rows are cards');
+      for (const sel of ['#panel .collection-summary', '#panel .circuit-summary', '#panel .neighbor-guide']) assert.equal(await radius(sel), 16, sel + ' is a card');
+      const create = g.locator('#panel [data-collection=new]');
+      const [fg, bg] = await create.evaluate(e => { const c = getComputedStyle(e); return [c.color, c.backgroundImage !== 'none' ? 'rgb(30,80,64)' : c.backgroundColor]; });
+      assert.ok(Math.abs(lum(fg) - lum(bg)) > 0.4, 'Create a collection stays readable: ' + fg + ' on ' + bg);
+      await g.locator('#panel .row[data-place]').first().click(); await g.locator('#sheet .peekhead').waitFor();
+      assert.equal(await g.locator('#sheet .peekhead .tile').evaluate(e => getComputedStyle(e).borderTopLeftRadius), '14px', 'the place tile is a rounded tile');
+      assert.equal(await g.locator('#sheet .peekhead .visit').evaluate(e => getComputedStyle(e).backgroundImage.includes('gradient')), true, 'a counted visit is a green tile');
+      await g.click('.bottom-nav [data-tab="Explore"]'); await g.waitForTimeout(500);
+      assert.equal(await g.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      assert.deepEqual(g.errors, []);
+    });
+
     // phone and reduced motion
     await t('on a phone nothing scrolls sideways in the Field kit, the calendar or Gidgit', async () => {
       const m = await open(withEvents, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, p => p.route('**/api/gidgit**', r => r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' })));
