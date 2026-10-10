@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-11 — Orient is an app
+
+- **Install it.** Orient now has a web app manifest, proper icons (standard, maskable and Apple) and a service worker, so a phone or computer can add it to the home screen or desktop and open it full screen like an app. Where the browser offers it, the field kit has an **Install Orient** button; on an iPhone it says to use Share, then Add to Home Screen. Installed, the field kit says so.
+- **It opens without a connection.** The first visit saves the app's own files on the device, and each time you are online the newest copy replaces them (the newest file always wins; the saved copy is only a fallback). Offline, your map, notes, visits and Calendar are right where you left them, since they were always stored on the device. Map areas you have looked at are kept too (up to 700 tiles, public map data only), so the places you know still draw without a signal.
+- **Private things are never kept.** The service worker never touches `/api/` (your synced map, backups, sharing, Gidgit and anything live), and it ignores every other site except the map's tile server. Anything you ask for live is asked for live.
+- Needs an https address (or localhost); over plain http, such as a bare Tailscale address, the app works as before without offline support, and the field kit says so.
+- New check `pwa-check.cjs` (8 cases) and `make-icons.cjs` to redraw the icons.
+
 ## 2026-10-11 — The Civic tab
 
 - **Civic is a tab of its own**, just before Gidgit (which stays last): the city right now, on one screen. A strip of tiles (weather and alerts, roads closed nearby, incidents, license plate readers within 5 miles) jumps to its section: weather and alerts, road work, incidents, state traffic cameras, license plate readers, and **Useful nearby** (air quality, fuel context and park amenities). The "Useful nearby" button that sat in the header, and its modal, are folded in here and gone from the header.

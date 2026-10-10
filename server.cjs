@@ -4,7 +4,7 @@ const path = require('node:path');
 const root = path.join(__dirname, 'public');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '127.0.0.1';
-const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.txt':'text/plain; charset=utf-8','.ttf':'font/ttf'};
+const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.png':'image/png','.txt':'text/plain; charset=utf-8','.ttf':'font/ttf'};
 const {geocode}=require('./geocode.cjs');
 const {nearby}=require('./places.cjs');
 const website=require('./website.cjs');
