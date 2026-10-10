@@ -1,5 +1,19 @@
 # Orient Changelog
 
+## 2026-10-11 — Your map in numbers
+
+- **A retractable drawer on My Map**, in the spot where Explore keeps Today: **Your map so far**, closed by default with a one-line summary ("10 places visited · 3 visits this week"). It steps aside when the list or a place card is open, remembers whether you left it open, and works on a phone as a bottom drawer.
+- **Four big numbers**: places visited, visits logged, saved places still to try, and observations shared with a commons.
+- **A year ago today**: the same date in earlier years ("A year ago you went to the comic shop"), or the same few days if that exact day was empty.
+- **Your rhythm**: your most active day of the week as a bar chart, this week and the last 30 days, your best week, the time of day you tend to go (from visits logged with a tap), and the last twelve weeks as a grid of days.
+- **Your regulars**: your five most-visited places with visit counts, stars and the last visit, plus the places you rated five stars.
+- **How you explore**: the share of your saved places you have visited, new places versus places you went back to, new places by month, and where your visits go by kind of place.
+- **What you are building**: places added, notes written, places rated, photos kept, circuits made, calendar entries, places shared with a commons, and milestones earned.
+- **Your year in Orient**: a summary for each year with visits (places, new places, most-visited place, busiest month, favourite day, how the year began), with **Copy as text** to share it on your own terms.
+- Worked out in the browser from your own map. Nothing is sent anywhere, and there are no streaks or targets: it describes what you did and never scolds. Dates follow your home time zone.
+- Nothing in `app.js` changed: the drawer is a separate file that reads the saved map and mounts itself on My Map. Damaged or old data in storage cannot break it.
+- New check `insights-check.cjs` (19 cases: time zones, ties, new versus returning, once-only counting, leap days, the year review, junk data, the drawer's show/hide rules, refresh, reduced motion, a phone, and that nothing leaves the page).
+
 ## 2026-10-11 — Automatic backups of the synced map
 
 - The computer running Orient now backs up the one copy phones sync against (`data/orient-state.json`) into `data/backups/`. One file per day, refreshed hourly while the map changes; two weeks of days kept, then Sundays for eight weeks. Every copy is written, read back and checked before it replaces another, and an empty or damaged live map is never copied over a good backup.

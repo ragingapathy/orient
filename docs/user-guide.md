@@ -114,6 +114,12 @@ Place hours accept `Second Wednesday 9am-11am`, `First and third Tuesday 4pm-6pm
 
 Monthly service windows appear as derived entries in Calendar and Today (nearby services within 10 miles), with Edit place hours rather than duplicate saved events. Regular weekly business hours do not flood Calendar. Natural-language calendar entry also recognizes ordinal weekdays; the monthly editor exposes a human-readable pattern field. Saved event patterns and hours survive existing backups and sync. Run `node recurring-hours-check.cjs` and `node recurring-hours-ui-check.cjs` for coverage.
 
+## Your map in numbers
+
+On **My Map**, the **Your map so far** drawer (bottom-left on a computer, along the bottom on a phone) opens into what you have been building: places visited and visits logged, your most active day of the week, your regulars, how you explore, what you have added and shared, **A year ago today**, and **Your year in Orient** for each year with visits (with **Copy as text** if you want to share one). It appears when no list or place card is open and remembers whether you left it open.
+
+Everything is worked out in your browser from your own map; nothing is sent anywhere. Weekdays and dates follow your home time zone. The time-of-day pattern uses only visits logged with the check button, since visits added later by date have no time. There are no streaks or goals: it only describes what you did.
+
 ## Backups and restore
 
 The map copy this computer keeps for sync (`data/orient-state.json`) is backed up automatically into `data/backups/`:
