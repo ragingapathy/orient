@@ -1,0 +1,52 @@
+/* Spending: the place card section and "Where your money goes" on My Map. Local is the app's green, chain the warm accent,
+   and money not yet sorted a quiet stripe. */
+.spend-place,.spend-summary{--loc:#2d7a62;--chn:#ca5b30;--uns:#b7c4bc}
+.spend-place .tag{display:inline-block;margin:0 0 4px}
+.spend-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.spend-stats>div{padding:10px 10px 9px;border:1px solid var(--line);border-radius:var(--r-sm,12px);background:var(--card,#ffffffa6)}
+.spend-stats b{display:block;font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.spend-stats small{display:block;margin-top:2px;font-size:11px;line-height:1.3;color:var(--muted)}
+
+.spend-owner{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 4px;padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--land)}
+.spend-owner button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--muted);font:inherit;font-weight:700;cursor:pointer}
+.spend-owner button svg{width:17px;height:17px}
+.spend-owner button:hover{background:#ffffff90;color:var(--ink)}
+.spend-owner button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.spend-owner button.on.loc{background:var(--loc);color:#f3f8ed;box-shadow:var(--lift-sm,0 3px 10px #17302c14)}
+.spend-owner button.on.chn{background:var(--chn);color:#fff7f2;box-shadow:var(--lift-sm,0 3px 10px #17302c14)}
+.spend-owner button.suggest:not(.on){border-color:var(--chn);border-style:dashed;color:var(--chn)}
+.spend-owner-note{margin:2px 2px 0}
+
+.spend-add{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.4fr) auto;gap:8px;align-items:end;margin:12px 0 4px}
+.spend-add label{display:grid;gap:3px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.spend-add input{width:100%;min-width:0;box-sizing:border-box;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm,12px);background:#fff;color:var(--ink);font:inherit;font-size:15px;font-weight:600;text-transform:none;letter-spacing:0}
+.spend-money{position:relative;display:block}
+.spend-money>span{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);pointer-events:none}
+.spend-money input{padding-left:24px}
+.spend-add .button{min-height:42px}
+@media (max-width:420px){.spend-add{grid-template-columns:1fr 1fr}.spend-add .button{grid-column:1/-1}}
+
+.spend-list{list-style:none;margin:8px 0 0;padding:0}
+.spend-list li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.spend-list li span{flex:1;min-width:0;color:var(--muted)}
+.spend-list li b{font-weight:800}
+
+.spend-summary{margin:0 0 12px;padding:14px;border:1px solid var(--line);border-radius:var(--r-md,16px);background:var(--card,#ffffffa6)}
+.spend-summary-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:0 0 8px}
+.spend-summary h3{margin:0;font-size:15px;font-weight:700}
+.spend-big{margin:2px 0 0;font-size:15px;color:var(--ink)}
+.spend-big b{font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--loc);margin-right:4px}
+.spend-bar{display:flex;gap:3px;height:14px;margin:10px 0 8px}
+.spend-bar i{display:block;min-width:6px;height:100%;border-radius:99px}
+.spend-bar i.loc,.spend-legend .loc i,.spend-dot.loc{background:var(--loc)}
+.spend-bar i.chn,.spend-legend .chn i,.spend-dot.chn{background:var(--chn)}
+.spend-bar i.uns,.spend-legend .uns i,.spend-dot.uns{background:repeating-linear-gradient(135deg,var(--uns) 0 4px,#dfe7e1 4px 8px)}
+.spend-legend{list-style:none;display:grid;gap:5px;margin:0 0 10px;padding:0}
+.spend-legend li{display:flex;align-items:center;gap:8px;font-size:13px}
+.spend-legend li i{width:10px;height:10px;border-radius:99px;flex-shrink:0}
+.spend-legend li span{flex:1;min-width:0;color:var(--muted)}
+.spend-legend li b{font-weight:800}
+.spend-row .spend-dot{width:9px;height:9px;border-radius:99px;flex-shrink:0;margin-right:2px}
+
+/* the Add spend button beside Undo in the visit toast */
+.toast-action{margin-left:10px;color:inherit;text-decoration:underline;font:inherit;font-weight:700;background:none;border:0;padding:0 2px;cursor:pointer}

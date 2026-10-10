@@ -1,5 +1,14 @@
 # Orient Changelog
 
+## 2026-10-11 — Where your money goes
+
+- **Spending, on the place card.** Expand a place and open **Spending**: write down what you spent and on which day, and Orient keeps the total, the average and the last day for that place. It stays private on your device (and your own sync), like visits.
+- **Local or chain, your call.** Each place has a **Local** / **Chain** switch. Orient only hints (a dashed Chain button when the name is a well-known chain); nothing is counted until you choose, and a second tap clears it.
+- **Where your money goes, on My Map.** Once you have written something down, My Map shows how much of what you sorted stayed local, a split bar (local, chain or corporate, not sorted yet), and the places you spent the most at, for 30 days, 12 months or all time. Money at places you have not sorted is shown apart, never hidden inside either side.
+- **Add spend** appears beside Undo after you log a visit, and opens the Spending section with the amount box ready.
+- Your CSV and GeoJSON exports gain `spent` and `ownership` columns; the full map export, backups and sync carry the records (entries merge between devices). Spending is never read by the commons or the insights.
+- New check `spend-check.cjs` (14 cases).
+
 ## 2026-10-11 — Orient is an app
 
 - **Install it.** Orient now has a web app manifest, proper icons (standard, maskable and Apple) and a service worker, so a phone or computer can add it to the home screen or desktop and open it full screen like an app. Where the browser offers it, the field kit has an **Install Orient** button; on an iPhone it says to use Share, then Add to Home Screen. Installed, the field kit says so.

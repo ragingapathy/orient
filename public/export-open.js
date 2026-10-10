@@ -18,19 +18,19 @@ window.OrientOpenExport = (() => {
         return {
           name: p.name, category: String(p.kind || ''), lat: p.coordinates[1], lng: p.coordinates[0], address: String(p.address || ''), note: String(p.note || ''),
           saved: saved.has(p.id), visited: visited.has(p.id) || (Array.isArray(log[p.id]) && log[p.id].length > 0),
-          visits: Array.isArray(log[p.id]) ? log[p.id].length : (visited.has(p.id) ? 1 : 0), last_visit: dated.length ? dated[dated.length - 1].slice(0, 10) : '', collections: memberOf(p.id),
+          ...(window.OrientSpend ? OrientSpend.exportFacts(store, p.id) : { spent: '', ownership: '' }), visits: Array.isArray(log[p.id]) ? log[p.id].length : (visited.has(p.id) ? 1 : 0), last_visit: dated.length ? dated[dated.length - 1].slice(0, 10) : '', collections: memberOf(p.id),
         };
       });
   }
 
   const geojson = list => JSON.stringify({
     type: 'FeatureCollection',
-    features: list.map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [r.lng, r.lat] }, properties: { name: r.name, category: r.category, address: r.address, note: r.note, saved: r.saved, visited: r.visited, visits: r.visits, last_visit: r.last_visit, collections: r.collections } })),
+    features: list.map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [r.lng, r.lat] }, properties: { name: r.name, category: r.category, address: r.address, note: r.note, saved: r.saved, visited: r.visited, visits: r.visits, last_visit: r.last_visit, spent: r.spent === '' ? null : Number(r.spent), ownership: r.ownership, collections: r.collections } })),
   }, null, 2);
 
   // A spreadsheet runs a cell that starts with = + - or @ as a formula, so those get a leading apostrophe.
   const cell = v => { let s = Array.isArray(v) ? v.join('; ') : String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const COLS = ['name', 'category', 'lat', 'lng', 'address', 'note', 'saved', 'visited', 'visits', 'last_visit', 'collections'];
+  const COLS = ['name', 'category', 'lat', 'lng', 'address', 'note', 'saved', 'visited', 'visits', 'last_visit', 'spent', 'ownership', 'collections'];
   const csv = list => [COLS.join(','), ...list.map(r => COLS.map(c => cell(r[c])).join(','))].join('\r\n') + '\r\n';
 
   const xml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));

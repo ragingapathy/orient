@@ -63,9 +63,9 @@ window.OrientVisits=(()=>{
   function clear(id){const s=api.store();delete log()[id];s.visited=s.visited.filter(v=>v!==id);api.save();api.render();}
   const nameOf=id=>api.places().find(p=>p.id===id)?.name||'this place';
 
-  function undoToast(message){
+  function undoToast(message,extra=''){
     const t=document.querySelector('#toast');if(!t)return;
-    t.innerHTML=esc(message)+' <button type="button" class="toast-undo" data-action="visit-undo">Undo</button>';
+    t.innerHTML=esc(message)+' <button type="button" class="toast-undo" data-action="visit-undo">Undo</button>'+extra;
     t.hidden=false;clearTimeout(undoTimer);undoTimer=setTimeout(()=>{t.hidden=true;},6000);
   }
   // The one-tap "I went again": a visit now. Two taps within 20 seconds count once.
@@ -77,7 +77,7 @@ window.OrientVisits=(()=>{
     lastLogged={id,at,t:Date.now()};
     api.save();api.render();
     const recent=inWindow(id,14);
-    undoToast(`${nameOf(id)}: visit ${n} logged${recent>1?` · ${recent} in the last 14 days`:''}.`);
+    undoToast(`${nameOf(id)}: visit ${n} logged${recent>1?` · ${recent} in the last 14 days`:''}.`,window.OrientSpend?' <button type="button" class="toast-action" data-action="spend-from-toast">Add spend</button>':'');
   }
   function undo(){
     if(!lastLogged)return;
