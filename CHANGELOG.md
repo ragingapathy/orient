@@ -1,5 +1,17 @@
 # Orient Changelog
 
+## 2026-10-11 — v0.8.0: Orient knows its city, and your money
+
+Since v0.7.0 Orient has grown from a private map into something that reads the city around you. The details are in the dated entries below; in short:
+
+- **One design language.** Every panel, dialog, the field kit, the calendar and Gidgit share a single look; Your map so far (a stats drawer) and private Collections arrived with it.
+- **Names and hovers on the map**, automatic **backups**, **cross-device sync**, and open-format export (GeoJSON, CSV, GPX).
+- **Weather** in the header, a report with history and climate, weather on the map, and weather in what Orient recommends.
+- **The Civic tab:** live road work and closures, incidents, traffic cameras, mapped license plate readers, air quality and Wi-Fi, fed by a scheduled public data pipeline.
+- **A place commons** you can share into and follow, with a maintainer template and the Toledo commons.
+- **An installable, offline-capable app** (PWA).
+- **Spending:** write down what you spend, mark places local or chain, and see where your money goes.
+
 ## 2026-10-11 — Where your money goes
 
 - **Spending, on the place card.** Expand a place and open **Spending**: write down what you spent and on which day, and Orient keeps the total, the average and the last day for that place. It stays private on your device (and your own sync), like visits.
