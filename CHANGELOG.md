@@ -1,5 +1,9 @@
 # Orient Changelog
 
+## 2026-10-11 — The road-work button is gone from the map
+
+- The construction-cone button (with its red dot) no longer sits among the map controls. Closures and construction are still one tap away: the line on Today opens the list, and the Civic tab has the road work card and the Closures view in Explore. The switch in the field kit still turns road work on or off.
+
 ## 2026-10-11 — v0.8.0: Orient knows its city, and your money
 
 Since v0.7.0 Orient has grown from a private map into something that reads the city around you. The details are in the dated entries below; in short:

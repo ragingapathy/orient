@@ -1,6 +1,4 @@
 /* Road work: the map button, the line in Today, and the list. */
-#roadwork-tool{position:relative}
-.rw-dot{position:absolute;top:5px;right:5px;width:10px;height:10px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 2px var(--surface)}
 
 .roadwork-strip{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 16px;padding:11px 14px;border:1px solid var(--line);border-left:5px solid #e08a2c;border-radius:var(--r-md);background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background .15s,box-shadow .15s}
 .roadwork-strip[data-tone=closed]{border-left-color:#c0392b}

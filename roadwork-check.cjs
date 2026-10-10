@@ -24,13 +24,21 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
       await page.goto(URL_); await page.waitForFunction(() => window.OrientRoadwork && document.querySelector('.map-marker'), null, { timeout: 30000 });
       return page;
     };
-    const tool = p => p.locator('#roadwork-tool');
+    // There is no road-work button among the map controls any more (the list opens from the Today line and the Civic tab). `tool` is
+    // a stand-in: "loaded" is the map layer existing, and click() makes the same request the Today line makes.
+    const tool = p => ({
+      waitFor: () => p.waitForFunction(() => OrientRoadwork.mapLayers()),
+      count: async () => ((await p.evaluate(() => OrientRoadwork.mapLayers())) ? 1 : 0),
+      click: () => p.evaluate(() => { const b = document.createElement('button'); b.dataset.roadwork = 'open'; document.body.append(b); b.click(); b.remove(); }),
+    });
     // The map buttons only show while browsing the map, so the tests that tap one browse first.
     const browse = async p => { await p.waitForSelector('[data-action=explore-map]', { state: 'attached' }); await p.evaluate(() => document.querySelector('[data-action=explore-map]').click()); await tool(p).waitFor(); };
 
-    await t('a closure shows up as a button with a dot, and the list says how many are closed nearby', async () => {
-      const p = await open(); await tool(p).waitFor({ state: 'attached' });
-      assert.equal(await tool(p).locator('.rw-dot').count(), 1); assert.match(await tool(p).getAttribute('aria-label'), /Road work and closures: 2 closed nearby/);
+    await t('there is no road-work button among the map controls, and nothing errors', async () => {
+      const p = await open(); await tool(p).waitFor();
+      assert.equal(await p.locator('#roadwork-tool').count(), 0); assert.equal(await p.locator('#tools [data-roadwork]').count(), 0);
+      await p.evaluate(() => { const b = document.createElement('button'); b.id = 'roadwork-tool'; document.querySelector('#tools').prepend(b); OrientRoadwork.refresh(true); });
+      await p.waitForTimeout(400); assert.equal(await p.locator('#roadwork-tool').count(), 0, 'a leftover button from an older version is cleared');
       assert.deepEqual(p.errors, []);
     });
     await t('only valid items are drawn, as lines with a marker at each start', async () => {
@@ -64,7 +72,6 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
         { ...base, id: 'ohgo:other', status: 'restricted', roads: ['US 23', 'N MAIN ST'], direction: 'eastbound', description: 'Right lane closed', geometry: [[-83.6, 41.7], [-83.59, 41.7]] },
       ];
       const p = await open({ file }); await tool(p).waitFor({ state: 'attached' }); await p.waitForFunction(() => OrientRoadwork.mapLayers());
-      assert.match(await tool(p).getAttribute('aria-label'), /1 closed nearby/, 'one road closed, not two');
       assert.equal((await p.evaluate(() => OrientRoadwork.mapLayers())).features, 6, 'the map still draws every direction');
       await browse(p); await tool(p).click(); const d = p.locator('#roadwork-dialog'); await d.locator('.rw-card').first().waitFor();
       assert.equal(await d.locator('.rw-card').count(), 2); assert.deepEqual(await d.locator('.rw-tiles .ui-tile b').allInnerTexts(), ['1', '1', '0']);
@@ -94,7 +101,7 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
       const p = await open({ file: roadwork({ ageMinutes: 300 }) }); await browse(p); await tool(p).click();
       assert.match(await p.locator('#roadwork-dialog .rw-warn').innerText(), /5 hours old and may be out of date/);
     });
-    await t('the field kit switch removes the layer and the button, asks for nothing more, and is remembered', async () => {
+    await t('the field kit switch removes the layer, asks for nothing more, and is remembered', async () => {
       const p = await open(); await tool(p).waitFor({ state: 'attached' }); await p.waitForFunction(() => OrientRoadwork.mapLayers());
       await p.click('[data-action="settings"]'); const box = p.locator('#roadwork-toggle'); assert.equal(await box.isChecked(), true);
       await box.uncheck(); await p.waitForTimeout(300);
@@ -111,7 +118,7 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
       await p.reload(); await p.waitForFunction(() => window.OrientRoadwork); await tool(p).waitFor({ state: 'attached' }); assert.equal(p.log.length, first, 'no second request within ten minutes');
       const cached = await p.evaluate(() => localStorage.getItem('orient-roadwork-cache-v1'));
       const q = await open({ fail: true, cache: { ...JSON.parse(cached), at: Date.now() - 3600e3 } }); await q.waitForTimeout(300); await q.evaluate(() => OrientRoadwork.refresh(true)); await q.waitForTimeout(500); await tool(q).waitFor({ state: 'attached' });
-      const lone = await open({ fail: true }); await lone.waitForTimeout(800); assert.equal(await tool(lone).count(), 0, 'with nothing cached and no connection there is no button, and no error'); assert.deepEqual(lone.errors, []);
+      const lone = await open({ fail: true }); await lone.waitForTimeout(800); assert.equal(await tool(lone).count(), 0, 'with nothing cached and no connection there is no layer, and no error'); assert.deepEqual(lone.errors, []);
     });
     await t('an area with no road-work source asks for nothing and says so', async () => {
       const p = await open({ store: baseStore({ name: 'Chicago', coordinates: [-87.63, 41.88], timeZone: 'America/Chicago' }) }); await p.waitForTimeout(600);
@@ -123,10 +130,9 @@ const baseStore = (home = { name: 'Toledo', coordinates: [-83.539, 41.655], time
       const r = await p.evaluate(file => [OrientRoadwork.validate(null), OrientRoadwork.validate({}), OrientRoadwork.validate({ ...file, version: 2 }), OrientRoadwork.validate({ ...file, format: 'other' }), OrientRoadwork.validate({ format: 'orient-roadwork', version: 1, items: 'no' }), OrientRoadwork.validate(file).items.length], roadwork());
       assert.deepEqual(r, [null, null, null, null, null, 7]);
     });
-    await t('on a phone the button, the Today line and the list fit the screen', async () => {
+    await t('on a phone the Today line and the list fit the screen', async () => {
       const p = await open({ viewport: { width: 390, height: 844 } }); await tool(p).waitFor({ state: 'attached' }); await browse(p);
       const fits = () => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('dialog[open]')].every(d => d.scrollWidth <= d.clientWidth + 1));
-      const box = await tool(p).boundingBox(); assert.ok(box.x >= 0 && box.x + box.width <= 390 && box.width >= 36);
       await tool(p).click(); await p.locator('#roadwork-dialog .rw-card').first().waitFor(); await p.waitForTimeout(300); assert.equal(await fits(), true, 'the list fits'); assert.deepEqual(p.errors, []);
     });
     console.log('PASS: ' + n + ' road-work cases');

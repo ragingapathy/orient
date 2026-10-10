@@ -122,13 +122,9 @@ window.OrientRoadwork = (() => {
     return c;
   };
   function setTool() {
-    const tools = document.getElementById('tools'); let b = document.getElementById('roadwork-tool');
-    if (!data || !shownNow()) { b && b.remove(); return; }
-    if (!b) { b = document.createElement('button'); b.id = 'roadwork-tool'; b.type = 'button'; b.className = 'icon-button'; b.dataset.roadwork = 'open'; tools && tools.prepend(b); }
-    const c = counts();
-    b.innerHTML = '<i data-lucide="construction" aria-hidden="true"></i>' + (c.closed ? '<span class="rw-dot" aria-hidden="true"></span>' : '');
-    b.setAttribute('aria-label', 'Road work and closures' + (c.closed ? ': ' + c.closed + ' closed nearby' : ''));
-    try { window.lucide && window.lucide.createIcons(); } catch { /* decoration */ }
+    // There is no road-work button among the map controls any more: the list opens from the Today line and the Civic tab.
+    // This only clears the button an older version of the app may have left in the page.
+    const b = document.getElementById('roadwork-tool'); if (b) b.remove();
   }
   function dressToday() {
     const panel = document.getElementById('panel'); if (!panel) return;
