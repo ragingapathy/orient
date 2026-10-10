@@ -158,6 +158,7 @@
     OrientCircuits.syncMap(map,!!state.circuitMap&&state.tab==='My Map'&&!state.list);
     OrientJourney.syncMarkers(map,state.tab==='My Map'&&!state.list&&!state.collectionId);
     OrientNeighbors.syncMarkers(map,state.tab==='My Map'&&!state.list&&!state.collectionId,state.query);
+    OrientClusters.update();
     OrientMapLabels.refresh();
     updateFog();
   }
@@ -437,8 +438,9 @@
   OrientRoadwork.init({origin:()=>state.origin,map:()=>map});
   OrientWeather.init({origin:()=>state.origin,label:()=>state.originLabel||store.home?.name||'',render:()=>render()});
   OrientBoard.init({origin:()=>state.origin,map:()=>map,tab:()=>state.tab,label:()=>state.originLabel||store.home?.name||'',render:()=>render()});
-  OrientMapLabels.init({map:()=>map,markers:()=>markers,selected:()=>state.selected,priority:id=>(id===state.selected?1000:0)+(store.visited.includes(id)?120:store.saved.includes(id)?100:isMarked(id)?50:10)+(store.ratings?.[id]||0),info:id=>{const p=placeById(id);if(!p)return null;const o=opening(p);return {name:p.name,kind:p.kind,address:p.address||'',status:/^(Open|Closed)/.test(o?.label||'')?o.label:'',visits:OrientVisits.line(id),saved:store.saved.includes(id)};}});
+  OrientMapLabels.init({map:()=>map,markers:()=>markers,clusters:()=>OrientClusters.points(),selected:()=>state.selected,priority:id=>(id===state.selected?1000:0)+(store.visited.includes(id)?120:store.saved.includes(id)?100:isMarked(id)?50:10)+(store.ratings?.[id]||0),info:id=>{const p=placeById(id);if(!p)return null;const o=opening(p);return {name:p.name,kind:p.kind,address:p.address||'',status:/^(Open|Closed)/.test(o?.label||'')?o.label:'',visits:OrientVisits.line(id),saved:store.saved.includes(id)};}});
   OrientVisits.init({store:()=>store,places:allPlaces,save,render,keepOsm,hasHeatLayer:()=>!!map?.getLayer?.('orient-heat')});
+  OrientClusters.init({map:()=>map,markers:()=>markers,selected:()=>state.selected,priority:id=>(id===state.selected?1000:0)+(store.visited.includes(id)?120:store.saved.includes(id)?100:isMarked(id)?50:10)+(store.ratings?.[id]||0),info:id=>{const p=placeById(id);return p?{name:p.name,kind:p.kind}:null;},select:id=>selectPlace(id)});
   OrientIcons.init({store:()=>store,places:allPlaces,save,render,keepOsm});
   OrientSpend.init({store:()=>store,places:allPlaces,save,render,keepOsm,selected:()=>state.selected});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.filter='Everything';state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});

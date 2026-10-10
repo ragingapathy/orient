@@ -19,7 +19,7 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
   try {
     const open = async (store, opts = {}, routes) => {
       const ctx = await browser.newContext({ viewport: { width: 1200, height: 860 }, ...opts });
-      await ctx.addInitScript(s => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); } }, store);
+      await ctx.addInitScript(s => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-clusters-v1', '{"on":false}'); localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); } }, store);
       const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message)); page.errors = errors; page.setDefaultTimeout(8000);
       await page.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' }));
       if (routes) await routes(page);

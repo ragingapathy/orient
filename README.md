@@ -1,30 +1,48 @@
 # Orient
 
-**Get to know your city. Help someone else feel at home in theirs.**
+**A map for getting to know your city. Yours to fill in, and yours to share if you'd like.**
 
 ![Orient showing the Toledo map with its Today briefing, outing suggestions, and nearby specials.](docs/images/orient-today-toledo.png)
 
-Orient began in Toledo, Ohio, with a personal question: *How can a map nudge me to leave the house and explore?*
+Orient began in Toledo, Ohio, with a small question: *what would make me leave the house and explore?*
 
-A comic shop I keep meaning to visit. Coffee before the thrift store. A quiet bench by the river. Somewhere I can walk into alone and feel comfortable. The useful parts of a city often come from trying a place, talking to someone, and remembering one small thing.
+A comic shop I keep meaning to visit. Coffee before the thrift store. A quiet bench by the river. Somewhere I can walk into alone and feel comfortable. The useful parts of a city usually come from trying a place, talking to someone, and remembering one small thing about it.
 
-Orient gives those things a home: a private map that becomes more familiar as you use it. Now it also has a way to share the knowledge you choose to contribute, through a place commons carried by GitHub.
+Orient is a place to keep those things: a private map that gets more familiar the more you use it. And if you want to, you can leave a small note that makes it easier for a stranger to go somewhere new.
 
-**There is a reason to join now. Try it where you live. Bring a little local knowledge. Help us build what comes next.**
+You don't have to live in Toledo, and you don't have to write code. If you're curious about your own city, you're who this is for.
+
+## Come and try it
+
+You need Node.js 18 or later. There's nothing to install and no build step.
+
+```sh
+git clone https://github.com/ragingapathy/orient.git
+cd orient
+node server.cjs
+```
+
+Open [localhost:4173](http://127.0.0.1:4173), pick your city, and add one place you know or want to try. That's the whole start. Everything else shows up as you go.
+
+Prefer a phone? Orient installs like an app (Share → Add to Home Screen, or your browser's install button) and keeps working without a connection. Docker, pairing a phone, backups and the rest of the setup are in the [user guide](docs/user-guide.md).
+
+## What it's like
+
+- **A little direction, not a lecture.** Open Explore and get a short briefing: today's weather, specials, what's open nearby, and places you saved but haven't tried yet. Ask for "a little outing" when you want a nudge, or keep the map in view when you don't.
+- **A map that remembers.** Save places, tap a check each time you go, add a photo and a note, rate them, sort them into collections, plan a small circuit for Sunday. The fog lifts as you explore. Pick your own icon for any place.
+- **Your city, right now.** Weather, road closures and construction, traffic cameras and incidents, so you know what's in the way before you head out.
+- **Where your money goes.** Write down what you spend, mark places as local or a chain, and see how much of it stays in your community. It's a private number, and only you see it.
+- **Places that tell you things.** Orient can read the information a business publishes about itself (hours, address, links) and hold it up for you to check before it goes on your map.
+- **Take it somewhere else.** Tap the city beside search to explore a neighboring town. Home stays home.
+- **Ask Gidgit, if you like.** An optional AI companion that answers questions about your saved map, running on your own computer by default. It stays hidden unless you turn it on.
+
+There's no account. Your map lives in your browser, and can sync privately to the computer running Orient so your phone and laptop agree.
 
 ## Your map stays yours
 
-Start in your own city. Save places, add notes and photos, remember visits, make a small circuit for Sunday, or find a reason to get out today. Fog gives way as you mark your map. Open now lights up places with recognized opening hours.
+Everything above is private by default: places, notes, photos, visits, spending, the people you remember. Nothing leaves your device unless you export it or choose to share a note. The neighbor guide never goes anywhere at all.
 
-- **Explore with a little direction.** A compact daily briefing surfaces specials, nearby service hours, and places you’ve saved but haven’t tried. Expand it when you want a nudge; keep the map in view when you don’t.
-- **Take your map somewhere else.** Tap the city beside search to explore Detroit, Ann Arbor, Cleveland, or your own destination. Recent areas remember their map positions. Home stays home.
-- **Remember what matters to you.** Private collections, personal categories, ratings, notes, photos, recurring events, and circuits make the map useful on your terms. Add a photo and a note without filling out a business profile.
-- **Use the information a place publishes.** Address lookup and a reviewed website reader help fill in hours, contact details, social links, and readable calendar data.
-- **Ask for help if you want it.** Gidgit is an optional local AI companion for questions about your saved map and reviewed detail updates. It stays hidden when disabled and uses local Ollama, with no cloud fallback.
-
-No account is needed. Your map is stored in your browser, with private sync to the computer running Orient for paired devices. Public contributions use a separate, explicit flow.
-
-## The place commons
+## A shared layer, if you want one
 
 A map can tell you where something is. A small observation can make it easier to go:
 
@@ -34,82 +52,38 @@ A map can tell you where something is. A small observation can make it easier to
 >
 > “This stretch of the river is quiet.”
 
-In Orient, choose **Share this note** on a place, trim the part you want to contribute, and tick the consent box. Orient shows what will be shared in plain words, then opens GitHub’s own new-file page with the contribution filled in; you sign in as yourself and press **Propose new file** and **Create pull request**. No token and no account linking are needed. The original note stays private and unchanged. Each shared claim carries a type, observation date, source identity, and optional credit, and places are anchored by latitude and longitude, with no OSM identity requirement.
+Orient has a **place commons** for notes like these. Choose **Share this note** on a place, trim it to the part you want to give, and tick the consent box. Orient shows you exactly what will be shared, in plain words, then opens GitHub's own new-file page with it filled in. You sign in as yourself, and nothing is posted until you press the button.
 
-Anyone can host a commons: [`commons-template/`](commons-template/README.md) is a repository you copy, with a check on every contribution and a snapshot that rebuilds when you merge. The first one is [Toledo commons](https://github.com/ragingapathy/toledo-commons).
+Someone else can load a commons, read the claims one by one, and decide which belong on their map. Nearby coordinates suggest matches, and they choose whether to link an existing place or add a new one. Shared notes stay tucked in a fold, labeled with who said them and when, so a note from last year doesn't pose as today's truth.
 
-Someone else can load that bundle, review individual claims, and decide what belongs on their map. Nearby coordinates suggest matches; the person importing chooses whether to link an existing place or create a new one. Shared observations sit in a compact fold with attribution, separate from private notes.
+Anyone can start a commons for their own city. [`commons-template/`](commons-template/README.md) is a repository you copy, with a check on every contribution and a snapshot that rebuilds when you merge one. The first is [Toledo commons](https://github.com/ragingapathy/toledo-commons). Two people can run commons for the same city, and a third can combine them; each keeps its own name on its own notes.
 
-**The neighbor guide never participates.** People fields, visit histories, saved lists, photos, circuits, and calendar data are excluded from public bundles. The contributor reviews the chosen text for personal information before sharing it.
+People fields, visit histories, saved lists, photos, circuits, spending and calendar data are never part of a public bundle. **Want to see how it works?** Read the [commons guide](commons/README.md), open the [fictional example bundle](commons/examples/toledo.snapshot.json), or look at the [public schema](commons/schema/).
 
-### Multiple commons, even in the same city
+## Come build it with us
 
-You can maintain a Toledo commons. Someone else can maintain another Toledo commons. A third person can combine contributions from both while preserving their original source identities. A source ID records provenance; it grants no ownership of a city.
+This is a small, honest prototype with plenty of room for other people's ideas. There's no experience required and no wrong way to start.
 
-GitHub carries reviewed JSON snapshots, pull requests, forks, and history. Orient provides the interface for reviewing and combining them. The first working loop supports file import/export and public GitHub snapshot loading. Publishing is explicitly triggered in Orient, which creates the branch, contribution file, and pull request. Nothing pulls or uploads in the background.
+- **Just use it.** Take Orient on a real outing and tell us what happened: where it helped you leave the house, where it got in the way, what you wished it knew. That's the most useful thing anyone can give us.
+- **Start a commons for your city.** A few good observations, carefully kept, is a fine beginning. Review someone else's if you'd rather start there.
+- **Make it kinder to use.** Clearer words, better small-screen layouts, accessibility, a nicer first minute. If something confused you, it confuses others.
+- **Bring your own sense of what makes a place welcoming.** It's different for different people, and we'd like to ask better questions about it.
+- **Build something.** Better commons review, an easier path to GitHub, more reliable hours parsing, smarter ways to turn a saved place into an actual outing. Or something we haven't thought of.
 
-**Try the loop:** [commons guide](commons/README.md) · [fictional example bundle](commons/examples/toledo.snapshot.json) · [public schemas](commons/schema/)
+[Open an issue](https://github.com/ragingapathy/orient/issues) with an idea, a bug, or something you noticed. If you'd like to change something, fork the repo and open a pull request that says what it helps someone do. For a bigger change, start with an issue so we can shape it together. Please use made-up places and notes in examples, and keep personal exports and local catalogs out of commits.
 
-## Run it in your city
-
-You need Node.js 18 or later. There are no app dependencies to install and no build step.
-
-```sh
-git clone https://github.com/ragingapathy/orient.git
-cd orient
-node server.cjs
-```
-
-Open [localhost:4173](http://127.0.0.1:4173), choose your home city, and add a place you know or want to try. A fresh map does not load the author’s private Toledo catalog.
-
-For commons import, open **Field kit → Place commons**. To contribute, expand a place’s **People & notes → Share this note**. Enter the destination commons repository once (a pasted GitHub link works) and press **Open on GitHub to finish**. **Copy the file** and **Download the file** are alternatives, and publishing straight from Orient with a GitHub token remains under **Other ways to share**.
-
-Docker, phone pairing, backups, Google Maps imports, local AI setup, and the fuller feature reference are in the [user guide](docs/user-guide.md). Development history is in the [changelog](CHANGELOG.md).
-
-## Come build with us
-
-This is a working prototype with room for other people’s ideas and judgment. You don’t need to be in Toledo, and you don’t need to write code to help shape it.
-
-- **Try a real outing.** Tell us where Orient helped you leave the house, where it got in the way, and what you needed that it didn’t know.
-- **Start a local commons.** Contribute a few useful observations, review someone else’s, or maintain a snapshot for your city. A small, cared-for collection is a good beginning.
-- **Make the interface better.** Help with mobile interactions, accessibility, clearer language, and making useful information fit a small screen.
-- **Build the next piece.** Better commons review and merging, easier GitHub contributions, more reliable hours parsing, and thoughtful ways to turn saved places into actual outings are all welcome directions.
-- **Bring a different perspective.** What makes a place approachable depends on the person. Help us ask better questions and represent observations with enough context to be useful.
-
-[Open an issue](https://github.com/ragingapathy/orient/issues) with an idea, a bug, or something you learned using it. For a change, fork the repo and open a pull request explaining what it helps someone do. For a larger change, start with an issue so we can work through the shape together. Use fictional places and notes in examples; keep personal exports and local catalogs out of commits.
-
-The app is plain JavaScript and CSS in `public/`, with a small Node server in `server.cjs`. No framework or compilation pipeline stands between you and an experiment. The commons protocol and UI live in `public/commons-data.js` and `public/commons.js`; the format and contribution workflow are documented in [commons/README.md](commons/README.md).
-
-Run `npm test` for every check (`node run-checks.cjs spend icons` for just some, `--list` to see them): it starts a test server of its own, so your map is never touched. `npm run check` is the quick syntax pass. Browser checks use Playwright and Chrome; see the [user guide](docs/user-guide.md#checks) for setup and limitations.
+The app is plain JavaScript and CSS in `public/`, with a small Node server in `server.cjs`. No framework or build pipeline stands between you and an experiment. `npm test` runs every check against a test server of its own (your map is never touched; `node run-checks.cjs spend icons` runs just some), and `npm run check` is the quick syntax pass. The checks use Playwright and Chrome; the [user guide](docs/user-guide.md#checks) has the details.
 
 ## Where things stand
 
-The private map and reviewed commons loop work today. The project is early, interfaces are evolving, and setup is still aimed at people comfortable running a small server. Source identities are attribution, not verified authorship. Observations can age; dates, sources, and contested or retired status help keep that visible.
+The private map and the reviewed commons loop both work today. It's early: interfaces change, and setup is still aimed at people comfortable running a small server. A commons source name is attribution, not proof of who wrote something, and observations age, so dates, sources and retired notes stay visible.
 
-GitHub publishing is available after one-time connection in Orient. This self-hosted version connects with an access token stored encrypted on the Orient computer; a GitHub sign-in flow without token setup remains future work. There is no hosted multi-user service or background contribution pipeline.
+Publishing to GitHub works after a one-time connection in Orient. This self-hosted version stores an access token, encrypted, on the computer running Orient; signing in with GitHub directly, without a token, is still to come. There's no hosted multi-user service.
 
 ## License and credits
 
-Orient’s application code is licensed under [PolyForm Noncommercial 1.0.0](LICENSE). Contributions to the place commons use **CC BY 4.0**, as declared in each public bundle. These are separate licenses; contributing an observation does not make your private map public.
+Orient's code is under the [PolyForm Noncommercial 1.0.0](LICENSE) license. Notes shared to a place commons are **CC BY 4.0**, as each public bundle says. They are separate licenses, and sharing a note doesn't make your private map public.
 
-Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; basemap by [OpenFreeMap](https://openfreemap.org/). Vendored libraries and fonts retain their own licenses. See the [user guide](docs/user-guide.md#credits-and-license) and `public/vendor/` for credits.
+Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors; basemap by [OpenFreeMap](https://openfreemap.org/). Vendored libraries and fonts keep their own licenses; see the [user guide](docs/user-guide.md#credits-and-license) and `public/vendor/`.
 
 **Start with one place. Make it easier for someone to go. Build from there.**
-
-### Optional Groq for Gidgit
-
-Choose Groq in Field kit → Gidgit settings after configuring the server. Groq receives only the question you type, never your saved map records or selected-place identity. Anything written into the question itself is sent. Matching, hours checks and edit review stay in Orient. There is no automatic cloud fallback.
-
-Set `GROQ_API_KEY` in the server environment. For Docker Compose, put `GROQ_API_KEY=your-key` in a local `.env` file (ignored by Git), then run `docker compose up -d --force-recreate orient` to apply it. Do not put keys in browser code, map exports, or commits. Native Node deployments must supply the environment variable themselves; Node does not automatically read `.env` here.
-
-The initial model is `openai/gpt-oss-20b`. Free-tier quota failures produce a readable message without switching providers. A selected provider is saved per browser. Cloud edits resolve an explicitly named place locally, or use the selected context when no name is supplied, and always require review before saving.
-
-### Useful nearby and gas reports
-
-The accessibility icon in the header opens Useful nearby: Toledo park amenities, preliminary regional AirNow observations, and weekly EIA fuel averages. This uses the chosen area, never GPS. Toledo pins identify the park containing an amenity, not its precise fixture. Access and seasonal availability may differ. Outside Toledo, amenities require another supported source; empty results are not a claim that none exist.
-
-AirNow is fetched from its public reporting-area file, and EIA averages from its official public RSS feed. Users need no API keys. Ohio is explicitly labeled statewide; selected Midwest areas use the regional average. Other areas can configure an appropriate civic publisher. Sources are cached, timestamped, and expired rather than presented as current forever.
-
-A Gas station category gives a place a fuel-report card. Record grade, USD per US gallon, price conditions and observation time. Reports persist with map exports and paired sync. They stay private until Share opens a reviewed commons contribution. Reports are observations, not guaranteed current prices; they are never silently averaged into a city statistic.
-
-City publishers can use `commons-template/civic.config.json` and the Civic data workflow. See [civic data setup](commons-template/CIVIC-DATA.md). Public AirNow publication requires completing its Data Exchange Guidelines requirements; the workflow refuses publication until acknowledged. Toledo park republication remains excluded pending reuse terms. No civic feed is published by merely viewing it in Orient.

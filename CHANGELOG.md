@@ -1,5 +1,12 @@
 # Orient Changelog
 
+## 2026-10-11 — Crowded pins fold into one button
+
+- **Pin clustering.** Pins that would sit on top of each other (downtown, mostly) are drawn as one round button with a count. Tap it to zoom in and pull them apart. Places at exactly the same spot can't be separated by zooming, so tapping their button opens a small list of them instead; pick one to open it.
+- The place you have open is never folded into a group, a folded pin gives up its name so no label floats over a button, and the buttons work from the keyboard (Enter opens, Escape closes the list).
+- It only changes what is drawn; your map and your data are untouched. New check `clusters-check.cjs` (8 cases).
+- **README rewritten** to be an invitation: what Orient is like, how to try it, and how to join in. Setup details that lived at the bottom (Groq, civic data) moved to the user guide.
+
 ## 2026-10-11 — The checks are green again
 
 - **All 78 checks pass.** Twenty had gone stale as the app grew (the daily briefing, the add menu, the list toggle, a card that no longer opens on its own). They now reach each screen the way the app does, through a small shared `check-helpers.cjs`. A few that leaned on the private place catalog skip themselves in a clean copy instead of failing.

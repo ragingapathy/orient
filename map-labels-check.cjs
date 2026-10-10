@@ -16,7 +16,7 @@ const seed = { version: 1, home: { name: 'Toledo', coordinates: C, timeZone: 'Am
     const open = async (opts = {}) => {
       const ctx = await browser.newContext({ viewport: { width: 1100, height: 800 }, ...opts });
       await ctx.addInitScript(s => {
-        if (!sessionStorage.seeded) { sessionStorage.seeded = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); }
+        if (!sessionStorage.seeded) { sessionStorage.seeded = '1'; localStorage.setItem('orient-clusters-v1', '{"on":false}'); localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); }
         let real; Object.defineProperty(window, 'maplibregl', { configurable: true, get() { return real; }, set(v) { real = v; const Orig = v.Map; v.Map = class extends Orig { constructor(...a) { super(...a); window.__m = this; } }; } });
       }, seed);
       const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message)); page.errors = errors;

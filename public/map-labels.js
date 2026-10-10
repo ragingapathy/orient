@@ -20,13 +20,14 @@ window.OrientMapLabels = (() => {
     hook(map);
     const selected = api.selected(), zoomedIn = map.getZoom() >= MIN_ZOOM, items = [];
     for (const [id, marker] of api.markers()) {
-      const el = marker.getElement(), label = el.querySelector('.pin-label'); if (!label) continue;
+      const el = marker.getElement(), label = el.querySelector('.pin-label'); if (!label || el.classList.contains('clustered')) continue;
       items.push({ id, el, label, at: map.project(marker.getLngLat()), priority: api.priority(id) });
     }
     if (!zoomedIn) { for (const it of items) it.label.classList.toggle('on', it.id === selected); return; }
     // measure first, then write, so the browser lays out once
     for (const it of items) it.w = it.label.offsetWidth || 90;
     const pins = items.map(it => ({ id: it.id, l: it.at.x - 22, r: it.at.x + 22, t: it.at.y - 22, b: it.at.y + 22 }));
+    for (const c of (api.clusters ? api.clusters() : [])) pins.push({ id: '(cluster)', l: c.x - 26, r: c.x + 26, t: c.y - 26, b: c.y + 26 });
     const taken = [];
     items.sort((a, b) => b.priority - a.priority || a.label.textContent.localeCompare(b.label.textContent));
     for (const it of items) {
