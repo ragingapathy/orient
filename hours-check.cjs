@@ -17,4 +17,24 @@ assert.equal(H.parse('8AM-2AM Daily').normalized,H.parse('Mo-Su 08:00-02:00').no
 assert.equal(at('8AM-2AM Daily','2026-10-10T05:59:00Z'),'open');assert.equal(at('8AM-2AM Daily','2026-10-10T06:00:00Z'),'closed');assert.equal(at('8AM-2AM Daily','2026-10-10T11:59:00Z'),'closed');assert.equal(at('8AM-2AM Daily','2026-10-10T12:00:00Z'),'open');
 assert.equal(at('11AM - 8PM DAILY','2026-10-09T15:00:00Z'),'open');assert.equal(at('11AM - 8PM DAILY','2026-10-10T00:00:00Z'),'closed');
 assert.equal(H.parse('9-5 Daily').valid,false);assert.equal(H.parse('8AM-2AM Daily except holidays').valid,false);
+// Format families must produce the same weekly data, not merely parse without errors.
+const dragon="Friday 7\u202fAM–10\u202fPM\nSaturday\t9\u202fAM–10\u202fPM\nSunday\t9\u202fAM–6\u202fPM\nMonday7\u202fAM–10\u202fPM\nTuesday\t7\u202fAM–10\u202fPM\nWednesday\t7\u202fAM–10\u202fPM\nThursday\t7\u202fAM–10\u202fPM";
+assert.deepEqual(H.parse(dragon).week,H.parse('Mon-Fri 7am-10pm; Sat 9am-10pm; Sun 9am-6pm').week);
+assert.equal(at(dragon,'2026-10-09T23:00:00Z'),'open');assert.equal(at(dragon,'2026-10-10T02:00:00Z'),'closed');
+for(const [raw,expected] of [
+ ['Tue-Thu 12pm-10pm, Fri-Sat 12pm-12am, Sun 12pm-8pm','Tue-Thu 12pm-10pm; Fri-Sat 12pm-12am; Sun 12pm-8pm'],
+ ['Monday ~ Saturday, 9am to 5pm; Closed on Sundays','Mon-Sat 9am-5pm; Sun closed'],
+ ['CLOSED MONDAY AND TUESDAY','Mon,Tue closed'],
+ ['Mon & Wed 9am-noon and 2pm-5pm','Mon,Wed 9am-noon,2pm-5pm'],
+ ['Mon. 09:00-17:00','Mon 09:00-17:00'],
+ ['Store: Tuesday-Friday 9:30am-11:30am and 1pm-3pm','Tue-Fri 9:30am-11:30am,1pm-3pm'],
+ ['Opening hours:\nMonday\n7 AM–10 PM\nTuesday\nClosed','Mon 7am-10pm; Tue closed']
+])assert.deepEqual(H.parse(raw).week,H.parse(expected).week,raw);
+let variants=0;const fullDays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+for(const dash of ['-','–','—','−',' to ',' until '])for(const meridiem of [['am','pm'],['AM','PM'],['a.m.','p.m.'],['a. m.','p. m.']])for(const space of [' ','\u00a0','\u202f','\t'])for(const layout of ['inline','compact','table']){
+ const raw=fullDays.map(d=>d+(layout==='compact'?'':layout==='table'?'\n':space)+'9'+space+meridiem[0]+dash+'5'+space+meridiem[1]).join('\n'),parsed=H.parse(raw);
+ assert.equal(parsed.valid,true,raw);assert.deepEqual(parsed.week,H.parse('Daily 9am-5pm').week,raw);assert.equal(H.parse(parsed.normalized).normalized,parsed.normalized);variants++;
+}
+for(const raw of ['Mon 9am-5pm, Tue 9-5','Hours: Mon 9am-5pm; holiday hours differ','Mon 9am-5pm; Mon 10am-6pm','Monday\n(Columbus Day)\n9am-5pm\nHours might differ'])assert.equal(H.parse(raw).valid,false,raw);
+console.log('Format corpus: '+variants+' generated weekly layouts plus pasted-table, missing-space, punctuation, closed-day, split-shift and ambiguous-input regressions passed.');
 console.log('Hours: normalization, weekly ranges, split shifts, overnight rollover, exact closing, time zones/DST and conservative unknown handling passed.');

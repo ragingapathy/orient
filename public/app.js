@@ -8,7 +8,7 @@
   // Places come from catalog.local.js (yours, not committed) or catalog.sample.js (a few made-up examples).
   const demoPlaces = Array.isArray(window.ORIENT_CATALOG) ? window.ORIENT_CATALOG : [];
   const threads = [];
-  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee',Other:'map-pin'};
+  const kindIcons = {'Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'coffee','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Other:'map-pin'};
   const cleanCategory=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,'').trim().replace(/\s+/g,' ').slice(0,48):'';
   const categoryIcon=kind=>kindIcons[kind]||(/auto|mechanic|repair/i.test(kind)?'wrench':'map-pin');
   function cleanData(raw) {
@@ -29,7 +29,7 @@
   let store = {version:1,home:null,useCatalog:false,custom:[],osm:[],ratings:{},saved:[],visited:[],visitLog:{},heat:false,visitDays:14,drafts:{},details:{},events:[],showDemo:true,fog:true};
   let storageWorks = true;
   try { const raw = localStorage.getItem(KEY); if(raw) store = cleanData(JSON.parse(raw)); } catch { storageWorks=false; }
-  const state = {tab:'Explore',selected:window.ORIENT_DEFAULT_PLACE||demoPlaces[0]?.id||null,expanded:false,list:false,filter:'Everything',query:'',filters:false,thread:null,category:'All categories',relationship:'Any',happening:'Any time',radius:'Any distance',sort:'Nearby first',origin:store.home?.coordinates||[0,20],originLabel:store.home?.name||'your chosen area'};
+  const state = {tab:'Explore',selected:null,exploreHome:true,expanded:false,list:false,filter:'Everything',query:'',filters:false,thread:null,category:'All categories',relationship:'Any',happening:'Any time',radius:'Any distance',sort:'Nearby first',origin:store.home?.coordinates||[0,20],originLabel:store.home?.name||'your chosen area'};
   let map = null;
   const markers = new Map();
   let mapLoaded=false,toastTimer;
@@ -53,7 +53,7 @@
   const opening=p=>p.demo?{state:'unknown',label:'Demo hours'}:OrientHours.status(hoursFor(p),new Date(),OrientHome.timeZone());
   function visiblePlaces(){let list=allPlaces().filter(p=>(state.tab!=='My Map'||isMarked(p.id)||discoveries.has(p.id))&&(!state.query||`${p.name} ${p.kind} ${p.event||''} ${p.address} ${p.note||''} ${(p.specials||[]).map(s=>s.title).join(' ')}`.toLowerCase().includes(state.query))&&(state.filter!=='Specials'||p.specials?.length>0)&&((state.filter!=='Open now')||opening(p).state==='open')&&(state.filter!=='Free events'||p.eventPrice==='Free'));
     if(state.tab!=='Explore')return list;
-    let happening=null;if(state.happening!=='Any time'){const from=OrientCalendar.today(),to=state.happening==='Specials today'?from:OrientDates.fromNum(OrientDates.toNum(from)+6);happening=new Set(OrientCalendar.occurrences(OrientWebsite.allEvents(),from,to).filter(e=>state.happening!=='Specials today'||e.kind==='Special').map(e=>e.placeId));}
+    let happening=null;if(state.happening!=='Any time'){const from=OrientCalendar.today(),to=state.happening==='Specials today'?from:OrientDates.fromNum(OrientDates.toNum(from)+6);happening=new Set(OrientCalendar.occurrences(OrientWebsite.allEvents(),from,to).filter(e=>OrientCalendar.attendable(e)).filter(e=>state.happening!=='Specials today'||e.kind==='Special').map(e=>e.placeId));}
     list=list.filter(p=>(state.category==='All categories'||categoryOf(p)===state.category||p.kind===state.category)&&(state.relationship==='Any'||(state.relationship==='Unvisited'?!store.visited.includes(p.id):state.relationship==='Saved'?store.saved.includes(p.id):state.relationship==='Visited'?store.visited.includes(p.id):!!store.ratings?.[p.id]))&&(!happening||happening.has(p.id))&&(state.radius==='Any distance'||distanceMiles(p)<=parseFloat(state.radius)));
     return list.sort((a,b)=>state.sort==='Nearby first'?distanceMiles(a)-distanceMiles(b)||a.name.localeCompare(b.name):a.name.localeCompare(b.name));
   }
@@ -109,7 +109,7 @@
   }
   function selectPlace(id,{expand=false}={}) {
     if(!placeById(id))return;
-    state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.selected=id;state.expanded=expand;state.drawerStop=expand?2:0;state.list=false;state.thread=null;state.filters=false;
+    state.exploreHome=false;state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.selected=id;state.expanded=expand;state.drawerStop=expand?2:0;state.list=false;state.thread=null;state.filters=false;
     if(!['Explore','My Map'].includes(state.tab))state.tab='Explore';
     render();focusPlace(placeById(id));
   }
@@ -202,9 +202,11 @@
     }
   }
   function row(p){return `<button class="row" data-place="${escapeHTML(p.id)}"><span class="tile">${icon(p.icon)}</span><span class="row-copy"><strong>${escapeHTML(p.name)}</strong><small>${state.tab==='Explore'?distanceMiles(p).toFixed(1)+' mi · ':''}${escapeHTML(p.kind)}${p.specials?.length?' · '+p.specials.length+' specials':''}${store.ratings?.[p.id]?` · ★ ${store.ratings[p.id]}/5`:''} · ${store.visited.includes(p.id)?OrientVisits.rowLabel(p.id):store.saved.includes(p.id)?'Saved':p.demo?'Demo place':'Not yet saved'}</small></span>${icon('chevron-right')}</button>`;}
+  const exploreOverview=()=>state.tab==='Explore'&&state.exploreHome&&!state.selected&&!state.query&&!state.list&&state.filter==='Everything'&&!activeFilters().length;
   function renderPanel(visible) {
     if(state.tab==='My Map')visible=visible.filter(p=>isMarked(p.id));
     const panel=$('#panel');
+    if(exploreOverview()){panel.hidden=false;OrientToday.render(panel,'');panel.insertAdjacentHTML('afterbegin','<div class="explore-start-actions"><button class="button" data-action="explore-map">Browse the map</button><button class="button" data-action="explore-list">Explore as a list</button><button class="button start-add" data-action="add" aria-label="Add a place">+</button></div>');if(!visible.length&&store.home)panel.insertAdjacentHTML('beforeend','<button class="button primary full" data-action="discover-home">Look around the city center</button>');return;}
     panel.hidden=(state.filter==='Open now'&&!state.list&&['Explore','My Map'].includes(state.tab))||!!state.circuitMap||!!state.loreMap||!!state.neighborId||!state.list&&!state.thread&&['Explore','My Map'].includes(state.tab)&&visible.length>0;
     if(panel.hidden){panel.innerHTML='';return;}
     if(state.tab==='Today'){
@@ -229,14 +231,14 @@
     if(window.OrientHome)OrientHome.refresh();
     if(window.OrientGidgit)OrientGidgit.refresh();
     const visible=visiblePlaces();
-    if(!visible.some(p=>p.id===state.selected))state.selected=visible[0]?.id||null;
+    if(state.selected&&!visible.some(p=>p.id===state.selected))state.selected=null;
     const p=placeById(state.selected);
     document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===state.tab));
-    $('#context').textContent=state.tab==='My Map'?`${store.saved.length} SAVED · ${store.visited.length} VISITED · PRIVATE`:state.tab==='Today'?(store.home?.name||'YOUR CITY')+' · TODAY':state.tab==='Calendar'?(store.home?.name||'YOUR CITY')+' · CALENDAR':state.tab==='Community'?'TOLEDO · COMMUNITY':state.filter==='Everything'?(store.home?.name||'YOUR CITY')+' · DISCOVER':`${(store.home?.name||"YOUR CITY").toUpperCase()} · ${state.filter.toUpperCase()}`;
+    $('#context').textContent=state.tab==='My Map'?`${store.saved.length} SAVED · ${store.visited.length} VISITED · PRIVATE`:exploreOverview()?(store.home?.name||'YOUR CITY')+' · TODAY':state.tab==='Calendar'?(store.home?.name||'YOUR CITY')+' · CALENDAR':state.tab==='Community'?'TOLEDO · COMMUNITY':state.filter==='Everything'?(store.home?.name||'YOUR CITY')+' · DISCOVER':`${(store.home?.name||"YOUR CITY").toUpperCase()} · ${state.filter.toUpperCase()}`;
     const night=state.filter==='Open now';$('#open-map-legend').hidden=state.list||!night||!['Explore','My Map'].includes(state.tab);if(night){const unknown=allPlaces().filter(p=>opening(p).state==='unknown').length;$('#open-map-legend').textContent=visible.length+' open by listed hours · '+unknown+' with unknown hours · '+OrientHome.timeZone()+'. Holiday changes may differ.';}
     $('#journey-tool').hidden=state.tab!=='My Map';
     $('#circuits-tool').hidden=state.tab!=='My Map';
-    $('#tools').hidden=!['Explore','My Map'].includes(state.tab)||state.list;
+    $('#tools').hidden=exploreOverview()||!['Explore','My Map'].includes(state.tab)||state.list;
     $('#filters').hidden=!state.filters;
     document.querySelector('[data-action="filters"]').setAttribute('aria-expanded',state.filters);
     $('#filter-dot').hidden=state.filter==='Everything'&&!(state.tab==='Explore'&&activeFilters().length);
@@ -321,7 +323,7 @@
   }
   document.addEventListener('click',e=>{
     const b=e.target.closest('button,[data-action]');if(!b)return;
-    if(b.dataset.tab){state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.tab=b.dataset.tab;state.drawerStop=0;state.list=false;state.expanded=false;state.thread=null;state.filters=false;render();return;}
+    if(b.dataset.tab){if(['Explore','Today'].includes(b.dataset.tab)){state.exploreHome=true;state.selected=null;state.query='';$('#search').value='';state.filter='Everything';Object.assign(state,filterDefaults);}state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.tab=b.dataset.tab==='Today'?'Explore':b.dataset.tab;state.drawerStop=0;state.list=false;state.expanded=false;state.thread=null;state.filters=false;render();return;}
     if(b.dataset.place){selectPlace(b.dataset.place,{expand:b.dataset.expand==='true'});return;}
     if(b.dataset.thread){state.thread=b.dataset.thread;state.tab='Community';render();return;}
     if(b.dataset.clearFilter){state[b.dataset.clearFilter]=filterDefaults[b.dataset.clearFilter];render();return;}
@@ -340,7 +342,9 @@
       case 'filters':state.filters=!state.filters;render();break;
       case 'home':if(!store.home){OrientHome.open();break;}state.origin=[...store.home.coordinates];state.originLabel=store.home.name;state.circuitMap=false;state.loreMap=false;state.neighborId=null;Object.assign(state,filterDefaults);state.query='';$('#search').value='';state.filter='Everything';if(!['Explore','My Map'].includes(state.tab))state.tab='Explore';state.list=false;render();map?.easeTo({center:store.home?.coordinates||[0,20],zoom:store.home?12:2,bearing:0,duration:400});break;
       case 'north':map?.easeTo({bearing:0,pitch:0,duration:300});break;
-      case 'list':state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.list=!state.list;state.drawerStop=0;state.expanded=false;render();break;
+      case 'explore-map':state.exploreHome=false;state.selected=null;state.list=false;render();break;
+      case 'explore-list':state.exploreHome=false;state.selected=null;state.list=true;render();break;
+      case 'list':state.exploreHome=false;state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.list=!state.list;state.drawerStop=0;state.expanded=false;render();break;
       case 'expand':if(OrientDrawer.mobile()){state.drawerStop=(state.drawerStop??0)===2?1:2;state.expanded=state.drawerStop===2;}else state.expanded=!state.expanded;render();break;
       case 'clear-rating':if(state.selected){delete store.ratings?.[state.selected];save();render();}break;
       case 'save':if(state.selected)toggleMark('saved',state.selected);break;
@@ -376,7 +380,7 @@
   });
   document.addEventListener('change',e=>{if(!e.target.matches('[data-explore-filter]'))return;const key=e.target.dataset.exploreFilter;if(!Object.hasOwn(filterDefaults,key))return;state[key]=e.target.value;render();[...document.querySelectorAll('[data-explore-filter="'+key+'"]')].find(el=>el.getClientRects().length)?.focus({preventScroll:true});});
   document.addEventListener('change',e=>{if(!e.target.matches('[name=place-rating]'))return;const id=state.selected,value=Number(e.target.value);if(!id||!Number.isInteger(value)||value<1||value>5)return;privatePlaceAPI.keep(id);store.ratings||={};store.ratings[id]=value;save();render();document.querySelector('[name=place-rating][value="'+value+'"]')?.focus({preventScroll:true});});
-  $('#search').addEventListener('input',e=>{state.query=e.target.value.trim().toLowerCase();state.list=!!state.query;render();});
+  $('#search').addEventListener('input',e=>{state.query=e.target.value.trim().toLowerCase();state.selected=null;if(state.tab==='Explore')state.exploreHome=!state.query;state.list=!!state.query;render();});
   $('#add-form').elements.address.addEventListener('input',()=>{cancelLookup();locationReady=false;lookupResults=[];$('#lookup-results').innerHTML='';locationStatus('Address changed. Press Find address and choose a match.');});
   $('#add-form').elements.address.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findAddress();}});
   $('#add-form').elements.website.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();readSite();}});
@@ -405,7 +409,7 @@
   const privatePlaceAPI={store:()=>store,places:allPlaces,showDemo:()=>store.showDemo,save,render,select:id=>selectPlace(id,{expand:true}),keep:id=>{const p=placeById(id);if(!p)return;if(/^(osm-|tile-)/.test(id)&&!store.osm.some(x=>x.id===id))store.osm.push(OrientPlaces.sanitize(p));if(!store.saved.includes(id))store.saved.push(id);}};
   setInterval(()=>{if(document.visibilityState==='visible'&&state.filter==='Open now')render();},30000);
   OrientNeighbors.init({store:()=>store,save,map:()=>map,show:id=>{const n=OrientNeighbors.get(id);if(!n)return;state.circuitMap=false;state.loreMap=false;state.drawerStop=0;state.neighborId=id;state.tab='My Map';state.list=false;state.expanded=true;state.filters=false;render();if(n.coordinates)focusPlace(n);},back:()=>{state.neighborId=null;state.tab='My Map';state.list=true;render();}});
-  OrientHome.init({...privatePlaceAPI,preview:coordinates=>map?.easeTo({center:coordinates,zoom:11,duration:400}),set:home=>{const previous=store.home;store.home=home;if(!save()){store.home=previous;return false;}state.origin=[...home.coordinates];state.originLabel=home.name;state.selected=null;state.query='';$('#search').value='';state.tab='Explore';state.list=false;state.expanded=false;state.circuitMap=false;state.loreMap=false;state.neighborId=null;Object.assign(state,filterDefaults);render();map?.easeTo({center:home.coordinates,zoom:12,duration:400});$('#settings-dialog').close();toast('Your home area is '+home.name+'.');return true;}});
+  OrientHome.init({...privatePlaceAPI,preview:coordinates=>map?.easeTo({center:coordinates,zoom:11,duration:400}),set:home=>{const previous=store.home;store.home=home;if(!save()){store.home=previous;return false;}state.origin=[...home.coordinates];state.originLabel=home.name;state.selected=null;state.exploreHome=true;state.query='';$('#search').value='';state.tab='Explore';state.list=false;state.expanded=false;state.circuitMap=false;state.loreMap=false;state.neighborId=null;Object.assign(state,filterDefaults);render();map?.easeTo({center:home.coordinates,zoom:12,duration:400});$('#settings-dialog').close();toast('Your home area is '+home.name+'.');return true;}});
   OrientCalendar.init(privatePlaceAPI);
   OrientPhotos.init({...privatePlaceAPI,toast,startMemory:()=>{cancelLookup();resetSite();$('#add-dialog').close();},mapCenter:()=>{if(!mapLoaded||!map)return null;const p=map.getCenter();return [p.lng,p.lat];},select:id=>{state.query='';$('#search').value='';selectPlace(id,{expand:true});}});
   OrientWebsite.init({...privatePlaceAPI,toast});
@@ -417,9 +421,10 @@
   OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
   OrientOutings.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area',useMapCenter:()=>{if(!map){toast('The map is still loading.');return false;}const c=map.getCenter();state.origin=[c.lng,c.lat];state.originLabel='chosen map center';render();return true;}});
   OrientToday.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area'});
-  const refreshToday=()=>{if(state.tab==='Today'&&!document.hidden&&$('#panel').dataset.today!==OrientCalendar.today())render();};
-  document.addEventListener('visibilitychange',refreshToday);
-  setInterval(refreshToday,60000);
+  const refreshCalendar=()=>{if(!document.hidden&&(state.tab==='Calendar'||exploreOverview())&&!document.querySelector('dialog[open]')&&!$('#panel').contains(document.activeElement?.matches('input,textarea,select,[contenteditable=true]')?document.activeElement:null)){const panel=$('#panel'),scroll=panel.scrollTop;render();panel.scrollTop=scroll;}};
+  document.addEventListener('visibilitychange',refreshCalendar);
+  window.addEventListener('focus',refreshCalendar);
+  setInterval(refreshCalendar,30000);
   render();
   if(!storageWorks)toast('Saved data could not be read. Export any changes you want to keep.');
   try {

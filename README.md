@@ -11,7 +11,7 @@ Orient is a private map that lives in your browser.
 - On first use, choose a city or town and confirm it as your home area. Explore distances, Today and outing suggestions start there; **Field kit → Change home area** moves that starting point while keeping saved places. No GPS or home address is needed. Calendar time zone starts with the device setting and can be changed during setup. Fresh maps do not load the Toledo catalog; existing maps retain their data and starting area.
 - Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS, no automatic check-in, and no account.
 - Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
-- Optionally enable **Gidgit** in the Field kit. It adds a fifth navigation button on that device for saved-map questions and reviewed hours, note, or category updates. It stays hidden when disabled and sends nothing until you ask. It uses local Ollama on the Orient computer, defaults to the installed `qwen3.5:9b`, and has no cloud fallback. A public browser must already be paired for sync.
+- Optionally enable **Gidgit** in the Field kit. It adds an optional fourth navigation button on that device for saved-map questions and reviewed hours, note, or category updates. It stays hidden when disabled and sends nothing until you ask. It uses local Ollama on the Orient computer, defaults to the installed `qwen3.5:9b`, and has no cloud fallback. A public browser must already be paired for sync.
 - Keep your own notes, ratings, and categories for each place. Enter weekly hours such as **Mon-Fri 9am-5pm; Sat 10am-2pm; Sun closed** to normalize the schedule and calculate current opening status. Unknown or ambiguous hours remain text for review.
 - Select the existing **Open now** filter to darken the city and light up places open by their listed schedules. It uses your home-area time zone and refreshes every 30 seconds; unlisted days and unsupported holiday rules are not guessed.
 - The Add menu starts with **Photo + note** or **Name of place**. Choose Name of place to reveal the full place form, including address and website tools; Back returns to the two choices.
@@ -23,7 +23,7 @@ Orient is a private map that lives in your browser.
 - Make short outings ("circuits") from places you've saved, and see them on the map.
 - Keep a small calendar of repeating things (a weekly special, a monthly market) and see what's happening today.
 - Today’s events and specials also inform outing suggestions, with the specific reason, listed time, and source shown on the recommendation. Timed listings must fit the available outing window; listed today does not mean open now.
-- In Today, use **Get me out for a bit** for up to two small outings based on available time, walking or driving, spending intentions, and people energy. Suggestions run locally and favor saved, unvisited places; ratings of 1–2 are excluded. Travel is estimated, hours and atmosphere are unverified, and dollar budgets are reminders until prices are known. No-spend plans suggest outdoor walks. Preferences last only until the page reloads; the starting point is your chosen home area or a map center you choose, never GPS.
+- On Explore’s daily start view, use **Get me out for a bit** for up to two small outings based on available time, walking or driving, spending intentions, and people energy. Suggestions run locally and favor saved, unvisited places; ratings of 1–2 are excluded. Travel is estimated, hours and atmosphere are unverified, and dollar budgets are reminders until prices are known. No-spend plans suggest outdoor walks. Preferences last only until the page reloads; the starting point is your chosen home area or a map center you choose, never GPS.
 - Look up an address or a business name, and optionally read a place's own website for its hours, phone number and published events.
 - Your map is kept in the browser and synced to the computer running Orient, so a phone and a laptop show the same places and visits (see Syncing below). It can also be exported and imported as a file. Fog covers the parts of the map you haven't marked yet.
 
@@ -94,6 +94,10 @@ Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributor
 
 Orient is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use and change it for noncommercial purposes.
 
+## Explore start view
+
+Explore opens with the daily briefing rather than a selected catalog place. Searching shows results; clearing search or tapping Explore returns to the briefing and clears the selected card. Browse the map and Explore as a list remain available. Navigation is Explore, My Map, and Calendar, with an optional fourth Gidgit button. The briefing and agenda update every 30 seconds and when returning to the app, excluding occurrences whose known end has passed. Unknown end times are labeled and historical entries remain in Month view.
+
 ## Gidgit local model
 
 Gidgit calls Ollama from the Orient server, so the phone does not need its own model. The defaults are `http://127.0.0.1:11434` outside Docker and `http://host.docker.internal:11434` inside Docker. `ORIENT_GIDGIT_URL` and `ORIENT_GIDGIT_MODEL` select an existing local Ollama service/model; Compose passes these through (recreate the container after changing them). The endpoint accepts only loopback or Docker host addresses and never downloads a model. Ollama must already be running with that model installed. Gidgit uses [structured outputs](https://docs.ollama.com/capabilities/structured-outputs) for a bounded search/edit plan, not free-form map facts.
@@ -101,3 +105,13 @@ Gidgit calls Ollama from the Orient server, so the phone does not need its own m
 Only when asked, Gidgit sends the query and saved-place names, categories, notes, listed hours, ratings, and visit status to local Ollama. Dedicated people fields, neighbors, photos, and coordinate fields are omitted. Requests are session-only and are not stored as chat history. Large contexts are bounded; the interface reports when only part of the saved map was read by the model. Recommendations are resolved against saved records by the app, with current opening status and distance calculated locally. Stock, prices, and holiday exceptions are not verified.
 
 Edits show an editable before/after review and require Save. Notes append to existing notes. Invalid place IDs/fields, oversized entries, and stale drafts are rejected; model failure never changes the map. Local or paired-browser authorization is required by `/api/gidgit`. No cloud-provider credentials or fallback are used.
+
+### Hours parser maintenance
+
+Run `node hours-check.cjs` for generated format-equivalence, normalization round-trip, clock-boundary, and rejection checks. Run `node hours-audit.cjs` to audit the current local map and catalog without modifying data or sending requests. Use `node hours-audit.cjs path/to/export.json --details` to inspect unrecognized schedules locally. Do not commit audit output or personal exports. Extend the format corpus when adding a syntax family; keep ambiguous times and date-specific exceptions out of weekly open-now calculations.
+
+### Monthly service hours
+
+Place hours accept `Second Wednesday 9am-11am`, `First and third Tuesday 4pm-6pm`, `Last Friday 8pm-2am`, and mixed weekly/monthly windows. The existing calendar recurrence engine evaluates actual dates in the home-area time zone. A recognized monthly service schedule counts as closed outside its listed windows. Missing fifth weekdays are skipped, and overnight windows continue into the following day. Holiday/seasonal exceptions, appointment-only text, and start times without an end still need review.
+
+Monthly service windows appear as derived entries in Calendar and Today (nearby services within 10 miles), with Edit place hours rather than duplicate saved events. Regular weekly business hours do not flood Calendar. Natural-language calendar entry also recognizes ordinal weekdays; the monthly editor exposes a human-readable pattern field. Saved event patterns and hours survive existing backups and sync. Run `node recurring-hours-check.cjs` and `node recurring-hours-ui-check.cjs` for coverage.

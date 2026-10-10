@@ -254,8 +254,10 @@ function expandAll(events, from, to) {
   return out.sort((x, y) => x.date.localeCompare(y.date) || (x.time || '').localeCompare(y.time || ''));
 }
 
-window.OrientDates = {
+const OrientDates = {
   toNum, fromNum, addMinutes, minutesOf, validZone, wallOf, instantOf, toCityWall,
   parseRule, expandRule, occurrences, parseIcs, expandAll, icsDate, durationMin, monthDays, WD,
 };
 
+
+if(typeof module!=='undefined'&&module.exports)module.exports=OrientDates;else window.OrientDates=OrientDates;

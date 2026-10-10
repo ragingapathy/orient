@@ -12,4 +12,4 @@ window.OrientCatalog=(()=>{
   })();return promise;}
   return {load,legacy,needed};
 })();
-(async()=>{try{const raw=JSON.parse(localStorage.getItem('orient-field-map-v1')||'null');if(OrientCatalog.needed(raw))await OrientCatalog.load();}catch{}const s=document.createElement('script');s.src='./app.js?v=20261009-gidgit4';document.head.append(s);})();
+(async()=>{try{const raw=JSON.parse(localStorage.getItem('orient-field-map-v1')||'null');if(OrientCatalog.needed(raw))await OrientCatalog.load();}catch{}const s=document.createElement('script');s.src='./app.js?v=20261009-explorehome1';document.head.append(s);})();

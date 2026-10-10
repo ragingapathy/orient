@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-09 — v0.7.0: Explore starts with possibilities
+
+- Open Explore with the daily briefing, remaining specials, nearby service hours and saved/unvisited suggestions. Startup never selects an arbitrary catalog place.
+- Search replaces the briefing with matching results; clearing search or tapping Explore returns to the briefing. Browse the map and Explore as a list remain explicit choices.
+- Remove the redundant Today navigation tab. Three primary tabs remain: Explore, My Map and Calendar; optional Gidgit becomes a fourth button.
+- Includes local Gidgit settings and grounded hours answers, expanded hours format coverage, monthly service recurrence shared with Calendar, and automatic expiry of finished agenda entries.
+
+
 ## 2026-10-09 — Gidgit, an optional local map companion
 
 - Added a per-device Field kit opt-in. Gidgit appears as a fifth navigation button only when enabled; no model requests run until the user asks.
@@ -269,3 +277,20 @@
 
 ### Gidgit search corrections
 - Removed persistent example pills. Recognize coffeeshop and thriftstore spellings; separate suggestions for multi-category requests. Ignore model-invented open-now/unvisited restrictions when the request does not ask for them. Future-visit requests clearly distinguish current hours from an unchecked future visit.
+
+### Direct place-hours answers
+- Questions about a named or selected place now answer from saved schedules before invoking AI, preserving open, closed, and unknown states. Match apostrophe variants, show saved hours and home time zone, and clarify ambiguous names. Broad open-place searches keep their filter behavior. Future-time questions remain outside this direct path.
+
+### Hours format coverage
+- Added Unicode and pasted-table normalization, missing day/time spacing, comma-separated day rules, dotted/spaced meridiems, day lists, closed-first wording and split shifts joined with “and.”
+- Added 288 generated format-equivalence and normalization round-trip checks plus real-layout regressions and a read-only local hours audit. Saved raw text is preserved; supported layouts normalize for display and on explicit save. Ambiguous and holiday-specific rules remain reviewable rather than guessed.
+
+### Monthly service schedules share the calendar engine
+- Recognize ordinal weekdays, ordinal lists, last/fifth weekdays and mixed weekly/monthly opening windows; evaluate actual dates with the existing recurrence engine, including overnight spans and home time zones.
+- Derive service occurrences for Calendar and nearby Today listings directly from place hours, with an Edit place hours action and no stored event duplication. Weekly shop hours remain outside Calendar.
+- Natural-language calendar entry, monthly pattern editing, sanitization and persistence preserve ordinal weekday rules.
+- Verified month/year/leap/DST boundaries, absent fifth weekdays, mixed schedules, open/closed Gidgit answers, derived listings, normalized editing and reload. Local audit recognizes 64 of 73 schedules; nine still require review for exceptions, annotations, appointments, or incomplete times.
+
+### Live agenda eligibility
+- Hide occurrences at their known end time from Agenda, Today, upcoming Explore filters and place next-event previews, using the home time zone and overnight end dates. Unknown-end entries remain labeled; Month retains history and no records are deleted.
+- Refresh Calendar/Today every 30 seconds and on focus/visibility return; preserve list scroll and defer refresh while editing or using a dialog.
