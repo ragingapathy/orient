@@ -384,3 +384,26 @@ dialog fieldset>legend{padding:0 6px;font-size:10px;font-weight:700;letter-spaci
 #event-dialog fieldset label:has(input:checked){border-color:transparent;background:var(--grad-green);color:#f3f8ed}
 #event-dialog fieldset label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){dialog details>summary::after,#event-dialog fieldset label{transition:none}}
+/* ---------- the filter panel, list filters and the neighbor card ---------- */
+.filter-panel{border-radius:var(--r-lg);box-shadow:var(--lift)}
+.filter-panel .panel-heading strong{font-size:16px;font-weight:700}
+.filter-options button[aria-pressed=true]{background:var(--grad-green);border-color:transparent}
+.filter-panel label,#panel label:not(.rating-star):not(.toggle-row){font-size:12px;font-weight:600;color:var(--muted)}
+.filter-panel select,#panel select{min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background-color:#fff;color:var(--ink);font-size:14px;font-weight:500}
+.filter-panel .button,.filter-panel button.quiet{min-height:40px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-weight:600}
+.filter-panel .button:hover{background:var(--land)}
+.explore-list-heading .kicker{color:var(--accent)}
+.neighbor-card h2{font-weight:700;letter-spacing:-.02em}
+.neighbor-card>.sub{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--ink)}
+.neighbor-card>.fine:first-of-type,.neighbor-card h2+.sub{margin-top:0}
+.neighbor-card h3{margin:16px 0 6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.neighbor-note{padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);line-height:1.55}
+.neighbor-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+.neighbor-actions .button{flex:1 1 auto;min-height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-weight:600}
+.neighbor-actions .button:first-child{border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+.neighbor-actions .button:last-child{color:#a8472a}
+/* a brand-new My Map leads with the invitation to add a place, before collections and circuits */
+#panel:has(>.collection-summary):not(:has(>.row)){display:flex;flex-direction:column}
+#panel:has(>.collection-summary):not(:has(>.row))>:is(.explore-list-heading,h2,.sub){order:-2}
+#panel:has(>.collection-summary):not(:has(>.row))>button[data-action=add]{order:-1;margin:4px 0 16px;border-color:transparent;background:var(--grad-green);color:#f3f8ed}
+#panel:has(>.collection-summary):not(:has(>.row))>button[data-action=add]:hover{background:linear-gradient(155deg,#2b7a63,#1c5244)}
