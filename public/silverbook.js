@@ -6,7 +6,8 @@ window.OrientSilverbook=(()=>{
   async function load(force=false){
     if(!force&&loadedAt&&Date.now()-loadedAt<60000)return cache;
     if(loading)return loading;
-    loading=fetch('/api/silverbook').then(async r=>{
+    let meta={};try{meta=JSON.parse(localStorage.getItem('orient-sync-v1')||'{}');}catch{}
+    loading=fetch('/api/silverbook',{headers:meta.token?{Authorization:'Bearer '+meta.token}:{}}).then(async r=>{
       const data=await r.json().catch(()=>({}));
       // A non-200 here is Orient refusing the request (not paired through the tunnel yet), not Silverbook
       // being closed. Show that reason, not the generic one, so there's something to act on.

@@ -4,9 +4,12 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/api/state**',r=>r.fulfill({status:403,contentType:'application/json',body:'{"error":"Isolated test"}'}));
  const sbPeople=[{id:'maya',name:'Maya Chen'},{id:'oliver',name:'Oliver Brooks'}];
- await page.route('**/api/silverbook',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({connected:true,people:sbPeople})}));
- await page.addInitScript(()=>{if(sessionStorage.getItem('fixture'))return;sessionStorage.setItem('fixture','1');localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,home:{name:'Toledo',coordinates:[-83.539,41.655],timeZone:'America/New_York'},useCatalog:false,custom:[{id:'local-cafe',name:'Lantern Café',coordinates:[-83.539,41.655],kind:'Food & drink'}],saved:['local-cafe'],fog:true}));});
+ const sbAuth=[];
+ await page.route('**/api/silverbook',r=>{sbAuth.push(r.request().headers().authorization||'');r.fulfill({contentType:'application/json',body:JSON.stringify({connected:true,people:sbPeople})});});
+ // Paired, same as a phone away from home: the pairing token lives in orient-sync-v1, same as sync and Gidgit use.
+ await page.addInitScript(()=>{if(sessionStorage.getItem('fixture'))return;sessionStorage.setItem('fixture','1');localStorage.setItem('orient-sync-v1',JSON.stringify({token:'test-pairing-token-1234'}));localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,home:{name:'Toledo',coordinates:[-83.539,41.655],timeZone:'America/New_York'},useCatalog:false,custom:[{id:'local-cafe',name:'Lantern Café',coordinates:[-83.539,41.655],kind:'Food & drink'}],saved:['local-cafe'],fog:true}));});
  await page.goto(process.env.ORIENT_URL||'http://127.0.0.1:4176');await page.waitForFunction(()=>window.OrientSilverbook&&document.querySelector('.map-marker'));
+ assert.deepEqual(sbAuth,['Bearer test-pairing-token-1234'],'a paired browser sends its pairing token to /api/silverbook, same as sync and Gidgit');
  await page.locator('.map-marker[aria-label^="Lantern"]').click();await page.locator('.grip').press('End');await page.locator('details.place-knowledge summary').click();await page.getByRole('button',{name:'Edit hours, people & notes',exact:true}).click();
 
  await page.locator('[data-silverbook-card]').waitFor();
