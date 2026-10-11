@@ -6,8 +6,13 @@ window.OrientSilverbook=(()=>{
   async function load(force=false){
     if(!force&&loadedAt&&Date.now()-loadedAt<60000)return cache;
     if(loading)return loading;
-    loading=fetch('/api/silverbook').then(r=>r.json()).then(data=>{
-      cache={connected:data.connected===true,people:Array.isArray(data.people)?data.people:[],message:String(data.message||'')};
+    loading=fetch('/api/silverbook').then(async r=>{
+      const data=await r.json().catch(()=>({}));
+      // A non-200 here is Orient refusing the request (not paired through the tunnel yet), not Silverbook
+      // being closed. Show that reason, not the generic one, so there's something to act on.
+      cache=r.ok
+        ?{connected:data.connected===true,people:Array.isArray(data.people)?data.people:[],message:String(data.message||'')}
+        :{connected:false,people:[],message:String(data.error||'This browser isn’t allowed to read Silverbook.')};
       loadedAt=Date.now();
       return cache;
     }).catch(()=>{

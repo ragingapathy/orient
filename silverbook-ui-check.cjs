@@ -41,6 +41,16 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
  assert.equal(await page.locator('[data-silverbook-unlink]').count(),0);
  await page.getByRole('button',{name:'Save place details',exact:true}).click();
  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('orient-field-map-v1')).details['local-cafe'].silverbookIds),['oliver'],'saving while Silverbook is closed does not erase the existing link');
+
+ // Orient itself refusing the request (not paired through the tunnel) is a different reason than Silverbook
+ // being closed, and has to say so -- not get swallowed into the generic message.
+ await page.unroute('**/api/silverbook');
+ await page.route('**/api/silverbook',r=>r.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'Pair this browser to read Silverbook.'})}));
+ await page.evaluate(()=>OrientSilverbook.load(true));
+ await page.getByRole('button',{name:'Edit hours, people & notes',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('[data-silverbook-card]')?.textContent.includes('Pair this browser'));
+ assert.equal(await page.locator('[data-silverbook-card]').innerText().then(t=>t.includes('Open Silverbook on this computer')),false,'a refusal from Orient is not mistaken for Silverbook being closed');
+
  assert.deepEqual(errors,[]);
  console.log('Silverbook UI: linking and unlinking a person from the place dialog, no repeated offers, the card showing who you went with, persistence across reload, and a graceful message that keeps the link when Silverbook is closed, all passed.');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
