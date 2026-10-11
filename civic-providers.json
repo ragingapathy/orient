@@ -1,0 +1,516 @@
+{
+  "checked": "2026-10-11",
+  "source": "https://data.transportation.gov/Roadways-and-Bridges/Work-Zone-Data-Feed-Registry/69qe-yiui",
+  "providers": [
+    {
+      "id": "cdot",
+      "states": [
+        "Colorado"
+      ],
+      "name": "Colorado DOT",
+      "url": "https://data.cotrip.org/api/v1/wzdx",
+      "needsKey": true,
+      "signup": "https://maps.cotrip.org/help/section/for-developers.html",
+      "auth": {
+        "query": "apiKey"
+      },
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "udot",
+      "states": [
+        "Utah"
+      ],
+      "name": "Utah DOT",
+      "url": "https://udottraffic.utah.gov/wzdx/udot/v40/data",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "idot",
+      "states": [
+        "Iowa"
+      ],
+      "name": "Iowa DOT",
+      "url": "https://iowa-atms.cloud-q-free.com/api/rest/dataprism/wzdx/wzdxfeed",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "mndot",
+      "states": [
+        "Minnesota"
+      ],
+      "name": "Minnesota DOT",
+      "url": "https://mn.carsprogram.org/carsapi_v1/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "mtc",
+      "states": [
+        "California"
+      ],
+      "name": "Metropolitan Transportation Commission San Francisco",
+      "url": "https://api.511.org/traffic/wzdx",
+      "needsKey": true,
+      "signup": "https://511.org/open-data/token",
+      "auth": {
+        "query": "api_key"
+      },
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "mdot",
+      "states": [
+        "Maryland"
+      ],
+      "name": "Maryland DOT",
+      "url": "https://filter.ritis.org/wzdx_v4.1/mdot.geojson",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "mcdot",
+      "states": [
+        "Arizona"
+      ],
+      "name": "Maricopa County DOT",
+      "url": "https://wzdxapi.aztech.org/construction",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "modot",
+      "states": [
+        "Missouri"
+      ],
+      "name": "Missouri DOT",
+      "url": "https://traveler.modot.org/timconfig/feed/desktop/mo_wzdx.json",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "wisdot",
+      "states": [
+        "Wisconsin"
+      ],
+      "name": "Wisconsin DOT",
+      "url": "https://511wi.gov/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "vdot",
+      "states": [
+        "Virginia"
+      ],
+      "name": "Virginia DOT",
+      "url": "https://data.511-atis-ttrip-prod.iteriscloud.com/smarterRoads/workzone/workZoneJSON/current/workZone.json",
+      "needsKey": true,
+      "signup": "https://smarterroads.vdot.virginia.gov/register",
+      "auth": {
+        "query": "token"
+      },
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "nmdot",
+      "states": [
+        "New Mexico"
+      ],
+      "name": "New Mexico DOT",
+      "url": "https://ai.blyncsy.io/wzdx/nmdot/feed",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "hidot",
+      "states": [
+        "Hawaii"
+      ],
+      "name": "Hawaii DOT",
+      "url": "https://ai.blyncsy.io/wzdx/hidot/feed",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "nysdot",
+      "states": [
+        "New York"
+      ],
+      "name": "New York DOT",
+      "url": "https://511ny.org/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "ptc",
+      "states": [
+        "Pennsylvania"
+      ],
+      "name": "Pennsylvania Turnpike Commission",
+      "url": "https://atms.paturnpike.com/api/WZDxWorkZoneFeed",
+      "needsKey": true,
+      "signup": "https://datahub.transportation.gov/api/views/69qe-yiui/files/de6330ba-7e11-4335-9a3f-caf24015dc1a?download=true&filename=WZDx_API_Key_Instructions.docx",
+      "auth": {
+        "query": "api_key"
+      },
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "txdot-v4-2",
+      "states": [
+        "Texas"
+      ],
+      "name": "Texas DOT",
+      "url": "https://api.drivetexas.org/api/conditions.wzdx.geojson",
+      "needsKey": true,
+      "signup": "https://api.drivetexas.org/",
+      "auth": {
+        "query": "key"
+      },
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "wsdot",
+      "states": [
+        "Washington"
+      ],
+      "name": "Washington State DOT",
+      "url": "https://wzdx.wsdot.wa.gov/api/v4/WorkZoneFeed",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "stcharlesco-v4",
+      "states": [
+        "Missouri"
+      ],
+      "name": "St. Charles County",
+      "url": "https://scc.ridsi-dash.com:5000/wzdx.geojson",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "kytc",
+      "states": [
+        "Kentucky"
+      ],
+      "name": "Kentucky Transportation Cabinet",
+      "url": "https://storage.googleapis.com/kytc-its-2020-openrecords/public/feeds/WZDx/kytc_wzdx_v4.1.geojson",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "njdot",
+      "states": [
+        "New Jersey"
+      ],
+      "name": "New Jersey Institute of Technology",
+      "url": "https://smartworkzones.njit.edu/nj/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "kansas",
+      "states": [
+        "Kansas"
+      ],
+      "name": "Kansas DOT",
+      "url": "https://kscars.kandrive.gov/carsapi_v1/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "austin",
+      "states": [
+        "Texas"
+      ],
+      "name": "City of Austin",
+      "url": "https://data.austintexas.gov/download/d9mm-cjw9",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "ohio",
+      "states": [
+        "Ohio"
+      ],
+      "name": "Ohio DOT",
+      "url": "https://publicapi.ohgo.com/api/work-zones/wzdx/4.2",
+      "needsKey": true,
+      "signup": "https://publicapi.ohgo.com/accounts/registration",
+      "auth": {
+        "header": "Authorization",
+        "prefix": "APIKEY "
+      },
+      "cameras": true,
+      "incidents": true
+    },
+    {
+      "id": "dedot",
+      "states": [
+        "Delaware"
+      ],
+      "name": "Delaware DOT",
+      "url": "https://wzdx.e-dot.com/del_dot_feed_wzdx_v4.1.geojson",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "ladotd",
+      "states": [
+        "Louisiana"
+      ],
+      "name": "Louisiana DOTD",
+      "url": "https://wzdx.e-dot.com/la_dot_d_feed_wzdx_v4.1.geojson",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "iddot",
+      "states": [
+        "Idaho"
+      ],
+      "name": "Idaho DOT",
+      "url": "https://511.idaho.gov/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "indot",
+      "states": [
+        "Indiana"
+      ],
+      "name": "Indiana DOT",
+      "url": "https://in.carsprogram.org/carsapi_v1/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "necdot",
+      "states": [
+        "New Hampshire",
+        "Vermont",
+        "Maine"
+      ],
+      "name": "NHDOT/VTAOT/MEDOT",
+      "url": "https://api.dx.ne-compass.com/wzdx-latest/",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "ncdot",
+      "states": [
+        "North Carolina"
+      ],
+      "name": "North Carolina DOT",
+      "url": "https://drivenc.gov/api/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "msdot",
+      "states": [
+        "Mississippi"
+      ],
+      "name": "Mississippi DOT",
+      "url": "https://api.mdottraffic.com/prod/v3/data/wzdx",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "nddot",
+      "states": [
+        "North Dakota"
+      ],
+      "name": "North Dakota DOT",
+      "url": "https://travelfiles.dot.nd.gov/geojson_nc/wzdx_geojson.json",
+      "needsKey": false,
+      "signup": "",
+      "auth": null,
+      "cameras": false,
+      "incidents": false
+    },
+    {
+      "id": "camera-wisconsin",
+      "states": [
+        "Wisconsin"
+      ],
+      "name": "Wisconsin 511 cameras",
+      "url": "https://511wi.gov/api/v2/get/cameras",
+      "cameraApi": "https://511wi.gov/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://511wi.gov/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-idaho",
+      "states": [
+        "Idaho"
+      ],
+      "name": "Idaho 511 cameras",
+      "url": "https://511.idaho.gov/api/v2/get/cameras",
+      "cameraApi": "https://511.idaho.gov/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://511.idaho.gov/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-alaska",
+      "states": [
+        "Alaska"
+      ],
+      "name": "Alaska 511 cameras",
+      "url": "https://511.alaska.gov/api/v2/get/cameras",
+      "cameraApi": "https://511.alaska.gov/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://511.alaska.gov/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-nevada",
+      "states": [
+        "Nevada"
+      ],
+      "name": "Nevada 511 cameras",
+      "url": "https://www.nvroads.com/api/v2/get/cameras",
+      "cameraApi": "https://www.nvroads.com/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://www.nvroads.com/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-louisiana",
+      "states": [
+        "Louisiana"
+      ],
+      "name": "Louisiana 511 cameras",
+      "url": "https://511la.org/api/v2/get/cameras",
+      "cameraApi": "https://511la.org/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://511la.org/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-arizona",
+      "states": [
+        "Arizona"
+      ],
+      "name": "Arizona 511 cameras",
+      "url": "https://az511.com/api/v2/get/cameras",
+      "cameraApi": "https://az511.com/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://az511.com/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    },
+    {
+      "id": "camera-utah",
+      "states": [
+        "Utah"
+      ],
+      "name": "Utah 511 cameras",
+      "url": "https://www.udottraffic.utah.gov/api/v2/get/cameras",
+      "cameraApi": "https://www.udottraffic.utah.gov/api/v2/get/cameras",
+      "roadwork": false,
+      "needsKey": true,
+      "signup": "https://www.udottraffic.utah.gov/developers/doc",
+      "auth": null,
+      "cameras": true,
+      "incidents": false
+    }
+  ]
+}

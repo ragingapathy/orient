@@ -55,12 +55,12 @@ const seed = { version: 1, custom: [{ id: 'local-roast', name: 'Glass City Roast
     assert.equal(await fresh.evaluate(() => localStorage.getItem('orient-directions-app')), null, 'nothing is chosen until the person chooses');
     const popup = fresh.context().waitForEvent('page');
     await fresh.getByRole('button', { name: 'Apple Maps', exact: true }).click();
-    assert.match((await popup).url(), /^https:\/\/maps\.apple\.com\/.*41\.6535(,|%2C)-83\.5395/);
+    const opened=await popup;await opened.waitForURL(/maps\.apple\.com/,{waitUntil:'commit'});assert.match(opened.url(), /^https:\/\/maps\.apple\.com\/.*41\.6535(,|%2C)-83\.5395/);
     assert.equal(await fresh.evaluate(() => OrientDirections.get()), 'apple');
     assert.match(await href(fresh), /maps\.apple\.com/);
     const again = fresh.context().waitForEvent('page');
     await fresh.locator('#sheet a[data-dir]').first().click();
-    assert.match((await again).url(), /maps\.apple\.com/);
+    const reopened=await again;await reopened.waitForURL(/maps\.apple\.com/,{waitUntil:'commit'});assert.match(reopened.url(), /maps\.apple\.com/);
     assert.equal(await fresh.locator('#dir-dialog[open]').count(), 0, 'it only asks once');
     console.log('ok  the first tap asks which maps app, opens it, and does not ask again');
 

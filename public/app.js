@@ -8,7 +8,7 @@
   // Places come from catalog.local.js (yours, not committed) or catalog.sample.js (a few made-up examples).
   const demoPlaces = Array.isArray(window.ORIENT_CATALOG) ? window.ORIENT_CATALOG : [];
   const threads = [];
-  const kindIcons = {'Gas station':'fuel','Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'utensils','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf','Civic rooms':'landmark',Other:'map-pin'};
+  const kindIcons = {'Gas station':'fuel','Photo memory':'camera','Comic shop':'book-open',Library:'library','Public space':'trees','Community space':'users','Food & drink':'utensils','Food pantry':'utensils','Thrift store':'shopping-bag','Coffee shop':'coffee','Dog park':'bone',Clinic:'heart-pulse',Dispensary:'leaf','Civic rooms':'landmark','Movie theater':'clapperboard',Other:'map-pin'};
   const cleanCategory=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,'').trim().replace(/\s+/g,' ').slice(0,48):'';
   const categoryIcon=kind=>kindIcons[kind]||(/auto|mechanic|repair/i.test(kind)?'wrench':'map-pin');
   function cleanData(raw) {
@@ -60,7 +60,7 @@
     return list.sort((a,b)=>state.sort==='Nearby first'?distanceMiles(a)-distanceMiles(b)||a.name.localeCompare(b.name):a.name.localeCompare(b.name));
   }
 
-  function save() { const earned=OrientJourney.sync();try { localStorage.setItem(KEY,JSON.stringify(store)); storageWorks=true;window.OrientSync?.changed();if(earned.length)queueMicrotask(()=>toast(earned.map(m=>m.name).join(' · ')+' · +'+earned.reduce((n,m)=>n+m.points,0)+' points'));return true; } catch {storageWorks=false;toast('Browser storage is unavailable or full. Export your map to keep these changes.');return false;} }
+  function save() { const earned=OrientJourney.sync();try { localStorage.setItem(KEY,JSON.stringify(store)); storageWorks=true;window.OrientSync?.changed();if(earned.length)queueMicrotask(()=>{const points=earned.reduce((n,m)=>n+m.points,0);toast(earned.map(m=>m.name).join(' · ')+(points?' · +'+points+' points':''));});return true; } catch {storageWorks=false;toast('Browser storage is unavailable or full. Export your map to keep these changes.');return false;} }
   function toast(message) {clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').hidden=false;toastTimer=setTimeout(()=>$('#toast').hidden=true,5000);}
   function keepOsm(id){const p=placeById(id);if(p&&/^(osm-|tile-)/.test(id)&&!(store.osm||[]).some(x=>x.id===id))store.osm=[...(store.osm||[]),OrientPlaces.sanitize(p)].filter(Boolean);}
   function toggleMark(key,id) {const p=placeById(id);if(p&&/^(osm-|tile-)/.test(id)&&!(store.osm||[]).some(p=>p.id===id))store.osm=[...(store.osm||[]),OrientPlaces.sanitize(p)].filter(Boolean);store[key]=store[key].includes(id)?store[key].filter(v=>v!==id):[...store[key],id];store.osm=(store.osm||[]).filter(p=>isMarked(p.id)||collected(p.id)||store.ratings?.[p.id]||store.details?.[p.id]||(store.events||[]).some(e=>e.placeId===p.id)||store.web?.profiles?.[p.id]||store.web?.urls?.[p.id]||store.web?.sources?.some(s=>s.placeId===p.id));save();render();}
@@ -249,7 +249,8 @@
     $('#collections-tool').hidden=state.tab!=='My Map';
     const collection=state.tab==='My Map'?OrientCollections.get(state.collectionId):null;const banner=$('#collection-map-banner');banner.hidden=!collection||state.list;banner.innerHTML=collection?'<strong>'+escapeHTML(collection.name)+'</strong><button class="button" data-collection="open" data-id="'+escapeHTML(collection.id)+'">Collection</button><button class="button" data-collection="clear">All places</button>':'';
     $('#circuits-tool').hidden=state.tab!=='My Map';
-    $('#tools').hidden=exploreOverview()||!['Explore','My Map'].includes(state.tab)||state.list;
+    $('#tools').hidden=!['Explore','My Map'].includes(state.tab)||state.list;
+    $('#tools').classList.toggle('explore-overview',exploreOverview());
     $('#filters').hidden=!state.filters;
     document.querySelector('[data-action="filters"]').setAttribute('aria-expanded',state.filters);
     $('#filter-dot').hidden=state.filter==='Everything'&&!(state.tab==='Explore'&&activeFilters().length);
@@ -352,7 +353,7 @@
       case 'filter-center':if(map){const c=map.getCenter();state.origin=[c.lng,c.lat];state.originLabel='chosen map center';render();}else toast('The map is still loading.');break;
       case 'filters':state.filters=!state.filters;render();break;
       case 'home':if(store.home)OrientAreas.choose(store.home);else OrientHome.open();break;
-      case 'north':map?.easeTo({bearing:0,pitch:0,duration:300});break;
+      case 'north':map?.easeTo({bearing:0,duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:300});break;
       case 'explore-map':state.exploreHome=false;state.selected=null;state.list=false;render();break;
       case 'back-today':state.tab='Explore';state.exploreHome=true;state.briefingExpanded=true;state.selected=null;state.query='';$('#search').value='';state.list=false;state.filters=false;state.filter='Everything';state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.thread=null;Object.assign(state,filterDefaults);render();$('#panel .briefing-handle')?.focus({preventScroll:true});break;
       case 'explore-list':state.exploreHome=false;state.selected=null;state.list=true;render();break;
@@ -387,7 +388,16 @@
       case 'settings':$('#settings-dialog').showModal();OrientSync.render();break;
       case 'close-settings':$('#settings-dialog').close();break;
       case 'delete-place':if(confirm('Remove this place, its calendar entries, personal details, and saved/visited marks from this browser?')){store.collections=(store.collections||[]).map(c=>({...c,places:c.places.filter(id=>id!==state.selected)}));store.custom=store.custom.filter(p=>p.id!==state.selected);store.events=(store.events||[]).filter(e=>e.placeId!==state.selected);store.gasReports=(store.gasReports||[]).filter(r=>r.placeId!==state.selected);delete store.wifi?.[state.selected];delete store.photos?.[state.selected];delete store.ratings?.[state.selected];delete store.details?.[state.selected];delete store.web?.profiles?.[state.selected];delete store.web?.urls?.[state.selected];if(store.web)store.web.sources=store.web.sources.filter(s=>s.placeId!==state.selected);store.saved=store.saved.filter(id=>id!==state.selected);store.visited=store.visited.filter(id=>id!==state.selected);delete store.visitLog?.[state.selected];OrientSpend.forget(store,state.selected);save();render();}break;
-      case 'reset':if(confirm('Reset all saved places, visits, personal details, calendar entries, and drafts in this browser? Export first if you want to keep them.')){store={version:1,home:store.home,useCatalog:store.useCatalog,custom:[],osm:[],ratings:{},saved:[],visited:[],visitLog:{},heat:false,visitDays:14,drafts:{},details:{},events:[],showDemo:true,fog:true};discoveries.clear();enrichments.clear();nearbyStates.clear();state.neighborId=null;save();state.tab='Explore';state.query='';$('#search').value='';state.filter='Everything';state.list=false;state.drawerStop=0;state.expanded=false;state.thread=null;render();$('#settings-dialog').close();toast('Your browser’s map has been reset.');}break;
+      case 'reset':if(confirm('Clear all Orient data in this browser, including calendar imports, photos, home area, and the paired map? This disconnects this browser; the shared map and other devices are unchanged. Export first if you want to keep a copy.')){
+        window.OrientSync?.disconnect();
+        try {
+          for(const key of Object.keys(localStorage))if(key.startsWith('orient-'))localStorage.removeItem(key);
+          // Stay independent after reload, including on the host computer.
+          localStorage.setItem('orient-sync-v1',JSON.stringify({disabled:true}));
+          localStorage.setItem(KEY,JSON.stringify({version:1,home:null,useCatalog:false,custom:[],osm:[],saved:[],visited:[],events:[],details:{},web:{profiles:{},sources:[],urls:{}},showDemo:false,fog:true}));
+          location.reload();
+        } catch { toast('Could not clear browser storage. Your reset has not completed.'); }
+      }break;
       case 'export':{const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`orient-my-map-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);break;}
     }
   });
@@ -434,7 +444,7 @@
   OrientWebsite.init({...privatePlaceAPI,toast});
   OrientGidgit.init({...privatePlaceAPI,toast,selected:()=>state.selected,origin:()=>state.origin,show:id=>{state.filter='Everything';Object.assign(state,filterDefaults);state.query='';$('#search').value='';state.tab='My Map';state.list=false;selectPlace(id,{expand:true});}});
   OrientSilverbook.init({render});
-  OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:async raw=>{if(OrientCatalog.needed(raw))await OrientCatalog.load();const previous=store.home;store=cleanData(raw);if(JSON.stringify(previous)!==JSON.stringify(store.home)){state.origin=store.home?.coordinates||[0,20];state.originLabel=store.home?.name||'your chosen area';if(store.home)map?.jumpTo({center:store.home.coordinates,zoom:12});}try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
+  OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:async (raw,current=()=>true)=>{if(OrientCatalog.needed(raw))await OrientCatalog.load();if(!current())return;const previous=store.home;store=cleanData(raw);if(JSON.stringify(previous)!==JSON.stringify(store.home)){state.origin=store.home?.coordinates||[0,20];state.originLabel=store.home?.name||'your chosen area';if(store.home)map?.jumpTo({center:store.home.coordinates,zoom:12});}try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
   OrientTakeout.init({store:()=>store,places:allPlaces,origin:()=>state.origin,icon:categoryIcon,save,render,keepOsm,addVisit:(id,day)=>OrientVisits.add(id,day),visitDays:id=>OrientVisits.entries(id)});
   OrientRoadwork.init({origin:()=>state.origin,map:()=>map});
   OrientWeather.init({origin:()=>state.origin,label:()=>state.originLabel||store.home?.name||'',render:()=>render()});
@@ -445,7 +455,7 @@
   OrientIcons.init({store:()=>store,places:allPlaces,save,render,keepOsm});
   OrientSpend.init({store:()=>store,places:allPlaces,save,render,keepOsm,selected:()=>state.selected});
   OrientJourney.init({...privatePlaceAPI,toast,showMap:coordinates=>{state.filter='Everything';state.circuitMap=false;state.loreMap=true;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';$('#search').value='';render();map?.easeTo({center:coordinates,zoom:15,duration:400});}});
-  OrientCircuits.init({...privatePlaceAPI,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
+  OrientCircuits.init({...privatePlaceAPI,toast,back:()=>{state.circuitMap=false;state.loreMap=false;state.tab='My Map';state.list=true;render();},showMap:coordinates=>{state.circuitMap=true;state.loreMap=false;state.neighborId=null;state.tab='My Map';state.list=false;state.query='';document.querySelector('#search').value='';render();if(map&&coordinates.length){const bounds=new maplibregl.LngLatBounds();coordinates.forEach(c=>bounds.extend(c));map.fitBounds(bounds,{padding:{top:100,bottom:150,left:55,right:55},maxZoom:15,duration:400});}}});
   OrientOutings.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area',useMapCenter:()=>{if(!map){toast('The map is still loading.');return false;}const c=map.getCenter();state.origin=[c.lng,c.lat];state.originLabel='chosen map center';render();return true;}});
   OrientToday.init({...privatePlaceAPI,origin:()=>state.origin,originLabel:()=>state.originLabel||store.home?.name||'your chosen area'});
   const refreshCalendar=()=>{if(!document.hidden&&(state.tab==='Calendar'||exploreOverview())&&!document.querySelector('dialog[open]')&&!$('#panel').classList.contains('briefing-dragging')&&!$('#panel').contains(document.activeElement?.matches('input,textarea,select,[contenteditable=true]')?document.activeElement:null)){const panel=$('#panel'),body=panel.querySelector('.briefing-body'),scroll=body?body.scrollTop:panel.scrollTop;render();const target=panel.querySelector('.briefing-body')||panel;target.scrollTop=scroll;}};
@@ -457,6 +467,14 @@
   try {
     if(!window.maplibregl)throw new Error('Map engine unavailable');
     map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:OrientAreas.view()?.center||OrientAreas.area()?.coordinates||store.home?.coordinates||[0,20],zoom:OrientAreas.view()?.zoom||(store.home?12:2),attributionControl:false,pitchWithRotate:false});
+    const syncCompass=()=>{
+      const button=$('[data-action="north"]');if(!button)return;
+      let needle=button.querySelector('.north-needle');
+      if(!needle){needle=document.createElement('span');needle.className='north-needle';needle.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transform-origin:center';while(button.firstChild)needle.append(button.firstChild);button.append(needle);}
+      const bearing=map.getBearing();needle.style.transform='rotate('+(-bearing)+'deg)';
+      button.setAttribute('aria-label','Reset map to north');button.title='Reset north · bearing '+Math.round((bearing%360+360)%360)+'°';
+    };
+    map.on('rotate',syncCompass);syncCompass();
     map.on('moveend',()=>OrientAreas.remember());
     map.addControl(new maplibregl.AttributionControl({compact:false}),'bottom-right');
     map.addControl(new maplibregl.ScaleControl({maxWidth:80,unit:'imperial'}),'bottom-left');
@@ -483,5 +501,3 @@
     $('#map-status').textContent='Map unavailable in this browser. Explore your places as a list.';state.list=true;render();
   }
 })();
-
-

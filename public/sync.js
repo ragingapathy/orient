@@ -57,6 +57,9 @@
   const META = 'orient-sync-v1', PUBLIC = 'orient-sync-address';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const isLocal = () => ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
+  let generation = 0, controller = null;
+  const enabled = () => !readMeta().disabled && (isLocal() || !!readMeta().token);
+  function disconnect() { generation++; controller?.abort(); clearTimeout(timer); again=false; shownKey=null; writeMeta({disabled:true}); setStatus('unpaired'); }
   let host = null, busy = false, again = false, timer = null, status = { kind: 'idle' }, shownKey = null;
 
   const readMeta = () => { try { return JSON.parse(localStorage.getItem(META)) || {}; } catch { return {}; } };
@@ -67,18 +70,22 @@
     const meta = readMeta(), headers = {};
     if (meta.token) headers.Authorization = 'Bearer ' + meta.token;
     if (body) headers['Content-Type'] = 'application/json';
-    const res = await fetch('/api/state', { method, headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+    const res = await fetch('/api/state', { method, headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store', signal: controller?.signal });
     let data = {}; try { data = await res.json(); } catch {}
     return { status: res.status, data };
   }
 
   async function run() {
+    if (!enabled()) return;
     if (busy) { again = true; return; }
     busy = true; again = false;
+    const epoch=generation; controller=new AbortController();
+    const current=()=>epoch===generation&&enabled();
     try {
       setStatus('syncing');
       for (let tries = 0; tries < 4; tries++) {
         const got = await call('GET');
+        if (!current()) return;
         if (got.status === 401 || got.status === 429) { setStatus('unpaired', { message: got.data.error }); return; }
         if (got.status !== 200) { setStatus('offline'); return; }
         const remote = got.data.state, meta = readMeta();
@@ -87,15 +94,17 @@
         let merged = mine;
         if (remote) {
           merged = merge(meta.base, mine, remote, !meta.base);
-          if (!same(merged, mine)) { await host.apply(merged); mine = host.get(); merged = mine; }
+          if (!same(merged, mine)) { await host.apply(merged,current); if (!current()) return; mine = host.get(); merged = mine; }
           if (same(merged, remote)) { writeMeta({ ...meta, rev: got.data.rev, base: merged }); setStatus('ok'); return; }
         }
+        if (!current()) return;
         const put = await call('PUT', { baseRev: got.data.rev, state: merged });
+        if (!current()) return;
         if (put.status === 200) { writeMeta({ ...meta, rev: put.data.rev, base: merged }); setStatus('ok'); return; }
         if (put.status !== 409) { setStatus(put.status === 401 ? 'unpaired' : 'offline', { message: put.data.error }); return; }
       }
       setStatus('offline', { message: 'Two devices kept changing the map at once. It will try again.' });
-    } catch { setStatus('offline'); }
+    } catch { if(current()) setStatus('offline'); }
     finally { busy = false; if (again) setTimeout(run, 300); }
   }
   const soon = (ms = 1500) => { clearTimeout(timer); timer = setTimeout(run, ms); };
@@ -105,13 +114,13 @@
     // pairing link: https://your-address/#pair=KEY
     const m = /[#&]pair=([a-f0-9]{48})/.exec(location.hash);
     if (m) { writeMeta({ ...readMeta(), token: m[1], base: null, rev: 0 }); history.replaceState(null, '', location.pathname + location.search); }
-    if (!isLocal() && !readMeta().token) { setStatus('unpaired'); } else run();
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (isLocal() || readMeta().token)) soon(300); });
-    addEventListener('online', () => soon(300));
-    setInterval(() => { if (document.visibilityState === 'visible' && (isLocal() || readMeta().token)) run(); }, 60000);
+    if (!enabled()) { setStatus('unpaired'); } else run();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && enabled()) soon(300); });
+    addEventListener('online', () => { if(enabled()) soon(300); });
+    setInterval(() => { if (document.visibilityState === 'visible' && enabled()) run(); }, 60000);
     document.addEventListener('click', onClick);
   }
-  function changed() { if (host && (isLocal() || readMeta().token)) soon(); }
+  function changed() { if (host && enabled()) soon(); }
 
   // ---- the "Sync" part of the field kit ----
   const ago = t => { const s = Math.round((Date.now() - t) / 1000); return s < 10 ? 'just now' : s < 90 ? s + ' seconds ago' : Math.round(s / 60) + ' minutes ago'; };
@@ -124,7 +133,7 @@
     return '';
   }
   function markup() {
-    const local = isLocal(), paired = !!readMeta().token;
+    const local = isLocal() && !readMeta().disabled, paired = !!readMeta().token;
     let h = '<span class="set-kicker">Sync</span><p class="ui-status" id="sync-line" role="status">' + esc(line()) + '</p>';
     if (local) {
       h += '<p class="fine">This computer keeps the one copy of your map. Other devices sync to it, so it has to be on and reachable for them to update.</p>';
@@ -187,7 +196,7 @@
       if (!/^[a-f0-9]{48}$/.test(v)) { document.getElementById('sync-line').textContent = 'That doesn’t look like a pairing key.'; return; }
       writeMeta({ token: v, base: null, rev: 0 }); render(); run(); return;
     }
-    if (act === 'unpair') { writeMeta({}); setStatus('unpaired'); render(); }
+    if (act === 'unpair') { disconnect(); render(); }
   }
   document.addEventListener('input', e => {
     if (e.target && e.target.id === 'sync-address' && shownKey) {
@@ -196,5 +205,5 @@
     }
   });
 
-  root.OrientSync = { init, changed, now: run, render, status: () => status, merge, same };
+  root.OrientSync = { init, changed, disconnect, now: run, render, status: () => status, merge, same };
 })(typeof window !== 'undefined' ? window : globalThis);

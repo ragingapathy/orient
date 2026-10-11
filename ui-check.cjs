@@ -30,8 +30,8 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
 
     await t('the Field kit is grouped into cards with a jump bar, and every control the app relies on is still there', async () => {
       await page.click('[data-action="settings"]');
-      assert.equal(await page.locator('#settings-dialog .set-nav button').count(), 6);
-      assert.deepEqual(await page.locator('#settings-dialog .set-card > header h3').allInnerTexts(), ['Your map', 'Devices & backups', 'Sharing', 'Gidgit', 'Your data']);
+      assert.equal(await page.locator('#settings-dialog .set-nav button').count(), 7);
+      assert.deepEqual(await page.locator('#settings-dialog .set-card > header h3').allInnerTexts(), ['Your map', 'Devices & backups', 'Sharing', 'Gidgit', 'Civic sources', 'Your data']);
       for (const sel of ['#fog-toggle', '#demo-toggle', '#gidgit-enable', '#dir-app', '#import-file', '#takeout-file', '[data-home-open]', '[data-home-label]', '[data-gidgit-settings]', '[data-commons="hub"]', '[data-action="export"]', '[data-action="reset"]', '#sync-box', '#backup-box', '#stats-box', '[data-action="close-settings"]'])
         assert.equal(await page.locator('#settings-dialog ' + sel).count(), 1, sel);
       for (const name of ['Export my map', 'Change home area', 'Reset this browser’s map', 'Open place commons', 'Gidgit settings']) assert.equal(await page.getByRole('button', { name, exact: true }).count(), 1, name);

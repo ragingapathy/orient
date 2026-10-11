@@ -142,3 +142,8 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 .cluster-list button{display:grid;width:100%;gap:1px;padding:8px 10px;border:1px solid var(--edge);border-radius:10px;background:#fff;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .cluster-list button:hover,.cluster-list button:focus-visible{background:var(--land)}
 .cluster-list button span{font-weight:700;font-size:13px}.cluster-list button small{color:var(--muted);font-size:11px}
+
+/* Keep north available over the Explore overview without duplicating its actions. */
+#tools.explore-overview > :not(.north){display:none}
+
+.circuit-unlock-progress{display:grid;gap:12px;margin:14px 0}.circuit-unlock-progress label{font-size:12px;color:var(--muted)}.circuit-unlock-progress progress{display:block;width:100%;height:6px;margin-top:7px;accent-color:var(--green)}

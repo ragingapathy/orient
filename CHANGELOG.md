@@ -1,5 +1,21 @@
 # Orient Changelog
 
+## 2026-10-11 — v0.8.5
+
+- Rotating compass with a north reset, including the Explore map.
+- Reset clears local calendar, home area, photos, and preferences and disconnects sync so another person can start fresh.
+- Circuits unlock after five lifetime points and four real added/saved places.
+- Guided Civic source setup in Settings, encrypted provider keys, and automatic nationwide AirNow observations where nearby reports exist.
+- Automatic Michigan and California traffic cameras, seven additional keyed state camera connectors, and independent national Flock/ALPR location lookups.
+
+
+## 2026-10-11 — Cameras beyond Ohio
+
+- Michigan Mi Drive and all 12 California Caltrans districts now supply public traffic cameras automatically around the selected city, without keys. Michigan snapshots load on demand.
+- Added guided camera API connectors for Wisconsin, Idaho, Alaska, Nevada, Louisiana, Arizona, and Utah. Camera connections preserve existing roads connections; keys stay encrypted and outside map sync/export.
+- National Flock/other plate-reader locations load independently of state traffic feeds. Fixed rejected POST lookups by using public Overpass GET requests with a bounded fallback.
+- Agency caching, geographic filtering, source failure handling, and coverage guidance. See docs/camera-coverage.md for verified coverage and limitations.
+
 ## 2026-10-11 — Who you went with (reads Silverbook)
 
 - **Orient can read Silverbook.** A place's "Edit hours, people & notes" dialog gained a "With · Silverbook" card: link one or more people from your Silverbook address book to a place, and the place card shows who you go there with. Unlinking is one click. Only id, name, address and city ever leave Silverbook — never notes, emails, agenda, or skills — and Orient only reads; it never writes anything back.

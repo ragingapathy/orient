@@ -48,6 +48,7 @@ http.createServer((req,res)=>{
   if(url.startsWith('/api/commons/')){commonsPublish(req,res,url,json,sync);return;}
   if(url==='/api/geocode'){lookup(req,res);return;}
   if(url==='/api/gidgit/settings'){gidgit.settings(req,res,json,sync);return;}
+  if(url==='/api/civic-connect'||url.startsWith('/api/civic-connect/')||url.startsWith('/api/civic-live/')){require('./civic-connect.cjs').handle(req,res,url,json);return;}
   if(url==='/api/civic'){if(!sync.authorized(req)){json(res,401,{error:'Pair this browser to read civic sources.'});return;}require('./civic.cjs').handle(req,res,json);return;}
   if(url==='/api/silverbook'){if(!sync.authorized(req)){json(res,401,{error:'Pair this browser to read Silverbook.'});return;}require('./silverbook.cjs').handle(req,res,json);return;}
   if(url==='/api/gidgit'){gidgit.handle(req,res,json,sync);return;}

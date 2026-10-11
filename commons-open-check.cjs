@@ -81,7 +81,7 @@ const cleveland = { name: 'Cleveland', coordinates: [-81.69, 41.5], timeZone: 'A
     // 6. following the link opens GitHub, remembers the repository and the contribution, and never touches the token endpoints
     const popup = ctx.waitForEvent('page');
     await open.click();
-    const opened = await popup; assert.match(opened.url(), /^https:\/\/github\.com\/city\/toledo\/new\/trunk\?filename=/);
+    const opened = await popup; await opened.waitForURL(/^https:\/\/github\.com\/city\/toledo\/new\/trunk\?filename=/,{waitUntil:'commit'}); assert.match(opened.url(), /^https:\/\/github\.com\/city\/toledo\/new\/trunk\?filename=/);
     await p.getByText('Opened on GitHub. Press Propose new file, then Create pull request.').waitFor();
     const s = await p.evaluate(() => ({ repo: localStorage.getItem('orient-commons-repository'), map: JSON.parse(localStorage.getItem('orient-field-map-v1')) }));
     assert.equal(s.repo, 'city/toledo'); assert.equal(s.map.commons.records.length, 1);

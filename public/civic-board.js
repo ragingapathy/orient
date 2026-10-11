@@ -1,14 +1,12 @@
 'use strict';
-/* The Civic tab: what is happening in the city right now, on one screen and on the map.
-   Weather and alerts, road work and closures (roadwork.js), incidents, state traffic cameras, and the license plate readers that
-   volunteers have mapped on OpenStreetMap (the data DeFlock maps). Everything comes from a few small public files a commons
-   repository refreshes (commons-template/); Orient only downloads those files. No location, account or key is sent.
-   Camera pictures load straight from the state's own server, and only when you ask to see a camera. */
+/* Civic layers use regional DOT connectors and automatic public camera / OSM lookups.
+   Approximate selected-area coordinates reach Orient's server and public map services.
+   Agency camera images load on demand and are never archived by Orient. */
 window.OrientBoard = (() => {
   const PREF = 'orient-civic-v1', CACHE = 'orient-civic-cache-v1';
   const FILES = { incidents: 'incidents.json', cameras: 'cameras.json', alpr: 'alpr.json' };
   const FORMATS = { incidents: 'orient-incidents', cameras: 'orient-cameras', alpr: 'orient-alpr' };
-  const TTL = { incidents: 10 * 60e3, cameras: 6 * 3600e3, alpr: 12 * 3600e3 };
+  const TTL = { incidents: 10 * 60e3, cameras: 10 * 60e3, alpr: 12 * 3600e3 };
   const LABEL = { incidents: 'Incidents', cameras: 'Traffic cameras', alpr: 'Plate readers' };
   const SRC = { incidents: 'orient-incidents', cameras: 'orient-cameras', alpr: 'orient-alpr' };
   const HOVER = 'orient-civic-hover';
@@ -21,12 +19,14 @@ window.OrientBoard = (() => {
   const prefs = () => ({ incidents: true, cameras: null, alpr: null, ...jget(PREF, {}) });
   const paint = () => { try { window.lucide && window.lucide.createIcons(); } catch { /* decoration */ } };
 
+  let sourceEpoch=0,lastBase;
   let closuresView = false;
   let api = null, data = {}, meta = {}, loading = {}, tried = {}, hoverEl = null, dialog = null, camTimer = 0, bound = null, redrawSoon = 0;
   const tab = () => (api && api.tab ? api.tab() : '');
   const map = () => (api && api.map ? api.map() : null);
   const origin = () => { const o = api && api.origin && api.origin(); return o && o.length === 2 && o.every(Number.isFinite) ? o : null; };
   const base = () => { const s = window.OrientRoadwork && OrientRoadwork.source && OrientRoadwork.source(); return s ? s.base : null; };
+  const sourceURL = name => { if(name==='alpr'){const o=origin();return o?'/api/civic-connect/alpr?lng='+o[0].toFixed(2)+'&lat='+o[1].toFixed(2):null;}const b=base();if(name==='cameras'){const o=origin(),d=[jget('orient-civic-camera-direct-v1',null),jget('orient-civic-direct-v1',null)].find(d=>d?.statuses?.cameras?.connected&&Array.isArray(d.center)&&o&&dist(o,d.center)<=100000);if(d)return '/api/civic-live/'+d.id+'/'+FILES[name];if(b&&!b.startsWith('/api/civic-live/'))return b+FILES[name];return o?'/api/civic-connect/cameras?lng='+o[0].toFixed(2)+'&lat='+o[1].toFixed(2):null;}return b?b+FILES[name]:null; };
   const dist = (a, b) => OrientPlaces.distance(a, b);
   const miles = m => m / 1609.344;
   const away = m => Number.isFinite(m) ? (m < 160 ? 'right here' : miles(m).toFixed(1) + ' mi away') : '';
@@ -47,32 +47,33 @@ window.OrientBoard = (() => {
       if (!i || typeof i !== 'object' || !pos(i.lat, i.lng)) continue;
       const id = str(i.id, 80); if (!id) continue;
       if (name === 'incidents') items.push({ id, lat: i.lat, lng: i.lng, category: str(i.category, 40), route: str(i.route, 60), direction: str(i.direction, 24), location: str(i.location, 120), description: str(i.description, 300), status: ['closed', 'partial', 'open', 'unknown'].includes(i.status) ? i.status : 'unknown', polyline: (Array.isArray(i.polyline) ? i.polyline : []).filter(c => Array.isArray(c) && pos(c[1], c[0])).slice(0, 40).map(c => [c[0], c[1]]) });
-      else if (name === 'cameras') { const views = (Array.isArray(i.views) ? i.views : []).slice(0, 6).map(v => ({ direction: str(v && v.direction, 24), route: str(v && v.route, 80), small: https(v && v.small), large: https(v && v.large) })).filter(v => v.small || v.large); if (views.length) items.push({ id, lat: i.lat, lng: i.lng, location: str(i.location, 120), description: str(i.description, 160), views }); }
+      else if (name === 'cameras') { const views = (Array.isArray(i.views) ? i.views : []).slice(0, 6).map(v => ({ direction: str(v && v.direction, 160), route: str(v && v.route, 80), small: https(v && v.small), large: https(v && v.large) })).filter(v => v.small || v.large); if (views.length || (i.detail===true && /^mi:\d{1,8}$/.test(id))) items.push({ id, lat: i.lat, lng: i.lng, location: str(i.location, 120), description: str(i.description, 160), detail:i.detail===true, views }); }
       else items.push({ id, lat: i.lat, lng: i.lng, direction: Number.isFinite(i.direction) ? ((Math.round(i.direction) % 360) + 360) % 360 : null, manufacturer: str(i.manufacturer, 60), operator: str(i.operator, 80), zone: str(i.zone, 30), mount: str(i.mount, 30), kind: str(i.kind, 20), model: str(i.model, 60) });
     }
-    return { updated: iso(raw.updated), source, items };
+    return { updated: iso(raw.updated), source, items, coverage:raw.coverage?{supported:raw.coverage.supported===true}:null };
   }
   async function load(name, force = false) {
-    const b = base(); if (!b) { data[name] = null; return null; }
-    const cache = jget(CACHE, {})[name], url = b + FILES[name];
+    const epoch=sourceEpoch;
+    const b = sourceURL(name); if (!b) { data[name] = null; return null; }
+    const cache = jget(CACHE, {})[name], url = b;
     if (!force && cache && cache.url === url && Date.now() - cache.at < TTL[name]) { const v = validate(name, cache.raw); if (v) { data[name] = v; return v; } }
     if (loading[name]) return loading[name];
     loading[name] = (async () => {
       tried[name] = Date.now();
       try {
         const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
-        const r = await fetch(url, { signal: ctl.signal, cache: 'no-cache' }).finally(() => clearTimeout(t));
+        const r = await fetch(url, { signal: ctl.signal, cache: 'no-cache',headers:window.OrientCivicSetup?.headers(url)||{} }).finally(() => clearTimeout(t));
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        const raw = await r.json(), v = validate(name, raw); if (!v) throw new Error('not a ' + name + ' file');
+        const raw = await r.json(); if(epoch!==sourceEpoch||sourceURL(name)!==b)return null; const v = validate(name, raw); if (!v || v.source.status==='failed') throw new Error('unavailable ' + name + ' file');
         data[name] = v; const all = jget(CACHE, {}); all[name] = { url, at: Date.now(), raw }; jset(CACHE, all);
-      } catch { const v = cache && cache.url === url ? validate(name, cache.raw) : null; data[name] = v || data[name] || null; }
-      finally { loading[name] = null; }
+      } catch { if(epoch!==sourceEpoch||sourceURL(name)!==b)return null; const v = cache && cache.url === url ? validate(name, cache.raw) : null; data[name] = v || data[name] || null; }
+      finally { if(epoch===sourceEpoch)loading[name] = null; }
       changed(); return data[name];
     })();
     return loading[name];
   }
   // fetch only what is wanted: the layers that are on, and everything while you are on the Civic tab
-  function ensure() { for (const n of Object.keys(FILES)) if ((layerOn(n) || tab() === 'Civic') && !loading[n] && (data[n] === undefined || (data[n] === null && Date.now() - (tried[n] || 0) > 60000))) load(n); }
+  function ensure() { const next=base()+'|'+sourceURL('alpr')+'|'+sourceURL('cameras');if(next!==lastBase){lastBase=next;sourceEpoch++;data={};meta={};tried={};loading={};} for (const n of Object.keys(FILES)) if ((layerOn(n) || tab() === 'Civic') && !loading[n] && (data[n] === undefined || (data[n] === null && Date.now() - (tried[n] || 0) > 60000))) load(n); }
   function changed() { clearTimeout(redrawSoon); redrawSoon = setTimeout(() => { drawAll(); if (tab() === 'Civic' && !document.querySelector('dialog[open]') && api.render) { try { api.render(); } catch { /* the next change draws it */ } } }, 40); }
 
   // ----- the map layer -----
@@ -123,7 +124,7 @@ window.OrientBoard = (() => {
     try {
       images(m);
       for (const name of Object.keys(FILES)) {
-        const on = layerOn(name) && base() && data[name];
+        const on = layerOn(name) && sourceURL(name) && data[name];
         if (on && !m.getSource(SRC[name])) build(m, name);
         else if (on) m.getSource(SRC[name]).setData(collections[name](data[name]));
         for (const id of LAYER_IDS[name]) if (m.getLayer(id)) m.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
@@ -214,8 +215,9 @@ window.OrientBoard = (() => {
     }
     paint();
   }
-  function openCamera(id, viewIndex = 0) {
-    const c = byId('cameras', id); if (!c) return; const v = c.views[Math.min(viewIndex, c.views.length - 1)];
+  let bodyCamera=null;
+  async function openCamera(id, viewIndex = 0) { bodyCamera=id;clearTimeout(camTimer);
+    const c = byId('cameras', id); if (!c) return; if(c.detail&&!c.views.length){const wait=frame('Traffic camera',c.location||'Traffic camera');wait.textContent='Loading the agency’s picture…';try{const r=await fetch('/api/civic-connect/camera?id='+encodeURIComponent(id),{signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error();const raw=await r.json();const checked=validate('cameras',{format:'orient-cameras',version:1,source:{},items:[{...c,detail:false,views:raw.views}]});if(!checked?.items[0]?.views.length)throw Error();c.views=checked.items[0].views;if(!dialog?.open||bodyCamera!==id)return;}catch{wait.textContent='This camera’s picture is unavailable right now. Try again later.';return;}} const v = c.views[Math.min(viewIndex, c.views.length - 1)];
     const body = frame('Traffic camera', c.location || 'Traffic camera'); clearTimeout(camTimer);
     body.innerHTML = (c.views.length > 1 ? '<div class="ui-chips rb-views" role="group" aria-label="Camera views">' + c.views.map((x, k) => '<button type="button" class="ui-chip" data-board="view" data-id="' + esc(id) + '" data-view="' + k + '" aria-pressed="' + (k === viewIndex) + '">' + esc(x.direction || 'View ' + (k + 1)) + '</button>').join('') + '</div>' : '') +
       '<div class="rb-shot"><img class="rb-live" alt="Live picture from the traffic camera at ' + esc(c.location) + '" referrerpolicy="no-referrer"><p class="rb-shot-note" role="status">Loading the picture…</p></div><div class="rb-facts">' + fact('Looking', v.direction) + fact('Watching', v.route) + fact('About', c.description) + '</div><div class="rb-actions"><button type="button" class="button" data-board="show" data-name="cameras" data-id="' + esc(id) + '">Show on map</button></div><p class="fine">The picture comes straight from ' + esc((data.cameras.source.publisher || 'the state traffic agency')) + ' and refreshes every few seconds while this is open. Orient does not store it.</p>';
@@ -272,17 +274,17 @@ window.OrientBoard = (() => {
       (d ? '<p class="fine">From ' + esc(d.source.publisher || 'the state traffic agency') + ', updated ' + esc(ago(d.updated)) + '.</p>' : '') + '</section>';
   }
   function camerasSection() {
-    const d = data.cameras; if (!base()) return '';
+    const d = data.cameras; if (!origin()) return '';
     const list = d ? near(d.items, 24).slice(0, 4) : [];
     return '<section class="rb-card" id="rb-cameras">' + head('cctv', 'Traffic cameras', d ? d.items.length : null, 'cameras', 'cam') +
-      (d === undefined || (d === null && loading.cameras) ? none('Loading cameras…') : !d ? none('Cameras aren’t available right now.') : list.length ? '<div class="rb-cams">' + list.map(c => '<button type="button" class="rb-cam" data-board="camera" data-id="' + esc(c.id) + '"><span class="rb-cam-img">' + (c.views[0].small ? '<img loading="lazy" src="' + esc(c.views[0].small) + '" alt="" referrerpolicy="no-referrer">' : '') + '</span><b>' + esc(c.location || 'Traffic camera') + '</b><small>' + esc(away(c.meters)) + '</small></button>').join('') + '</div>' : none('No state traffic cameras within about 15 miles.')) +
+      (d === undefined || (d === null && loading.cameras) ? none('Loading cameras…') : !d ? none('Cameras aren’t available right now.') : list.length ? '<div class="rb-cams">' + list.map(c => '<button type="button" class="rb-cam" data-board="camera" data-id="' + esc(c.id) + '"><span class="rb-cam-img">' + (c.views[0]?.small ? '<img loading="lazy" src="' + esc(c.views[0]?.small) + '" alt="" referrerpolicy="no-referrer">' : '<i data-lucide="cctv" aria-hidden="true"></i><small>Open camera ↗</small>') + '</span><b>' + esc(c.location || 'Traffic camera') + '</b><small>' + esc(away(c.meters)) + '</small></button>').join('') + '</div>' : none(d.coverage?.supported===false?'Automatic traffic cameras are not connected here yet. Check Settings → Civic sources for a state connector.':d.source.status==='failed'?'The camera agency is temporarily unavailable. Try again shortly.':'No state traffic cameras within about 15 miles.')) +
       (d ? '<p class="fine">Live pictures load straight from ' + esc(d.source.publisher || 'the state') + ' when you open a camera.</p>' : '') + '</section>';
   }
   function alprSection() {
-    const d = data.alpr; if (!base()) return '';
+    const d = data.alpr; if (!origin()) return '';
     const all = d ? near(d.items, 8) : [], by = key => [...all.reduce((m, a) => m.set(a[key] || 'Not recorded', (m.get(a[key] || 'Not recorded') || 0) + 1), new Map())].sort((x, y) => y[1] - x[1]);
     const ops = by('operator'), makes = by('manufacturer');
-    return '<section class="rb-card" id="rb-alpr">' + head('scan-eye', 'License plate readers', d ? d.items.length : null, 'alpr', 'alpr') +
+    return '<section class="rb-card" id="rb-alpr">' + head('scan-eye', 'Flock & other plate readers', d ? d.items.length : null, 'alpr', 'alpr') +
       (d === undefined || (d === null && loading.alpr) ? none('Loading plate readers…') : !d ? none('Plate readers aren’t available right now.') : '<p class="rb-lede"><b>' + all.length + '</b> mapped within about 5 miles of ' + esc(api.label ? api.label() || 'here' : 'here') + (all.length ? ', run by <b>' + ops.length + '</b> ' + (ops.length === 1 ? 'operator' : 'operators') + '.' : '.') + '</p>' +
         (all.length ? '<div class="rb-bars" role="list" aria-label="Plate readers within five miles, by operator">' + ops.slice(0, 5).map(([name, n]) => '<div class="rb-bar" role="listitem"><span>' + esc(name) + '</span><i style="width:' + Math.max(6, Math.round(n / ops[0][1] * 100)) + '%"></i><b>' + n + '</b></div>').join('') + '</div>' + (makes.length ? '<p class="fine">Makes: ' + makes.slice(0, 4).map(([k, n]) => esc(k) + ' (' + n + ')').join(', ') + '.</p>' : '') : '') +
         all.slice(0, 3).map(a => '<div class="rb-row"><i data-lucide="scan-eye" aria-hidden="true" data-k="alpr"></i><span><b>' + esc([a.manufacturer, a.operator].filter(Boolean).join(' · ') || 'Plate reader') + '</b><small>' + esc([facing(a.direction), away(a.meters)].join(' · ')) + '</small></span><button type="button" class="button" data-board="detail" data-name="alpr" data-id="' + esc(a.id) + '">Details</button></div>').join('') +
@@ -314,7 +316,7 @@ window.OrientBoard = (() => {
     let content = '';
     if (current === 'overview') content = tiles() + weatherSection() + usefulSection() + '<div class="civic-shortcuts"><button class="button full" data-board="section" data-section="conditions">Road conditions →</button><button class="button full" data-board="section" data-section="cameras">Cameras & plate readers →</button><button class="button full" data-board="section" data-section="amenities">Find amenities & Wi-Fi →</button></div>';
     else if (current === 'conditions') content = base() ? roadworkSection() + incidentsSection() : none('No road conditions feed for this area yet.');
-    else if (current === 'cameras') content = base() ? camerasSection() + alprSection() : none('No camera feed for this area yet.');
+    else if (current === 'cameras') content = camerasSection() + alprSection();
     else content = OrientWifi.board() + usefulSection();
     panel.classList.remove('briefing-drawer', 'briefing-expanded'); panel.hidden = false; panel.dataset.civic = '1';
     panel.innerHTML = '<div class="explore-list-heading"><div class="kicker">The city right now</div></div><h2>' + esc(place ? place + ' today' : 'Civic') + '</h2>' + nav + '<div id="civic-content" role="tabpanel" aria-labelledby="civic-tab-' + current + '" data-civic-section="' + current + '">' + content + '</div>';
@@ -350,7 +352,7 @@ window.OrientBoard = (() => {
       let next; if (e.key === 'ArrowRight') next = keys[(n + 1) % keys.length]; else if (e.key === 'ArrowLeft') next = keys[(n + keys.length - 1) % keys.length]; else if (e.key === 'Home') next = keys[0]; else if (e.key === 'End') next = keys.at(-1); else return;
       e.preventDefault(); chooseSection(next, true);
     });
-    api = a; document.addEventListener('orient-weather', changed); document.addEventListener('orient-roadwork', changed); document.addEventListener('click', onClick); document.addEventListener('change', onChange);
+    api = a; document.addEventListener('orient-civic-connected',()=>{lastBase=undefined;ensure();changed();}); document.addEventListener('orient-weather', changed); document.addEventListener('orient-roadwork', changed); document.addEventListener('click', onClick); document.addEventListener('change', onChange);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { for (const n of Object.keys(FILES)) if (data[n] && Date.now() - (jget(CACHE, {})[n] || { at: 0 }).at > TTL[n]) load(n, true); } });
     ensure(); drawAll();
   }

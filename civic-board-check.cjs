@@ -20,9 +20,11 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
       await ctx.addInitScript(([st, g, w, rw]) => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(st)); if (!w) localStorage.setItem('orient-weather-v1', JSON.stringify({ show: false })); if (g) localStorage.setItem('orient-gidgit-enabled', 'true'); if (rw) localStorage.setItem('orient-roadwork-v1', JSON.stringify({ show: false })); } }, [s, gidgit, weatherOn, rwOff]);
       const page = await ctx.newPage(); page.errors = []; page.log = []; page.on('pageerror', e => page.errors.push(e.message)); page.setDefaultTimeout(8000);
       await page.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' }));
-      await page.route('**/api/civic?*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ format: 'orient-civic', version: 1, sourceId: 'fixture', center: s.home.coordinates, updated: new Date().toISOString(), air: [{ aqi: 38, category: 'Good', area: 'Toledo', pollutant: 'PM2.5', agency: 'Fixture agency', localTime: 'Today', coordinates: s.home.coordinates, observedAt: new Date().toISOString() }], amenities: [{ id: 'park', name: 'Fixture Park', coordinates: [-83.53, 41.65], amenities: ['Restrooms', 'Benches'] }], fuel: [] }) }));
+      await page.route('**/api/civic-connect/air?*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ format: 'orient-civic', version: 1, sourceId: 'fixture', sources:[{id:'airnow',status:'ok'}], center: s.home.coordinates, updated: new Date().toISOString(), air: [{ aqi: 38, category: 'Good', area: 'Toledo', pollutant: 'PM2.5', agency: 'Fixture agency', localTime: 'Today', coordinates: s.home.coordinates, observedAt: new Date().toISOString() }], amenities: [{ id: 'park', name: 'Fixture Park', coordinates: [-83.53, 41.65], amenities: ['Restrooms', 'Benches'] }], fuel: [] }) }));
       await page.route(/open-meteo\.com|api\.weather\.gov/, r => { const u = r.request().url(), json = b => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(b) }); if (u.includes('archive')) return json(archive(u)); if (u.includes('weather.gov')) return json(alerts ? alertOf(false) : { features: [] }); return json(forecast(63)); });
       await page.route(/itscameras\.example/, r => { page.log.push(r.request().url()); r.fulfill({ status: 200, contentType: 'image/png', body: PNG }); });
+      await page.route('**/api/civic-connect/alpr?*', r => { page.log.push(r.request().url());if(fail)return r.abort();const raw=files.alpr||M.alpr();if(s.home.name==='Chicago')raw.items=[];return r.fulfill({json:raw}); });
+      await page.route('**/api/civic-connect/cameras?*', r => r.fulfill({json:{format:'orient-cameras',version:1,source:{status:'ok'},coverage:{supported:false},items:[]}}));
       await page.route(/raw\.githubusercontent\.com/, r => {
         const u = r.request().url(); page.log.push(u); if (fail) return r.abort();
         const name = (u.match(/\/(roadwork|incidents|cameras|alpr)\.json/) || [])[1]; const body = files[name] || M[name]();
@@ -61,7 +63,7 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
       panel = await civic(p, 'conditions'); assert.deepEqual(await heads(), ['Road work and closures', 'Incidents']);
       assert.match(await panel.locator('#rb-roadwork').innerText(), /Anthony Wayne Trail|I-75/); assert.equal(await panel.locator('#rb-roadwork [data-board=roadwork]').count(), 1);
       const inc = await panel.locator('#rb-incidents .rb-row').allInnerTexts(); assert.equal(inc.length, 3); assert.match(inc[0], /I-75 · Northbound/); assert.match(inc[0], /Crash/);
-      panel = await civic(p, 'cameras'); assert.deepEqual(await heads(), ['Traffic cameras', 'License plate readers']);
+      panel = await civic(p, 'cameras'); assert.deepEqual(await heads(), ['Traffic cameras', 'Flock & other plate readers']);
       assert.equal(await panel.locator('#rb-cameras .rb-cam').count(), 4); assert.match(await panel.locator('#rb-cameras .rb-cam').first().innerText(), /I-75 at Exit 1/);
       const alpr = await panel.locator('#rb-alpr').innerText(); assert.match(alpr, /4 mapped within about 5 miles/); assert.match(alpr, /2 operators/); assert.match(alpr, /Lucas County Sheriff/); assert.match(alpr, /Flock Safety/);
       await panel.locator('#rb-alpr details summary').click(); assert.match(await panel.locator('#rb-alpr details').innerText(), /DeFlock[\s\S]*OpenStreetMap contributors[\s\S]*Open Database License/);
@@ -152,10 +154,10 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
       await p.locator('.bottom-nav [data-tab="Civic"]').click(); await p.waitForFunction(() => OrientBoard.closuresView() === false);
       assert.equal(await p.locator('.world').getAttribute('data-view'), '', 'the map is back to normal'); assert.deepEqual(p.errors, []);
     });
-    await t('only the commons files are fetched, and camera pictures only from the camera host', async () => {
+    await t('regional commons files and independent ALPR requests are fetched, with pictures only from the camera host', async () => {
       const p = await open(); await civic(p, 'cameras'); await p.waitForTimeout(500);
-      const hosts = [...new Set(p.log.map(u => new URL(u).host))].sort(); assert.deepEqual(hosts, ['itscameras.example', 'raw.githubusercontent.com']);
-      assert.deepEqual([...new Set(p.log.filter(u => u.includes('raw.')).map(u => u.split('/').pop()))].sort(), ['alpr.json', 'cameras.json', 'incidents.json', 'roadwork.json']);
+      const hosts = [...new Set(p.log.map(u => new URL(u).host))].sort(); assert.deepEqual(hosts, [new URL(URL_).host,'itscameras.example', 'raw.githubusercontent.com'].sort());
+      assert.deepEqual([...new Set(p.log.filter(u => u.includes('raw.')).map(u => u.split('/').pop()))].sort(), ['cameras.json', 'incidents.json', 'roadwork.json']);
       assert.equal(p.log.filter(u => u.includes('raw.')).every(u => !u.includes('?')), true, 'no query strings: nothing about you is added');
       const q = await open(); await q.waitForTimeout(800); assert.equal(q.log.some(u => u.includes('itscameras')), false, 'no camera pictures until the Civic tab is opened');
     });
@@ -168,7 +170,7 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
     await t('an area with no feeds still gets weather and Useful nearby, and an honest note', async () => {
       const p = await open({ s: store({ name: 'Chicago', coordinates: [-87.63, 41.88], timeZone: 'America/Chicago' }) }); await p.locator('.bottom-nav [data-tab="Civic"]').click(); await p.locator('#panel h2').waitFor();
       const text = await p.locator('#panel').innerText(); assert.match(text, /Weather and alerts/); assert.equal(await p.locator('#rb-useful').count(), 1, 'Useful nearby is still there'); assert.equal(await p.locator('[data-closures]').count(), 0, 'no Closures chip where there is no source');
-      await p.locator('#civic-tab-conditions').click(); assert.match(await p.locator('#panel').innerText(), /No road conditions feed for this area yet/); await p.locator('#civic-tab-cameras').click(); assert.match(await p.locator('#panel').innerText(), /No camera feed for this area yet/);
+      await p.locator('#civic-tab-conditions').click(); assert.match(await p.locator('#panel').innerText(), /No road conditions feed for this area yet/); await p.locator('#civic-tab-cameras').click(); await p.getByText('Automatic traffic cameras are not connected here yet.',{exact:false}).waitFor(); assert.match(await p.locator('#panel').innerText(), /Automatic traffic cameras are not connected here yet/);
       assert.equal(p.log.filter(u => u.includes('raw.')).length, 0, 'nothing is requested');
     });
     await t('the file is checked: wrong formats, bad positions, insecure pictures and junk are refused or dropped', async () => {

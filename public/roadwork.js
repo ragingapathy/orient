@@ -38,7 +38,7 @@ window.OrientRoadwork = (() => {
 
   // ----- which file belongs to this area -----
   const origin = () => { const o = api && api.origin && api.origin(); return o && o.length === 2 && o.every(Number.isFinite) ? o : null; };
-  function sourceFor(o) { if (!o) return null; let best = null, bd = Infinity; for (const s of SOURCES) { const d = OrientPlaces.distance(o, s.center); if (d <= s.km * 1000 && d < bd) { best = s; bd = d; } } return best; }
+  function sourceFor(o) { if (!o) return null; const custom=window.OrientCivicSetup?.sourceFor(o); if(custom)return custom; let best = null, bd = Infinity; for (const s of SOURCES) { const d = OrientPlaces.distance(o, s.center); if (d <= s.km * 1000 && d < bd) { best = s; bd = d; } } return best; }
   // A feed lists one entry per direction of travel, so a closure arrives twice. People think of it as one road closed,
   // so the list and the counts work with groups: the same project (status, dates and description) is one card.
   const KEEP = new Set(['US', 'SR', 'CR', 'IR', 'I', 'TR', 'N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']);
@@ -102,16 +102,17 @@ window.OrientRoadwork = (() => {
     if (!api) return;
     source = sourceFor(origin());
     if (!shownNow() || !source) { data = null; clearMap(); everywhere(); return; }
+    const selected=source;
     const cache = jget(CACHE, null);
     if (!force && cache && cache.url === source.url && Date.now() - cache.at < FRESH) { data = validate(cache.raw); everywhere(); return; }
     try {
       const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 12000);
-      const r = await fetch(source.url, { signal: ctl.signal, cache: 'no-cache' }).finally(() => clearTimeout(t));
+      const r = await fetch(source.url, { signal: ctl.signal, cache: 'no-cache',headers:window.OrientCivicSetup?.headers(source.url)||{} }).finally(() => clearTimeout(t));
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      const raw = await r.json(), ok = validate(raw);
+      const raw = await r.json(); if(source?.url!==selected.url)return; const ok = validate(raw);
       if (!ok) throw new Error('not a road-work file');
       data = ok; jset(CACHE, { url: source.url, at: Date.now(), raw });
-    } catch { data = cache && cache.url === source.url ? validate(cache.raw) : null; }
+    } catch { if(source?.url!==selected.url)return; data = cache && cache.url === source.url ? validate(cache.raw) : null; }
     everywhere();
   }
 
