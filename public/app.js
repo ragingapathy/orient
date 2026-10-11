@@ -433,6 +433,7 @@
   OrientPhotos.init({...privatePlaceAPI,toast,startMemory:()=>{cancelLookup();resetSite();$('#add-dialog').close();},mapCenter:()=>{if(!mapLoaded||!map)return null;const p=map.getCenter();return [p.lng,p.lat];},select:id=>{state.query='';$('#search').value='';selectPlace(id,{expand:true});}});
   OrientWebsite.init({...privatePlaceAPI,toast});
   OrientGidgit.init({...privatePlaceAPI,toast,selected:()=>state.selected,origin:()=>state.origin,show:id=>{state.filter='Everything';Object.assign(state,filterDefaults);state.query='';$('#search').value='';state.tab='My Map';state.list=false;selectPlace(id,{expand:true});}});
+  OrientSilverbook.init({render});
   OrientSync.init({get:()=>JSON.parse(JSON.stringify(store)),apply:async raw=>{if(OrientCatalog.needed(raw))await OrientCatalog.load();const previous=store.home;store=cleanData(raw);if(JSON.stringify(previous)!==JSON.stringify(store.home)){state.origin=store.home?.coordinates||[0,20];state.originLabel=store.home?.name||'your chosen area';if(store.home)map?.jumpTo({center:store.home.coordinates,zoom:12});}try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}render();}});
   OrientTakeout.init({store:()=>store,places:allPlaces,origin:()=>state.origin,icon:categoryIcon,save,render,keepOsm,addVisit:(id,day)=>OrientVisits.add(id,day),visitDays:id=>OrientVisits.entries(id)});
   OrientRoadwork.init({origin:()=>state.origin,map:()=>map});

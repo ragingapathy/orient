@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## 2026-10-11 — Who you went with (reads Silverbook)
+
+- **Orient can read Silverbook.** A place's "Edit hours, people & notes" dialog gained a "With · Silverbook" card: link one or more people from your Silverbook address book to a place, and the place card shows who you go there with. Unlinking is one click. Only id, name, address and city ever leave Silverbook — never notes, emails, agenda, or skills — and Orient only reads; it never writes anything back.
+- **Works wherever Orient is hosted, not just at home.** The read happens on Orient's own server, which reaches Silverbook on the same computer (`host.docker.internal`, inside Docker), not from your browser. So this works the same whether you're on the home network or using the hosted address from anywhere — Silverbook itself stays local-only and is never exposed to the internet.
+- **Gated like the rest of the tunnel.** A request arriving through the public tunnel must carry the same pairing key as sync and Gidgit; an unpaired visitor gets refused, same as today.
+- If Silverbook isn't running, the card just says so, and any link you made earlier is kept, not erased.
+- New files `silverbook.cjs` (the bridge) and `public/silverbook.js` (the client cache); new checks `silverbook-check.cjs` and `silverbook-ui-check.cjs`.
+
 ## 2026-10-11 — v0.8.2
 
 Since v0.8.0: crowded pins fold into one button, saved pins wear a gold star and visited pins a check badge, you can pick an icon for any place, the road-work button is gone from the map, a rewritten README, the checks are green and run on GitHub, and plain 12-hour times with a full-height phone screen. The dated entries below have the details.
