@@ -359,7 +359,7 @@
       case 'filter-center':if(map){const c=map.getCenter();state.origin=[c.lng,c.lat];state.originLabel='chosen map center';render();}else toast('The map is still loading.');break;
       case 'filters':state.filters=!state.filters;render();break;
       case 'home':if(store.home)OrientAreas.choose(store.home);else OrientHome.open();break;
-      case 'north':map?.easeTo({bearing:0,duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:300});break;
+      case 'north':if(window.OrientLocate)OrientLocate.press();else map?.easeTo({bearing:0,duration:matchMedia('(prefers-reduced-motion: reduce)').matches?0:300});break;
       case 'explore-map':state.exploreHome=false;state.selected=null;state.list=false;render();break;
       case 'back-today':state.tab='Explore';state.exploreHome=true;state.briefingExpanded=true;state.selected=null;state.query='';$('#search').value='';state.list=false;state.filters=false;state.filter='Everything';state.circuitMap=false;state.loreMap=false;state.neighborId=null;state.thread=null;Object.assign(state,filterDefaults);render();$('#panel .briefing-handle')?.focus({preventScroll:true});break;
       case 'explore-list':state.exploreHome=false;state.selected=null;state.list=true;render();break;
@@ -475,15 +475,17 @@
     if(!window.maplibregl)throw new Error('Map engine unavailable');
     map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:OrientAreas.view()?.center||OrientAreas.area()?.coordinates||store.home?.coordinates||[0,20],zoom:OrientAreas.view()?.zoom||(store.home?12:2),attributionControl:false,pitchWithRotate:false});
     OrientMapPins.init(map,point=>{if(['Explore','My Map'].includes(state.tab))addPlace(null,point);});
+    // Orient orients: once when the app opens, and again on every press of the compass (no tracking in between).
+    OrientLocate.init(map,{toast,ready:()=>!!store.home,holding:()=>!!state.selected,offset:()=>{if(!state.selected)return [0,0];return matchMedia('(min-width:760px)').matches?[140,0]:[0,-Math.min($('#sheet').offsetHeight/2,150)];}});OrientLocate.auto();
     const syncCompass=()=>{
       const button=$('[data-action="north"]');if(!button)return;
       let needle=button.querySelector('.north-needle');
       if(!needle){needle=document.createElement('span');needle.className='north-needle';needle.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transform-origin:center';while(button.firstChild)needle.append(button.firstChild);button.append(needle);}
       const bearing=map.getBearing();needle.style.transform='rotate('+(-bearing)+'deg)';
-      button.setAttribute('aria-label','Reset map to north');button.title='Reset north · bearing '+Math.round((bearing%360+360)%360)+'°';
+      button.setAttribute('aria-label','Find my location and point north');button.title='Find me and point north · bearing '+Math.round((bearing%360+360)%360)+'°';
     };
     map.on('rotate',syncCompass);syncCompass();
-    map.on('moveend',()=>OrientAreas.remember());
+    map.on('moveend',()=>{if(!OrientLocate.settling())OrientAreas.remember();});
     map.addControl(new maplibregl.AttributionControl({compact:false}),'bottom-right');
     map.addControl(new maplibregl.ScaleControl({maxWidth:80,unit:'imperial'}),'bottom-left');
     map.on('load',()=>{mapLoaded=true;$('#map-status').hidden=true;

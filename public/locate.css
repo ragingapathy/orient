@@ -1,0 +1,11 @@
+/* Where you are: a still dot and, when the position is rough, a ring showing how rough. */
+.you-marker{position:relative;width:18px;height:18px;pointer-events:none;z-index:1}
+.you-dot{position:absolute;inset:0;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 1px 5px #0b2a6b66}
+.you-ring{position:absolute;left:50%;top:50%;width:calc(var(--you-r,0px)*2);height:calc(var(--you-r,0px)*2);transform:translate(-50%,-50%);border-radius:50%;background:#2563eb22;border:1px solid #2563eb55;display:none}
+.you-marker.has-ring .you-ring{display:block}
+.you-marker.stale .you-dot{background:#7d94c4;box-shadow:none;opacity:.8}
+.you-marker.stale .you-ring{border-style:dashed;background:#2563eb10}
+/* The compass while it looks for you: a gentle pulse; reduced motion gets a steady ring instead. */
+.icon-button.north.locating{animation:orient-locating 1s ease-in-out infinite}
+@keyframes orient-locating{0%,100%{box-shadow:0 0 0 0 #2563eb55}50%{box-shadow:0 0 0 7px #2563eb00}}
+@media(prefers-reduced-motion:reduce){.icon-button.north.locating{animation:none;box-shadow:0 0 0 3px #2563eb66}}

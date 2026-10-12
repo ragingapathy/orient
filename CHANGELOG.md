@@ -1,5 +1,15 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.8.9
+
+### Orient orients
+
+- **The compass now finds you.** Every press reads your location once, moves the map to you (zoom 15 or closer, never farther out than you already are) and turns it north-up, which also straightens a map you have rotated. North comes first, instantly, so the map is never left crooked while it looks.
+- **Orients when you open the app.** The map moves to you once on launch (and again if you come back after ten minutes away). It leaves your map alone if you have already started moving it, if a place card is open, or if location is blocked; the first run of a brand-new map still starts with Choose your city.
+- **A still dot, not a tracker.** You appear as a blue dot with a ring showing how rough the fix is. It never follows you: one position per ask, no continuous watching, no transit. The dot fades after ten minutes to show it is where you were.
+- **Private by construction.** The position is held in memory only, never saved, synced, backed up, exported or sent anywhere. Pressing the compass explains plainly when location is blocked, unavailable, slow or needs a secure address.
+- The compass pulses while it looks, respects reduced motion, and its label is now Find my location and point north.
+
 ## 2026-10-11 — v0.8.8
 
 - Check public GitHub version tags on launch and every six hours, with a red Settings dot for newer stable versions and a manual check/update link in Settings. Offline failures preserve known update notices.

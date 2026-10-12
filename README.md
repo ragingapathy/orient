@@ -31,6 +31,7 @@ Prefer a phone? Orient installs like an app (Share → Add to Home Screen, or yo
 - **A little direction, not a lecture.** Open Explore and get a short briefing: today's weather, specials, what's open nearby, and places you saved but haven't tried yet. Ask for "a little outing" when you want a nudge, or keep the map in view when you don't.
 - **A map that remembers.** Save places, tap a check each time you go, add a photo and a note, rate them, sort them into collections, plan a small circuit for Sunday. The fog lifts as you explore. Pick your own icon for any place.
 - **Your city, right now.** Weather, road closures and construction, traffic cameras and incidents, so you know what's in the way before you head out.
+- **It orients.** Open the app, or tap the compass, and the map finds you and turns north-up. It looks once each time you ask and never follows you, and where you are is never saved or sent anywhere.
 - **Where your money goes.** Write down what you spend, mark places as local or a chain, and see how much of it stays in your community. It's a private number, and only you see it.
 - **Places that tell you things.** Orient can read the information a business publishes about itself (hours, address, links) and hold it up for you to check before it goes on your map.
 - **Take it somewhere else.** Tap the city beside search to explore a neighboring town. Home stays home.
@@ -40,7 +41,7 @@ There's no account. Your map lives in your browser, and can sync privately to th
 
 ## Your map stays yours
 
-Everything above is private by default: places, notes, photos, visits, spending, the people you remember. Nothing leaves your device unless you export it or choose to share a note. The neighbor guide never goes anywhere at all.
+Everything above is private by default: places, notes, photos, visits, spending, the people you remember. Nothing leaves your device unless you export it or choose to share a note. Your location is only read when you open the app or tap the compass, and it stays in memory. The neighbor guide never goes anywhere at all.
 
 ## A shared layer, if you want one
 
