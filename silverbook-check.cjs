@@ -21,5 +21,17 @@ const assert=require('node:assert/strict'),S=require('./silverbook.cjs');
  assert.equal(body.connected,true);assert.deepEqual(body.people,[{id:'oliver',name:'Oliver Brooks',address:'',city:''}]);
  let postStatus;await S.handle({method:'POST'},{writeHead:s=>postStatus=s,end:()=>{}},json);assert.equal(postStatus,405);
 
- console.log('Silverbook bridge: minimal field projection (no notes, email or skills leave Silverbook), local-only address validation, GET-only route, and a graceful message when Silverbook is closed, all passed.');
+ // The integration is OFF unless this installation turns it on (the environment switch, or data/local-features.json), so
+ // other people's installs never show it or look for it.
+ {const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),keep={flag:process.env.ORIENT_SILVERBOOK,dir:process.env.ORIENT_DATA_DIR};
+  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'orient-features-')),file=path.join(tmp,'local-features.json');
+  try{process.env.ORIENT_DATA_DIR=tmp;delete process.env.ORIENT_SILVERBOOK;
+   assert.equal(S.enabled(),false,'off by default');
+   process.env.ORIENT_SILVERBOOK='1';assert.equal(S.enabled(),true,'the environment switch turns it on');delete process.env.ORIENT_SILVERBOOK;
+   fs.writeFileSync(file,'{"silverbook":true}');assert.equal(S.enabled(),true,'the local features file turns it on');
+   fs.writeFileSync(file,'{"silverbook":"yes"}');assert.equal(S.enabled(),false,'only a real true counts');
+   fs.writeFileSync(file,'not json');assert.equal(S.enabled(),false,'a broken file means off');
+  }finally{for(const [k,v] of [['ORIENT_SILVERBOOK',keep.flag],['ORIENT_DATA_DIR',keep.dir]]){if(v===undefined)delete process.env[k];else process.env[k]=v;}fs.rmSync(tmp,{recursive:true,force:true});}}
+
+ console.log('Silverbook bridge: off by default (env switch or local features file only), minimal field projection (no notes, email or skills leave Silverbook), local-only address validation, GET-only route, and a graceful message when Silverbook is closed, all passed.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

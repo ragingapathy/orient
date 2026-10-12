@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.8.10
+
+- **The Silverbook link is off unless you turn it on.** Silverbook is a private address book that most people using Orient do not have, so a normal install no longer shows anything about it: no With · Silverbook card in place details, no names on place cards, no text anywhere, and the server no longer looks for it. A person who does run Silverbook can turn it on with ORIENT_SILVERBOOK=1 or by putting {"silverbook": true} in data/local-features.json (a private file that is never published). Links already stored on places are left untouched, so turning it back on restores them.
+- New silverbook-hidden-check covers the off state, and silverbook-check covers the switch. The Silverbook checks that exercise the feature itself are unchanged.
+- Found while testing: the civic-board plate-reader hover check only passed on a machine where a real Silverbook happened to answer, because that delayed a page re-render. Without it the check fails, here and on any other machine. Not caused by this change, and not yet fixed.
+
 ## 2026-10-12 — v0.8.9
 
 ### Orient orients
