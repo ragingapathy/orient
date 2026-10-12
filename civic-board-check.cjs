@@ -91,6 +91,25 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
       assert.equal(await p.evaluate(() => OrientBoard.hoverCount()), 1, 'the field of view of the reader is drawn on the map');
       await p.mouse.move(5, 300); await p.waitForTimeout(300); assert.equal(await card.isVisible(), false, 'it goes away when the pointer leaves'); assert.equal(await p.evaluate(() => OrientBoard.hoverCount()), 0, 'and so does the view');
     });
+    await t('a plate reader on a road-work line answers to hover and click whichever layer is on top', async () => {
+      // The reader at 41.640,-83.560 sits under a closure's line. Which map layer is drawn on top depends on which data finished
+      // loading last, so both orders are forced here instead of trusting the load order of the day.
+      const p = await open(); await civic(p); await p.waitForFunction(() => OrientBoard.mapLayers() && OrientBoard.mapLayers().alpr);
+      await p.evaluate(() => OrientBoard.flyTo(-83.560, 41.640, 16)); await p.waitForTimeout(2500);
+      const strips = ['orient-roadwork-hit', 'orient-roadwork-points', 'orient-incident-line-hit'], readers = ['orient-alpr-cluster', 'orient-alpr-pt', 'orient-alpr-pt-nodir'];
+      for (const [label, raise] of [['road work drawn on top', strips], ['plate readers drawn on top', readers]]) {
+        await p.evaluate(ids => ids.forEach(id => OrientBoard.lift(id)), raise); await p.waitForTimeout(700);
+        const order = await p.evaluate(() => OrientBoard.stack());
+        assert.ok(raise === strips ? order.indexOf('orient-roadwork-hit') > order.indexOf('orient-alpr-pt') : order.indexOf('orient-alpr-pt') > order.indexOf('orient-roadwork-hit'), 'the order was forced: ' + label);
+        await p.mouse.move(5, 300); await p.waitForTimeout(300);
+        await hoverAt(p, -83.560, 41.640); const card = p.locator('.civic-hover'); await card.waitFor();
+        assert.match(await card.innerText(), /License plate reader/i, 'hover finds the reader with ' + label);
+        const at = await p.evaluate(([x, y]) => OrientBoard.project(x, y), [-83.560, 41.640]);
+        await p.mouse.click(at.x, at.y); await p.locator('#board-dialog[open]').waitFor();
+        assert.match(await p.locator('#board-dialog').innerText(), /License plate reader/i, 'click opens the reader with ' + label);
+        await p.locator('#board-dialog [data-board="close"]').click(); await p.locator('#board-dialog[open]').waitFor({ state: 'detached' }).catch(() => {});
+      }
+    });
     await t('hovering a closed road shows the closure, and a camera shows its picture', async () => {
       const p = await open(); await civic(p);
       await p.evaluate(() => OrientBoard.flyTo(-83.58, 41.62, 15)); await p.waitForTimeout(2200);

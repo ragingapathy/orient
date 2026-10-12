@@ -61,7 +61,7 @@ window.OrientBoard = (() => {
     loading[name] = (async () => {
       tried[name] = Date.now();
       try {
-        const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+        const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), name === 'alpr' ? 75000 : 15000);  // the national plate-reader map waits on a slow volunteer-run service
         const r = await fetch(url, { signal: ctl.signal, cache: 'no-cache',headers:window.OrientCivicSetup?.headers(url)||{} }).finally(() => clearTimeout(t));
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const raw = await r.json(); if(epoch!==sourceEpoch||sourceURL(name)!==b)return null; const v = validate(name, raw); if (!v || v.source.status==='failed') throw new Error('unavailable ' + name + ' file');
@@ -176,7 +176,19 @@ window.OrientBoard = (() => {
     else if (m.getSource(HOVER)) m.getSource(HOVER).setData({ type: 'FeatureCollection', features: [] });
   }
   function hideHover(m) { if (hoverEl) hoverEl.hidden = true; if (m && m.getSource(HOVER)) m.getSource(HOVER).setData({ type: 'FeatureCollection', features: [] }); }
-  function hitAt(m, point) { const layers = HIT.filter(id => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none'); return layers.length ? m.queryRenderedFeatures(point, { layers })[0] : null; }
+  // What is under the pointer. Pins (plate readers, cameras, incident markers, clusters) always win over the wide invisible strips
+  // that make road-work lines easy to hit: which map layer happens to sit on top depends on which data finished loading last, so
+  // asking the map for "the top feature" made a plate reader on a closure's line unhoverable and unclickable, at random.
+  const STRIPS = ['orient-roadwork-hit', 'orient-incident-line-hit'];
+  // Is one of the Civic pins (plate reader, camera, incident marker, cluster) under this point? The road-work layers use it to step
+  // aside: their wide invisible strip would otherwise open a closure on top of a pin that sits on the road.
+  const PINS = ['orient-incident-pt', 'orient-camera-pt', 'orient-camera-cluster', 'orient-alpr-pt', 'orient-alpr-pt-nodir', 'orient-alpr-cluster'];
+  function pinAt(point) { const m = map(); if (!m) return false; const layers = PINS.filter(id => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none'); return layers.length > 0 && m.queryRenderedFeatures(point, { layers }).length > 0; }
+  function hitAt(m, point) {
+    const layers = HIT.filter(id => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none'); if (!layers.length) return null;
+    const found = m.queryRenderedFeatures(point, { layers });
+    return found.find(f => !STRIPS.includes(f.layer.id)) || found[0] || null;
+  }
   function bind(m) {
     if (bound === m) return; bound = m;
     const canHover = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -358,7 +370,9 @@ window.OrientBoard = (() => {
   }
   // called after every app render: it knows the current tab, so layers that are "only on the Civic tab" appear and disappear with it
   function sync() { if (!api) return; if (closuresView && tab() !== 'Explore') setClosuresView(false); ensure(); drawAll(); if (tab() !== 'Civic') { const p = document.getElementById('panel'); if (p && p.dataset.civic) delete p.dataset.civic; } }
-  return { init, render, sync, validate, closuresChip, setClosuresView, closuresView: () => closuresView, state: () => ({ loaded: Object.keys(data).filter(k => data[k]), layers: Object.fromEntries(Object.keys(FILES).map(k => [k, layerOn(k)])) }),
+  return { init, render, sync, validate, pinAt, closuresChip, setClosuresView, closuresView: () => closuresView, state: () => ({ loaded: Object.keys(data).filter(k => data[k]), layers: Object.fromEntries(Object.keys(FILES).map(k => [k, layerOn(k)])) }),
+    // test hooks: the map's layer order, and raising a layer to the top (to reproduce either load order on purpose)
+    stack: () => { const m = map(); return m ? m.getStyle().layers.map(l => l.id) : []; }, lift: id => { const m = map(); if (m && m.getLayer(id)) m.moveLayer(id); },
     mapLayers: () => { const m = map(); if (!m) return null; return Object.fromEntries(Object.keys(FILES).map(k => [k, m.getSource(SRC[k]) ? { visible: LAYER_IDS[k].some(id => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none'), features: m.getSource(SRC[k]).serialize().data.features.length } : null])); },
     hoverCount: () => { const m = map(), s = m && m.getSource(HOVER); return s ? s.serialize().data.features.length : 0; }, firstCluster: name => { const m = map(); if (!m) return null; const f = m.queryRenderedFeatures({ layers: ['orient-' + name + '-cluster'] })[0]; if (!f) return null; const p = m.project(f.geometry.coordinates), r = m.getCanvas().getBoundingClientRect(); return { x: r.left + p.x, y: r.top + p.y, count: f.properties.point_count }; }, flyTo: (lng, lat, zoom) => { const m = map(); if (m) m.jumpTo({ center: [lng, lat], zoom }); }, project: (lng, lat) => { const m = map(); if (!m) return null; const p = m.project([lng, lat]), r = m.getCanvas().getBoundingClientRect(); return { x: r.left + p.x, y: r.top + p.y }; }, openCamera, openDetail };
 })();

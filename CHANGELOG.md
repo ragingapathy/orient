@@ -1,10 +1,20 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.8.11
+
+### Plate readers work again
+
+- **Tapping a plate reader opens it, every time.** Which map layer sat on top depended on which data finished loading last, so a road-work strip could swallow the tap (or open its own card over the reader). Plate readers, cameras and other pins now win over the wide road-work and incident strips, and a tap on a pin never also opens the road-work card underneath. Hovering shows License plate reader again.
+- **The national plate-reader map loads reliably.** It reads OpenStreetMap volunteers' data (the same map DeFlock uses) through the Overpass service, which is free and sometimes slow or overloaded. Orient was giving up after six seconds with no retry, so the live map often showed nothing. It now waits up to 22 seconds a try, tries the main server twice and a French mirror, treats an error page as a failure instead of data, and shows a plain "temporarily unavailable" only if everything is down.
+- **It remembers.** The last good answer for each area is kept on the server's disk (never published), so a restart or a bad hour on Overpass does not blank the map. A copy older than twelve hours is shown at once and refreshed in the background, and a copy up to two weeks old is still shown, marked stale, if refreshing fails.
+- Around Toledo this is 408 mapped readers, 164 of them within about five miles.
+- New checks: the civic-board check forces both layer orders and clicks a reader in each; camera-connect-check covers the retry, the saved copy surviving a restart, and the honest 503 with nothing saved.
+
 ## 2026-10-12 — v0.8.10
 
 - **The Silverbook link is off unless you turn it on.** Silverbook is a private address book that most people using Orient do not have, so a normal install no longer shows anything about it: no With · Silverbook card in place details, no names on place cards, no text anywhere, and the server no longer looks for it. A person who does run Silverbook can turn it on with ORIENT_SILVERBOOK=1 or by putting {"silverbook": true} in data/local-features.json (a private file that is never published). Links already stored on places are left untouched, so turning it back on restores them.
 - New silverbook-hidden-check covers the off state, and silverbook-check covers the switch. The Silverbook checks that exercise the feature itself are unchanged.
-- Found while testing: the civic-board plate-reader hover check only passed on a machine where a real Silverbook happened to answer, because that delayed a page re-render. Without it the check fails, here and on any other machine. Not caused by this change, and not yet fixed.
+- Found while testing: the civic-board plate-reader hover check only passed on a machine where a real Silverbook happened to answer. That is the bug fixed in v0.8.11 below.
 
 ## 2026-10-12 — v0.8.9
 

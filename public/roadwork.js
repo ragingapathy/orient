@@ -89,7 +89,7 @@ window.OrientRoadwork = (() => {
     map.addLayer({ id: 'orient-roadwork-dash', type: 'line', source: SRC, filter: ['all', lines, ['!', ['any', ['==', ['get', 'status'], 'closed'], ['==', ['get', 'status'], 'open']]]], layout: { 'line-join': 'round' }, paint: { 'line-color': colour, 'line-opacity': ['case', ['get', 'upcoming'], 0.45, 1], 'line-dasharray': [1.6, 1.1], 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 2.2, 14, 6] } });
     map.addLayer({ id: 'orient-roadwork-points', type: 'circle', source: SRC, filter: points, paint: { 'circle-color': colour, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3.5, 14, 7], 'circle-stroke-color': '#fff', 'circle-stroke-width': 2, 'circle-opacity': ['case', ['get', 'upcoming'], 0.55, 1] } });
     for (const id of ['orient-roadwork-hit', 'orient-roadwork-points']) {
-      map.on('click', id, e => { const f = e.features && e.features[0]; if (f) open(f.properties.id); });
+      map.on('click', id, e => { if (window.OrientBoard && OrientBoard.pinAt(e.point)) return; const f = e.features && e.features[0]; if (f) open(f.properties.id); });
       map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; });
     }

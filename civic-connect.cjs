@@ -4,9 +4,26 @@ const wzdx=require('./commons-template/tools/wzdx.cjs'),ohgo=require('./commons-
 const catalog=require('./civic-providers.json');
 const fail=(status,message)=>Object.assign(new Error(message),{status});
 const point=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&Math.abs(p[0])<=180&&Math.abs(p[1])<=85;
-function create({dir=process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),fetchImpl=fetch,providers=catalog.providers}={}){
+function create({dir=process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),fetchImpl=fetch,providers=catalog.providers,alprTimeout=22000}={}){
  const cameraSources=require('./camera-sources.cjs').create({fetchImpl});
  let master;const cache=new Map(),pending=new Map(),limits=new Map();let connecting=0;
+ // Plate readers come from OpenStreetMap's Overpass service, which is free, volunteer-run and sometimes slow: give it time, try the
+ // main server twice and a French mirror, and keep what it said on disk so a restart does not forget it.
+ const alprFile=path.join(dir,'alpr-cache.json'),alprCache=new Map();
+ try{for(const [k,v] of JSON.parse(fs.readFileSync(alprFile,'utf8')))if(typeof k==='string'&&v&&Number.isFinite(v.at)&&v.body&&Array.isArray(v.body.items))alprCache.set(k,v);}catch{}
+ function saveAlpr(){try{fs.mkdirSync(dir,{recursive:true});const tmp=alprFile+'.tmp';fs.writeFileSync(tmp,JSON.stringify([...alprCache]));fs.renameSync(tmp,alprFile);}catch{}}
+ async function fetchOverpass(query){
+  for(const host of ['overpass-api.de','overpass.openstreetmap.fr','overpass-api.de','overpass.kumi.systems']){
+   try{
+    const response=await fetchImpl('https://'+host+'/api/interpreter?data='+encodeURIComponent(query),{headers:{'User-Agent':'Orient-Civic/1.0 (+https://orient.thealliedpeoplesunion.org/)','Accept':'application/json'},signal:AbortSignal.timeout(alprTimeout)});
+    if(!response.ok)continue;
+    let value;try{value=JSON.parse(await response.text());}catch{continue;}   // a busy server answers with an XML error page
+    if(value&&Array.isArray(value.elements)&&!value.remark)return value;
+   }catch{}
+  }
+  throw Error('Overpass did not answer');
+ }
+
  function secret(){if(master)return master;fs.mkdirSync(dir,{recursive:true});const file=path.join(dir,'civic-connection-key.bin');try{master=fs.readFileSync(file);}catch(e){if(e.code!=='ENOENT')throw e;try{fs.writeFileSync(file,crypto.randomBytes(32),{flag:'wx',mode:0o600});}catch(e){if(e.code!=='EEXIST')throw e;}master=fs.readFileSync(file);}if(master.length!==32)throw fail(500,'Civic connection storage needs attention.');return master;}
  function seal(value){const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv('aes-256-gcm',secret(),iv);const body=Buffer.concat([cipher.update(JSON.stringify(value),'utf8'),cipher.final()]);return Buffer.concat([iv,cipher.getAuthTag(),body]).toString('base64url');}
  function unseal(token){try{if(typeof token!=='string'||token.length>4096)throw Error();const b=Buffer.from(token,'base64url'),decipher=crypto.createDecipheriv('aes-256-gcm',secret(),b.subarray(0,12));decipher.setAuthTag(b.subarray(12,28));const value=JSON.parse(Buffer.concat([decipher.update(b.subarray(28)),decipher.final()]).toString());if(value.version!==1||!point(value.center)||Date.now()-value.at>180*86400000||!providers.some(p=>p.id===value.providerId))throw Error();return value;}catch{throw fail(401,'This civic connection has expired or is unavailable. Reconnect in Settings → Civic sources.');}}
@@ -33,21 +50,23 @@ function create({dir=process.env.ORIENT_DATA_DIR||path.join(__dirname,'data'),fe
  if(req.method!=='GET')throw fail(405,'Use GET.');
  const u=new URL(req.url,'http://localhost'),center=[Number(u.searchParams.get('lng')),Number(u.searchParams.get('lat'))];
  if(!u.searchParams.has('lng')||!u.searchParams.has('lat')||!point(center))throw fail(400,'Choose a valid city.');
- const cell=center.map(n=>Math.round(n*10)/10),key='national-alpr:'+cell.join(','),old=cache.get(key);
+ const cell=center.map(n=>Math.round(n*10)/10),key='national-alpr:'+cell.join(','),old=alprCache.get(key);
  if(old&&Date.now()-old.at<12*3600e3)return json(res,200,old.body);
  rate(req,30,'alpr');
- if(!pending.has(key)){
+ // A copy that is old but not ancient is shown straight away while a fresh one is fetched, so a slow Overpass never blanks the map.
+ const refresh=()=>{
+  if(pending.has(key))return pending.get(key);
   if(pending.size>=4)throw fail(429,'Camera sources are busy. Try again shortly.');
-  pending.set(key,(async()=>{try{
+  const promise=(async()=>{try{
    const adapter=require('./commons-template/tools/alpr.cjs'),bbox=[Math.max(-180,cell[0]-.3),Math.max(-85,cell[1]-.25),Math.min(180,cell[0]+.3),Math.min(85,cell[1]+.25)];
-   let raw;
-   for(const host of ['overpass-api.de','overpass.kumi.systems']){try{const response=await fetchImpl('https://'+host+'/api/interpreter?data='+encodeURIComponent(adapter.query(bbox).replace('timeout:90','timeout:5')),{headers:{'User-Agent':'Orient-Civic/1.0 (+https://orient.thealliedpeoplesunion.org/)','Accept':'application/json'},signal:AbortSignal.timeout(6000)});if(!response.ok)continue;const value=await response.json();if(Array.isArray(value.elements)&&!value.remark){raw=value;break;}}catch{}}
-   if(!raw)throw Error();
+   const raw=await fetchOverpass(adapter.query(bbox).replace('timeout:90','timeout:25'));
    const now=new Date().toISOString(),body={format:'orient-alpr',version:1,updated:now,source:{name:'National plate-reader map',publisher:'OpenStreetMap contributors · DeFlock',homepage:'https://deflock.org/',license:'ODbL-1.0',attribution:'© OpenStreetMap contributors',status:'ok',fetched:now,dataAsOf:raw.osm3s?.timestamp_osm_base||now},items:adapter.normalize(raw.elements)};
-   cache.set(key,{at:Date.now(),body});while(cache.size>100)cache.delete(cache.keys().next().value);return body;
-  }catch{if(old&&Date.now()-old.at<14*86400000)return {...old.body,source:{...old.body.source,status:'stale'}};throw fail(503,'The national camera map is temporarily unavailable. Try again shortly.');}finally{pending.delete(key);}})());
- }
- return json(res,200,await pending.get(key));
+   alprCache.set(key,{at:Date.now(),body});while(alprCache.size>30)alprCache.delete(alprCache.keys().next().value);saveAlpr();return body;
+  }catch{const kept=alprCache.get(key);if(kept&&Date.now()-kept.at<14*86400000)return {...kept.body,source:{...kept.body.source,status:'stale'}};throw fail(503,'The national camera map is temporarily unavailable. Try again shortly.');}finally{pending.delete(key);}})();
+  pending.set(key,promise);return promise;
+ };
+ if(old&&Date.now()-old.at<14*86400000){refresh().catch(()=>{});return json(res,200,{...old.body,source:{...old.body.source,status:'stale'}});}
+ return json(res,200,await refresh());
  }
  if(url==='/api/civic-connect/providers'){if(req.method!=='GET')throw fail(405,'Use GET.');return json(res,200,{checked:catalog.checked,providers:providers.map(({url,auth,...p})=>p)});}
  if(url==='/api/civic-connect/air'){rate(req);if(req.method!=='GET')throw fail(405,'Use GET.');return require('./civic.cjs').handle(req,res,json);}
