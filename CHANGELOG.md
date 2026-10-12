@@ -1,5 +1,9 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.9.0
+
+Orient 0.9 rolls up today's work. Orient now knows where you are when you ask (compass and app open, never tracked); the fog on My Map stays clear around you; plate readers are reliable to tap and to load; and the private Silverbook link is off for everyone who does not turn it on. Details are in v0.8.9 to v0.8.12 below.
+
 ## 2026-10-12 — v0.8.12
 
 - **The fog on My Map is always clear around your dot.** Wherever you last asked for your location (open the app or press the compass), a patch of the map stays clear, even if you have no saved places there and however far you pan away. It follows the dot to the next position when you press the compass again. Like the dot, it exists only in memory: nothing about where you are is saved. Fog on other tabs and the Open now night view are unchanged.
