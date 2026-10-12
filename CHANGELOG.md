@@ -1,5 +1,9 @@
 # Orient Changelog
 
+## 2026-10-11 — v0.8.8
+
+- Check public GitHub version tags on launch and every six hours, with a red Settings dot for newer stable versions and a manual check/update link in Settings. Offline failures preserve known update notices.
+
 ## 2026-10-11 — v0.8.7
 
 ### Capture a point on the map

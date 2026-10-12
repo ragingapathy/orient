@@ -159,3 +159,6 @@ dialog{width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 40px);border:
 }
 
 .map-note-hero{padding:16px 12px;background:var(--land);color:var(--green);text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase}.map-note-tile{padding:14px;background:var(--land);color:var(--green);text-align:left}.photo-memory-hero:has(.map-note-hero)>span{white-space:pre-wrap;overflow-wrap:anywhere}#map canvas{-webkit-touch-callout:none}
+
+[data-action="settings"]{position:relative}[data-action="settings"].update-available::after{content:"";position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#d94236;box-shadow:0 0 0 2px var(--paper,#f7f8f1);pointer-events:none}
+#update-link{display:block;margin-top:6px}#update-link[hidden]{display:none}
