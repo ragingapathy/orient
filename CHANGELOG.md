@@ -1,5 +1,10 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.8.12
+
+- **The fog on My Map is always clear around your dot.** Wherever you last asked for your location (open the app or press the compass), a patch of the map stays clear, even if you have no saved places there and however far you pan away. It follows the dot to the next position when you press the compass again. Like the dot, it exists only in memory: nothing about where you are is saved. Fog on other tabs and the Open now night view are unchanged.
+- locate-check gained a case that finds the clear patch on the dot, after a pan and after a move.
+
 ## 2026-10-12 — v0.8.11
 
 ### Plate readers work again

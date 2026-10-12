@@ -4,6 +4,7 @@ const assert = require('node:assert/strict'), H = require('./check-helpers.cjs')
 const URL = process.env.ORIENT_URL || 'http://127.0.0.1:4173';
 const HERE = { latitude: 41.6528, longitude: -83.6082, accuracy: 35 };       // a spot in Toledo
 const THERE = { latitude: 41.6890, longitude: -83.4700, accuracy: 12 };      // somewhere else in town
+const ctxSet = (c, g) => c.setGeolocation(g);
 const near = (a, b, d = 0.002) => Math.abs(a[0] - b.longitude) < d && Math.abs(a[1] - b.latitude) < d;
 
 (async () => {
@@ -93,6 +94,25 @@ const near = (a, b, d = 0.002) => Math.abs(a[0] - b.longitude) < d && Math.abs(a
     assert.equal((await page.evaluate(() => window.__geo)).once, 0, 'no location request before a city is chosen');
     await fresh.close();
 
-    console.log('PASS Orient orients: locates on open and on every compass press, centres and turns north-up, still dot with accuracy ring, one request per ask and never a watch, memory only, yields to a map you are moving, explains a blocked location, silent on first run');
+    // 8. The fog on My Map never covers you: a clear patch follows the dot (even with no saved places), and it is gone from other tabs.
+    const fogCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ['geolocation'], geolocation: HERE, serviceWorkers: 'block' });
+    ({ page, errors } = await open(fogCtx)); await page.waitForFunction(() => OrientLocate.state().fix, null, { timeout: 15000 }); await settle(page);
+    const hole = () => page.evaluate(() => {
+      const fog = document.querySelector('#fog'), mask = fog.style.getPropertyValue('--fog-mask'), dot = document.querySelector('.you-marker').getBoundingClientRect(), box = fog.getBoundingClientRect();
+      const at = [...mask.matchAll(/circle (\d+)px at (-?\d+)px (-?\d+)px/g)].map(m => ({ r: +m[1], x: +m[2], y: +m[3] }));
+      return { n: at.length, dx: dot.x + dot.width / 2 - box.x, dy: dot.y + dot.height / 2 - box.y, at, opacity: fog.style.opacity };
+    });
+    await page.locator('[data-tab="Explore"]').click(); await page.waitForTimeout(300);
+    assert.equal((await hole()).opacity, '0', 'no fog on Explore');
+    await page.locator('[data-tab="My Map"]').click(); await page.waitForTimeout(500);
+    let h = await hole(); assert.equal(h.opacity, '0.9', 'fog is on in My Map');
+    assert.ok(h.at.some(c => Math.abs(c.x - h.dx) <= 2 && Math.abs(c.y - h.dy) <= 2 && c.r >= 165), 'a clear patch sits exactly on the dot: ' + JSON.stringify(h));
+    await page.keyboard.press('ArrowRight'); await page.locator('#map canvas').focus(); for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowRight'); await page.waitForTimeout(900);
+    h = await hole(); assert.ok(h.at.some(c => Math.abs(c.x - h.dx) <= 2 && Math.abs(c.y - h.dy) <= 2), 'the patch stays on the dot when the map is panned');
+    await ctxSet(fogCtx, THERE); await press(page); await settle(page);
+    h = await hole(); assert.ok(h.at.some(c => Math.abs(c.x - h.dx) <= 2 && Math.abs(c.y - h.dy) <= 2), 'and moves with it after the next compass press');
+    assert.deepEqual(errors, []); await fogCtx.close();
+
+    console.log('PASS Orient orients: locates on open and on every compass press, centres and turns north-up, still dot with accuracy ring, one request per ask and never a watch, memory only, yields to a map you are moving, explains a blocked location, silent on first run, fog on My Map always clear around the dot');
   } finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exit(1); });

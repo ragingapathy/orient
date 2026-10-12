@@ -171,8 +171,11 @@
     OrientFog.setActive(enabled&&!night);
     if(!enabled||!map)return;
     const marked=night?visiblePlaces():[...allPlaces().filter(p=>isMarked(p.id)),...OrientNeighbors.entries().filter(n=>n.coordinates)];
-    if(!marked.length){fog.style.setProperty('--fog-mask','none');return;}
-    const holes=marked.map(p=>{const pt=map.project(p.coordinates);return `radial-gradient(circle ${night?125:165}px at ${Math.round(pt.x)}px ${Math.round(pt.y)}px,transparent ${night?18:36}%,rgba(0,0,0,.08) 48%,#000 100%)`;});
+    // The fog never covers where you are: the last place you asked for (compass) stays clear, however far you have wandered from it.
+    const you=!night&&window.OrientLocate?OrientLocate.state().fix:null;
+    if(!marked.length&&!you){fog.style.setProperty('--fog-mask','none');return;}
+    const spots=you?[...marked,{coordinates:[you.lng,you.lat],you:true}]:marked;
+    const holes=spots.map(p=>{const pt=map.project(p.coordinates),r=p.you?190:night?125:165;return `radial-gradient(circle ${r}px at ${Math.round(pt.x)}px ${Math.round(pt.y)}px,transparent ${night?18:p.you?45:36}%,rgba(0,0,0,.08) 55%,#000 100%)`;});
     fog.style.setProperty('--fog-mask',holes.join(','));fog.style.maskComposite='intersect';fog.style.webkitMaskComposite='source-in';
   }
   function renderSheet(p) {
@@ -476,7 +479,7 @@
     map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:OrientAreas.view()?.center||OrientAreas.area()?.coordinates||store.home?.coordinates||[0,20],zoom:OrientAreas.view()?.zoom||(store.home?12:2),attributionControl:false,pitchWithRotate:false});
     OrientMapPins.init(map,point=>{if(['Explore','My Map'].includes(state.tab))addPlace(null,point);});
     // Orient orients: once when the app opens, and again on every press of the compass (no tracking in between).
-    OrientLocate.init(map,{toast,ready:()=>!!store.home,holding:()=>!!state.selected,offset:()=>{if(!state.selected)return [0,0];return matchMedia('(min-width:760px)').matches?[140,0]:[0,-Math.min($('#sheet').offsetHeight/2,150)];}});OrientLocate.auto();
+    OrientLocate.init(map,{toast,changed:updateFog,ready:()=>!!store.home,holding:()=>!!state.selected,offset:()=>{if(!state.selected)return [0,0];return matchMedia('(min-width:760px)').matches?[140,0]:[0,-Math.min($('#sheet').offsetHeight/2,150)];}});OrientLocate.auto();
     const syncCompass=()=>{
       const button=$('[data-action="north"]');if(!button)return;
       let needle=button.querySelector('.north-needle');

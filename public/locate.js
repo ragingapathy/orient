@@ -71,6 +71,7 @@ window.OrientLocate = (() => {
     el.setAttribute('aria-label', 'Your location when you last asked, accurate to about ' + Math.round(fix.accuracy) + ' metres');
     sizeRing();
     clearTimeout(staleTimer); staleTimer = setTimeout(() => el && el.classList.add('stale'), STALE_MS);
+    if (env.changed) env.changed();
   }
 
   // Orient remembers the map's last view with your other settings. A view centred on YOU must not be remembered, so every move the
