@@ -6,7 +6,7 @@ const { chromium } = require(process.env.ORIENT_PLAYWRIGHT || 'playwright');
 const URL_ = process.env.ORIENT_URL || 'http://127.0.0.1:4173';
 let n = 0; const t = async (name, fn) => { await fn(); n++; console.log('ok  ' + name); };
 
-const iso = d => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);
+const iso = d => { const day = new Intl.DateTimeFormat('en-CA', {timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date()); return new Date(Date.parse(day+'T12:00:00Z')+d*864e5).toISOString().slice(0,10); };
 const place = (id, name, i) => ({ id, name, kind: 'Coffee shop', icon: 'map-pin', coordinates: [-83.539 + i * 0.003, 41.655], address: i + ' Main St', note: '', demo: false });
 const custom = [place('local-a', 'Glass City Roasters', 0), place('local-b', 'River Bench Books', 1), place('local-c', 'Corner Pantry', 2)];
 const ev = (id, p, title, d, extra = {}) => ({ id, placeId: p, title, date: iso(d), time: '', end: '', repeat: 'none', interval: 1, kind: 'Event', note: '', ...extra });

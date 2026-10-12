@@ -1,7 +1,7 @@
 'use strict';
 // The public protocol has no access to the private map or neighbor guide.
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.OrientCommonsData=api;})(globalThis,()=>{
-  const kinds=['entry','browse','seating','alone','sensory','price','timing','nature','other'];
+  const kinds=['entry','browse','seating','alone','sensory','price','timing','nature','history','other'];
   const obj=x=>x&&typeof x==='object'&&!Array.isArray(x);
   function keys(x,allowed,required=allowed){if(!obj(x)||Object.keys(x).some(k=>!allowed.includes(k))||required.some(k=>!Object.hasOwn(x,k)))throw Error('Unexpected or missing public fields. Private map exports are not commons bundles.');}
   const text=(v,min,max)=>typeof v==='string'&&v.trim().length>=min&&v.length<=max&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v);

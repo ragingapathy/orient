@@ -74,7 +74,7 @@ const run = (s, o = {}) => I.compute(s, { now: NOW, lookup, ...o });
   });
 
   // ---------- the drawer ----------
-  const DAY = 864e5, now = Date.now();
+  const DAY = 864e5, now = new Date(I.parts(new Date(), TZ).day+'T12:00:00Z').getTime();
   const iso = (daysBack, hour = 10) => { const d = new Date(now - daysBack * DAY); d.setUTCHours(hour, 15, 0, 0); return d.toISOString(); };
   const names = ['Glass City Roasters', 'River Bench Books', 'Corner Pantry', 'Freedom Comics', 'Metropark Trail', 'Old Bag of Nails'];
   const custom = names.map((name, i) => ({ id: 'local-p' + i, name, kind: ['Coffee shop', 'Bookshop', 'Food pantry', 'Comic shop', 'Public space', 'Pub'][i], icon: 'map-pin', coordinates: [-83.539 + i * 0.002, 41.655], address: i + ' Main St', note: '', demo: false }));
@@ -146,10 +146,10 @@ const run = (s, o = {}) => I.compute(s, { now: NOW, lookup, ...o });
       assert.deepEqual(page.errors, [], page.errors.join(' | '));
     });
 
-    await t('a brand-new map leaves the screen to the app’s welcome; saved places with no visits get an invitation, not a wall of zeros', async () => {
+    await t('a brand-new map permits first-pin capture; saved places with no visits get an invitation, not a wall of zeros', async () => {
       const blank = await open({ version: 1, home: seed.home, useCatalog: false, custom: [], osm: [], saved: [], visited: [] });
       await blank.click('.bottom-nav [data-tab="My Map"]'); await blank.waitForTimeout(900);
-      assert.equal(await visible(blank), false, 'the welcome panel owns an empty My Map'); assert.deepEqual(blank.errors, []);
+      assert.equal(await blank.locator('#panel').isVisible(),false,'the empty map remains accessible for placing a first pin');assert.equal(await blank.locator('[data-action=add]:visible').count(),1); assert.deepEqual(blank.errors, []);
       const early = await open({ ...seed, visited: [], visitLog: {}, ratings: {}, commons: { publisher: null, records: [] } });
       await early.click('.bottom-nav [data-tab="My Map"]'); await early.locator('#insights:not([hidden])').waitFor();
       assert.match(await early.locator('#insights .ins-title').innerText(), /0 places visited|to try/); await early.click('#insights .ins-head');

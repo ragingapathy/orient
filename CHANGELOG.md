@@ -1,5 +1,60 @@
 # Orient Changelog
 
+## 2026-10-11 — v0.8.7
+
+### Capture a point on the map
+
+- Long press on mobile or right-click on desktop to choose Photo, Note, Photo + note, or New location at that point. Dragging and pinching cancel the hold.
+- Photo or note replaces the combined-only add option. Notes can be saved and edited without an image, including reload, sync, and backup support.
+- Coordinates are captured at finger-down and take priority over uploaded photo GPS. Empty maps remain usable for placing the first pin.
+
+### Address and pin corrections
+
+- Edit place details includes the address for imported and personal places. Find matching pin lets you review a numbered-address match and update the pin; text-only corrections explicitly keep the current pin.
+- Private address and coordinate overrides survive cleanup, reload, sync, and backup. Existing markers move immediately after a correction.
+- Audited ten local locations against Census address estimates and municipal GIS; corrected an approximately 695-metre catalog mismatch. Address interpolation is not an exact entrance location.
+
+### Specials follow edited notes
+
+- Recognized weekday-special schedules in edited place notes override the static catalog specials in place cards, search, Today and Calendar. Changes are derived from current notes rather than copied into duplicate calendar events.
+- Supports half-price and 1/2-price wording, prices, weekday lists/ranges, and explicit am/pm times. Clearing a schedule or noting discontinued specials removes the derived listings.
+- Every calendar entry has Manage, with source-aware editing, personal series controls, and original-source links.
+- Added edit/reload/calendar regression coverage. Made the Today fixture valid throughout the day instead of ending at 7pm.
+
+### Compact mobile shell
+
+- Shortened mobile navigation from 66 to 50 pixels before device safe-area clearance while preserving 44-pixel tap targets.
+- Mobile app height follows the dynamic viewport when supported; home-indicator padding remains inside the navigation bar.
+- Verified full-height layout through four mobile viewport sizes and browser-height changes. Actual iOS browser chrome is not reproduced by desktop emulation.
+
+### Results first
+
+- Explore list/search results now appear before filter controls on mobile and desktop. A new query resets the result drawer to the top.
+- My Map searches omit the large overview summaries so matching places are easier to reach.
+- Mobile filter and Explore regression checks pass.
+
+### Share place knowledge together
+
+- Settings → Sharing → Share gathers all place notes, confirmed business types, and your local facts into one reviewed contribution. Individual items can be excluded.
+- Connect GitHub once, choose the destination repository, then press Share to send one pull request. Long notes are split into protocol-sized observations without truncation. Failed requests can be retried.
+- Personal purchases, people fields, contacts, photos and calendar records are excluded; original notes remain unchanged.
+- Added batch publishing regression coverage including consent, per-item exclusions, connection setup, retry identity, full note text, privacy boundaries and mobile layout.
+
+### Spending persistence
+
+- Keep discovered place records when un-saving if purchases or a local/chain classification still refer to them. These places remain accessible on My Map and survive reload, sync, and backup cleanup.
+- Failed purchase additions, deletions, and business-type saves roll back and report the failure.
+- Share business type prepares a reviewed Commons/GitHub observation; personal purchase amounts and private notes are excluded.
+- Added OSM/tile regression coverage for un-saving, reload, failed saves, and the public contribution boundary.
+
+### Your city, unfolding
+
+- Twenty once-only milestones, with progress and a compact next-possibilities view. Existing points and reveals carry forward.
+- Seventeen sourced landmark stories across Toledo, Michigan, Chicago, and Kansas City; nearby, discovered, and contributed story shelves.
+- Leave local facts from the field guide or an expanded place card, with an editable map pin, category, optional HTTPS source, and credit. Facts have their own map pins and stay in map backups and sync.
+- Explicit consent and preview before proposing a fact through Commons. Accepted history claims are readable community stories; private notes, visits, and people data stay outside the contribution.
+- Regression coverage for fact editing/deleting, persistence, exports, storage-failure rollback, source validation, sharing boundaries, community round-trip, and small screens.
+
 ## 2026-10-11 — v0.8.5
 
 - Rotating compass with a north reset, including the Explore map.

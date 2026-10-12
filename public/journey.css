@@ -1,0 +1,17 @@
+/* A small field guide, in the map's existing warm palette. */
+#journey-dialog{width:min(640px,calc(100% - 24px))}
+#journey-dialog,#lore-dialog,#fact-dialog{overflow-x:hidden;overflow-wrap:anywhere}
+#fact-dialog{width:min(540px,calc(100% - 24px))}
+.journey-hero{padding:16px 20px;border:1px solid var(--edge);border-radius:18px;background:linear-gradient(125deg,#e8eee2,#f5efdf);margin:16px 0}
+.journey-hero .journey-balance{margin:0}.journey-next{border-top:1px solid var(--edge);padding-top:14px;margin:14px 0 0;display:grid;gap:5px;font-size:12px}.journey-next strong{font-size:15px}
+.journey-filters,.lore-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.journey-filters .ui-chip[aria-pressed=true]{background:var(--green);color:white}
+.lore-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.lore-tag{font-size:10px;border-radius:30px;padding:5px 9px;background:#e8eee2;white-space:nowrap}
+.lore-preview{background:rgba(255,255,255,.35)}.lore-preview>small{color:var(--muted);font-size:11px}.lore-preview .button{margin-top:5px}
+.lore-empty,.lore-contribute{padding:20px;border:1px dashed var(--edge);border-radius:16px;background:#f4f1e7;font-size:13px;line-height:1.6}.lore-contribute .button{margin:4px 5px 0 0}
+#fact-dialog form{display:grid;gap:12px}#fact-dialog form>label{display:grid;gap:6px;font-size:12px;font-weight:600}#fact-dialog input,#fact-dialog textarea,#fact-dialog select{width:100%;min-width:0;box-sizing:border-box}#fact-dialog .fine{margin:0}
+.fact-pin{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border:1px solid var(--edge);border-radius:12px;background:#e8eee2;font-size:12px}.fact-pin small{display:block;margin-top:5px}.coordinate-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.own-fact .pin{background:#e8eee2;border-color:var(--green);color:var(--green)}
+@media(min-width:540px){#journey-dialog .milestone-list,#journey-dialog .lore-list{grid-template-columns:1fr 1fr}.lore-empty{grid-column:1/-1}.milestone>div{flex-direction:column;gap:5px}.lore-preview{display:flex;flex-direction:column}.lore-preview>.button{align-self:flex-start;margin-top:auto}}
+@media(max-width:380px){.fact-pin{flex-wrap:wrap}.journey-hero{padding:14px}.journey-tabs .button{font-size:11px}.milestone>div{flex-wrap:wrap}.journey-filters{gap:5px}.journey-filters .ui-chip{font-size:11px}}
+
+#share-all-dialog{width:min(640px,calc(100% - 24px));overflow-wrap:anywhere}#share-all-dialog form[data-share-all]{display:grid;gap:16px}.share-all-list{display:grid;gap:10px;max-height:45dvh;overflow:auto}.share-all-list article{margin:0;padding:14px;border:1px solid var(--edge);border-radius:14px}.share-all-list p{font-size:13px;line-height:1.6}#share-all-dialog input:not([type=checkbox]){width:100%;box-sizing:border-box}

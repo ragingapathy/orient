@@ -10,7 +10,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
  await page.addInitScript(()=>{if(sessionStorage.getItem('fixture'))return;sessionStorage.setItem('fixture','1');localStorage.setItem('orient-sync-v1',JSON.stringify({token:'test-pairing-token-1234'}));localStorage.setItem('orient-field-map-v1',JSON.stringify({version:1,home:{name:'Toledo',coordinates:[-83.539,41.655],timeZone:'America/New_York'},useCatalog:false,custom:[{id:'local-cafe',name:'Lantern Café',coordinates:[-83.539,41.655],kind:'Food & drink'}],saved:['local-cafe'],fog:true}));});
  await page.goto(process.env.ORIENT_URL||'http://127.0.0.1:4176');await page.waitForFunction(()=>window.OrientSilverbook&&document.querySelector('.map-marker'));
  assert.deepEqual(sbAuth,['Bearer test-pairing-token-1234'],'a paired browser sends its pairing token to /api/silverbook, same as sync and Gidgit');
- await page.locator('.map-marker[aria-label^="Lantern"]').click();await page.locator('.grip').press('End');await page.locator('details.place-knowledge summary').click();await page.getByRole('button',{name:'Edit hours, people & notes',exact:true}).click();
+ await page.locator('.map-marker[aria-label^="Lantern"]').click();await page.locator('.grip').press('End');await page.locator('details.place-knowledge summary').click();await page.getByRole('button',{name:'Edit place details',exact:true}).click();
 
  await page.locator('[data-silverbook-card]').waitFor();
  assert.match(await page.locator('[data-silverbook-card]').innerText(),/Nobody linked yet/);
@@ -38,7 +38,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
  await page.unroute('**/api/silverbook');
  await page.route('**/api/silverbook',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({connected:false,people:[],message:'Open Silverbook on this computer to link people.'})}));
  await page.evaluate(()=>OrientSilverbook.load(true));
- await page.getByRole('button',{name:'Edit hours, people & notes',exact:true}).click();
+ await page.getByRole('button',{name:'Edit place details',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('[data-silverbook-card]')?.textContent.includes('Open Silverbook'));
  assert.equal(await page.locator('[data-silverbook-select]').count(),0);
  assert.equal(await page.locator('[data-silverbook-unlink]').count(),0);
@@ -50,7 +50,7 @@ const {chromium}=require(process.env.ORIENT_PLAYWRIGHT||path.join(process.env.US
  await page.unroute('**/api/silverbook');
  await page.route('**/api/silverbook',r=>r.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'Pair this browser to read Silverbook.'})}));
  await page.evaluate(()=>OrientSilverbook.load(true));
- await page.getByRole('button',{name:'Edit hours, people & notes',exact:true}).click();
+ await page.getByRole('button',{name:'Edit place details',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('[data-silverbook-card]')?.textContent.includes('Pair this browser'));
  assert.equal(await page.locator('[data-silverbook-card]').innerText().then(t=>t.includes('Open Silverbook on this computer')),false,'a refusal from Orient is not mistaken for Silverbook being closed');
 

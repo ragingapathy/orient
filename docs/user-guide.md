@@ -10,8 +10,8 @@ Orient is a private map that lives in your browser.
 - Optionally enable **Gidgit** in the Field kit. It adds an optional fourth navigation button on that device for saved-map questions and reviewed hours, note, or category updates. It stays hidden when disabled and sends nothing until you ask. It uses local Ollama on the Orient computer, defaults to the installed `qwen3.5:9b`, and has no cloud fallback. A public browser must already be paired for sync.
 - Keep your own notes, ratings, and categories for each place. Enter weekly hours such as **Mon-Fri 9am-5pm; Sat 10am-2pm; Sun closed** to normalize the schedule and calculate current opening status. Unknown or ambiguous hours remain text for review.
 - Select the existing **Open now** filter to darken the city and light up places open by their listed schedules. It uses your selected area’s time zone and refreshes every 30 seconds; unlisted days and unsupported holiday rules are not guessed.
-- The Add menu starts with **Photo + note** or **Name of place**. Choose Name of place to reveal the full place form, including address and website tools; Back returns to the two choices.
-- **Add a place → Photo + note** creates a standalone photo memory: pick a picture, optionally write a note, and save. No name, category, or address form is required. GPS supplies the pin coordinates; without readable GPS, center the map first and explicitly choose **Use map center**. Attaching to an existing place is optional rather than automatic. A photo memory opens with its picture and note as the main content and survives sync and backups.
+- The Add menu starts with **Photo or note** or **New location**. Choose New location for the full place form, including address and website tools. Hold a finger on the map for about 0.6 seconds, or right-click on desktop, to choose Photo, Note, Photo + note, or New location at that exact point. Panning and pinching cancel the hold.
+- **Add a place → Photo or note** creates a standalone memory: pick a picture, write a note, or do both, and save. No name, category, or address form is required. A long-press point takes priority over photo GPS. Otherwise GPS supplies the pin coordinates; without a chosen point or readable GPS, center the map first and explicitly choose **Use map center**. Attaching to an existing place is optional rather than automatic. A photo memory opens with its picture and note as the main content and survives sync and backups.
 - Photo uploads read embedded GPS locally before resizing. **My Map → List → Add a place photo** starts from an image; a place card’s Add a photo uses the same destination picker. Known places within 100 m are suggested; a match is preselected only within 35 m with at least a 15 m lead over the next candidate. Check the destination, choose another place, or name a new place at the photo’s coordinates. Missing/unsupported GPS falls back to manual selection. No reverse geocoder or image upload service is used. The saved JPEG copy has its embedded metadata removed. GPS reading uses vendored [exifr 7.1.3](https://github.com/MikeKovarik/exifr), MIT license in `public/vendor/exifr-LICENSE.txt`.
 - Append photos to any place—shops, parks, benches, or your own discoveries—with an editable note per photo. Open **Photos & notes** in the expanded place card, choose a file or take a photo, and save. Smaller JPEG copies are kept with the private map, including sync and JSON backups; originals stay untouched. Adding is limited to 12 photos per place, about 110 KB per photo, and about 1.3 MB of compressed images across the album to fit current browser/sync storage. Orient reports capacity errors rather than evicting existing photos. HEIC works only when the browser can decode it; otherwise choose JPEG/PNG. Map imports accept up to 3 MB.
 - Crowded pins: pins that overlap fold into one round button with a count. Tap it to zoom in; for places at exactly the same spot it opens a short list. The place you have open is always shown on its own.
@@ -171,7 +171,8 @@ The restore saves the map as it is now first (`before-restore`), checks the chos
 
 ## Project stats
 
-`node repo-stats.cjs` records GitHub’s traffic numbers (clones, page views, stars, forks) for the project’s repositories into `data/repo-stats.json`, which Your field kit shows as **Project stats** on the computer that runs Orient and nowhere else. GitHub keeps only 14 days and shows them only to the repository owner, so run the script at least every two weeks to keep a history. On Windows, `.schedule-repo-stats.ps1` installs a weekly task (Sundays 09:00, hidden, runs at the next opportunity if the computer was off; `-Day` and `-At` change the time, `-Remove` takes it away) and `dataepo-stats-last-run.txt` shows the latest run’s output. It uses `GITHUB_TOKEN` or the GitHub login git already has, and never prints or saves it. Set `ORIENT_STATS_REPOS=owner/a,owner/b` to choose the repositories. Clone counts include bots, mirrors and your own machines: a rough signal, not a head count. Orient itself does not report who uses it.
+`node repo-stats.cjs` records GitHub’s traffic numbers (clones, page views, stars, forks) for the project’s repositories into `data/repo-stats.json`, which Your field kit shows as **Project stats** on the computer that runs Orient and nowhere else. GitHub keeps only 14 days and shows them only to the repository owner, so run the script at least every two weeks to keep a history. On Windows, `.schedule-repo-stats.ps1` installs a weekly task (Sundays 09:00, hidden, runs at the next opportunity if the computer was off; `-Day` and `-At` change the time, `-Remove` takes it away) and `data
+epo-stats-last-run.txt` shows the latest run’s output. It uses `GITHUB_TOKEN` or the GitHub login git already has, and never prints or saves it. Set `ORIENT_STATS_REPOS=owner/a,owner/b` to choose the repositories. Clone counts include bots, mirrors and your own machines: a rough signal, not a head count. Orient itself does not report who uses it.
 
 ## Place commons
 
@@ -180,3 +181,41 @@ An explicit, reviewed place-note contribution and commons-bundle import/export l
 ## Collections
 
 Open Your collections from My Map’s map tool or list. Create a name and optional description, then add saved places. A place card’s Add to / edit collections supports multiple memberships and creating a collection in place. Collections are unordered and private. Show on map fits the member pins; Show as list applies the collection filter. All my places clears it. Removing a member or deleting a collection preserves the underlying places and visits. Make a circuit lets you choose 2–12 members and review their order in the existing circuit editor; changes to that circuit do not change collection membership. Collections are included in private backups and sync and never automatically exported to the commons.
+
+
+## Your city, unfolding
+
+Open **My Map → Your city, unfolding → Explore your milestones**. Twenty milestones reward adding places, exploring different kinds of places, return visits, collections, circuits, and a sourced local fact. Each pays once; there are no streaks or deadlines. Existing progress counts. Circuits still unlock after five lifetime points and four real places. Spending points on stories does not lock them again.
+
+**Nearby** shows stories within 30 km of your current starting area. Curated coverage currently includes Toledo, Michigan landmarks, Chicago, and Kansas City. Each curated story costs two points to reveal, includes a source, and stays in **My discoveries**. Showing a pin never logs a visit. Areas without curated stories invite local contributions instead.
+
+Use **Leave a local fact** here or on an expanded place card. Add a short title, fact, and landmark; choose a saved place, use the map center, or adjust coordinates. A public HTTPS source and a credit handle are optional. Unsourced facts are labeled personal observations. Your facts are free to read, have map pins, and can be edited or deleted. Up to 100 facts are included in your map backup and map sync.
+
+**Review sharing** asks you to confirm that the fact concerns a public place, contains no personal information, and that you can share your wording under CC BY 4.0. The next screen previews the exact Commons file for copying, downloading, or proposing to a city repository. Nothing publishes automatically; a repository maintainer reviews proposals. The file contains only the chosen fact, landmark and pin, source, date, and chosen credit. Deleting your local fact does not withdraw copies you already shared. Accepted Commons history claims appear under **Local contributions** and can be read without spending points; disputed claims carry a label.
+
+
+Spending and confirmed Local/Chain classifications keep a discovered place on **My Map**, even if you remove its bookmark. Un-saving does not erase its ledger. A failed save reports an error and restores the previous values. **Spending → Share business type** prepares a reviewed public Commons/GitHub observation of the classification only; your purchase amounts and private notes are excluded. Publication remains an explicit action.
+
+
+## Share everything together
+
+**Settings → Sharing → Share** gathers all your place notes, Local/Chain business classifications, and local facts. Everything starts selected; review the text and uncheck anything you want to keep private. Long notes are split into multiple observations without losing text. Choose the city commons repository, confirm the selected text is appropriate for public sharing under CC BY 4.0, then press **Share**. One request submits one contribution for maintainer review.
+
+GitHub must be connected once before sending; use the connection form on the same screen. The repository is remembered for next time. Personal purchase amounts, people fields, contact records, galleries, and calendar entries are excluded. Text you wrote inside a selected place note is included, so review notes that mention people. Originals stay unchanged. If sending fails, your selection remains ready for retry. Each contribution supports up to 500 observations across 200 places.
+
+
+## Correcting a special
+
+Edit **People & notes → Your note** and save. Weekday schedules such as `Sun: 1/2 price wings, $6 PB&J sandwich. Mon: $6 burgers.` are recognized from the current note and replace the catalog schedule for your map. The place card, specials search/filter, Today and Calendar all use this same updated schedule, including after reload. Half-price wording is preserved rather than converted into a fixed dollar price.
+
+Use **Edit place note** on a recognized calendar special to correct it. Clearing the schedule or marking specials discontinued removes those derived listings; separately created calendar entries remain yours to edit independently. Note corrections remain private unless you explicitly share them.
+
+Calendar entries now share a **Manage** button explaining their origin. Personal entries support editing and deletion; recurring series can skip a single date. Specials route to private place-note corrections, while website entries route to import management. Original sources remain unchanged and linked.
+
+Use **Edit place details** on any place card to correct its address, including imported places. The private correction persists in backups and takes precedence over website addresses. Use Find matching pin to move it, or explicitly keep the current pin for a text-only correction.
+
+### Address and pin consistency
+Place details now offers **Find matching pin**. Select an address match to update both the address and map pin, or explicitly keep the pin for text-only corrections. Pin corrections survive reload, sync, and backups, and existing markers move immediately. Corrected the local Bier Stube catalog pin, which was about 695 metres from the numbered address. Audited ten locations using Census address estimates and Toledo municipal GIS; the audit is in output/location-audit/2026-10-11.json. Address estimates are not verified storefront entrances.
+
+### Capture a point on the map
+Hold one finger on the map for about 0.6 seconds, or right-click on desktop, to choose Photo, Note, Photo + note, or New location. Panning and pinching cancel the hold. The coordinate is captured at the start of the hold and stays selected even if an uploaded photo has different GPS metadata. The add menu now says Photo or note, and notes can be saved independently, edited, synced, and backed up without an image.

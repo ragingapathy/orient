@@ -10,7 +10,7 @@
     "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "maxLength": 80 },
     "place_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
     "kind": {
-      "enum": ["entry", "browse", "seating", "alone", "sensory", "price", "timing", "nature", "other"],
+      "enum": ["entry", "browse", "seating", "alone", "sensory", "price", "timing", "nature", "history", "other"],
       "description": "entry: whether/how to walk in; browse: no purchase pressure; seating: can sit and stay; alone: comfort going solo; sensory: noise/light/crowding; price: typical visit cost; timing: best times or recurring moments; nature: non-business discoveries (benches, river stretches, quiet blocks)."
     },
     "observation": { "type": "string", "minLength": 3, "maxLength": 400 },

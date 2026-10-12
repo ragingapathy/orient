@@ -8,7 +8,7 @@ let n = 0; const t = async (name, fn) => { await fn(); n++; console.log('ok  ' +
 const d = k => { const x = new Date(Date.now() + k * 864e5); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 const store = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.655], timeZone: 'America/New_York' }, useCatalog: false, osm: [], neighbors: [], visited: [], saved: ['local-a'],
   custom: [{ id: 'local-a', name: 'Test Cafe', kind: 'Coffee shop', icon: 'coffee', coordinates: [-83.539, 41.655], address: '', note: '', demo: false }],
-  events: [{ id: 'e1', placeId: 'local-a', title: 'Trivia night', kind: 'Event', date: d(0), time: '19:00', end: '21:30', repeat: 'none', days: [], skip: [] }, { id: 'e2', placeId: 'local-a', title: 'Happy hour', kind: 'Special', date: d(0), time: '16:00', end: '18:00', repeat: 'none', days: [], skip: [] }, { id: 'e3', placeId: 'local-a', title: 'Open mic', kind: 'Event', date: d(1), time: '10:30', end: '', repeat: 'none', days: [], skip: [] }] };
+  events: [{ id: 'e1', placeId: 'local-a', title: 'Trivia night', kind: 'Event', date: d(0), time: '19:00', end: '21:30', repeat: 'none', days: [], skip: [] }, { id: 'e2', placeId: 'local-a', title: 'Happy hour', kind: 'Special', date: d(1), time: '16:00', end: '18:00', repeat: 'none', days: [], skip: [] }, { id: 'e3', placeId: 'local-a', title: 'Open mic', kind: 'Event', date: d(1), time: '10:30', end: '', repeat: 'none', days: [], skip: [] }] };
 (async () => {
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const open = async () => {

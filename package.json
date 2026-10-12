@@ -1,12 +1,12 @@
 {
   "name": "orient-prototype",
-  "version": "0.8.5",
+  "version": "0.8.7",
   "private": true,
   "description": "A personal tool for discovering your city",
   "scripts": {
     "start": "node server.cjs",
     "test": "node run-checks.cjs",
-    "check": "node --check public/collections.js && node --check commons-publish.cjs && node --check public/commons-data.js && node --check public/commons.js && node --check public/areas.js && node --check public/briefing-drawer.js && node --check public/home.js && node --check public/boot.js && node --check server.cjs && node --check public/app.js && node --check public/calendar.js && node --check public/calendar-dates.js && node --check public/website.js && node --check website.cjs && node --check civic-connect.cjs && node --check camera-sources.cjs && node --check public/civic-setup.js && node --check public/civic-board.js"
+    "check": "node --check public/map-pins.js && node --check public/photos.js && node --check public/specials.js && node --check public/share-all.js && node --check public/journey.js && node --check public/lore-data.js && node --check public/collections.js && node --check commons-publish.cjs && node --check public/commons-data.js && node --check public/commons.js && node --check public/areas.js && node --check public/briefing-drawer.js && node --check public/home.js && node --check public/boot.js && node --check server.cjs && node --check public/app.js && node --check public/calendar.js && node --check public/calendar-dates.js && node --check public/website.js && node --check website.cjs && node --check civic-connect.cjs && node --check camera-sources.cjs && node --check public/civic-setup.js && node --check public/civic-board.js"
   },
   "license": "SEE LICENSE IN LICENSE",
   "repository": {

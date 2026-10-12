@@ -74,3 +74,6 @@ This repository can also publish live civic data for your region, for Orient's C
 3. Run the workflow once by hand (**Actions → Live city data → Run workflow**), then open `https://raw.githubusercontent.com/<owner>/<repo>/live-data/roadwork.json`.
 
 Work zones use the national WZDx format, so another state is one more entry under `wzdx.feeds` in `live.config.json` (the USDOT keeps a [registry of feeds](https://www.transportation.gov/av/data/wzdx)). Cameras and incidents are read from OHGO; for another state, add a reader beside `tools/ohgo.cjs`. Plate readers come from OpenStreetMap for any region: the `bbox` ([west, south, east, north]) keeps every file to your area. OpenStreetMap data is © OpenStreetMap contributors, under the Open Database License. Orient finds your files through the `SOURCES` list in `public/roadwork.js`.
+
+
+Local lore contributions use the `history` claim kind. Keep the published source URL and retrieval date when supplied; unsourced contributions remain personal observations. Review both the wording and source before accepting a historical fact. Updating an existing commons to accept this kind requires the current `tools/commons-data.js` validator.

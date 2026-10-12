@@ -66,6 +66,14 @@ window.OrientSpend=(()=>{
   }
 
   // ── changes ────────────────────────────────────────────────────────────────
+  function write(change){
+    const store=api.store(),before={};
+    for(const key of ['spend','ownership','osm','journey'])before[key]=structuredClone(store[key]);
+    try{change();if(api.save()===false)throw Error('Save failed');}
+    catch{for(const key of Object.keys(before)){if(before[key]===undefined)delete store[key];else store[key]=before[key];}return 'Could not save. Your previous spending and business type are unchanged. Export your map if storage is full.';}
+    api.render();return '';
+  }
+  function report(message){if(!message)return;const el=document.querySelector('#spend-status');if(el)el.textContent=message;api.toast?.(message);}
   // Returns an error message, or '' when it was written down.
   function add(id,amountText,day=localDay(new Date())){
     const cents=parseAmount(amountText);
@@ -74,18 +82,15 @@ window.OrientSpend=(()=>{
     if(day>localDay(new Date()))return 'That day has not happened yet.';
     const list=entries(id).slice(-(MAX_PER_PLACE-1));
     list.push({id:newId(),day,cents});
-    books()[id]=list;
-    api.keepOsm?.(id);api.save();api.render();return '';
+    return write(()=>{books()[id]=list;api.keepOsm?.(id);});
   }
   function remove(id,entryId){
     const list=entries(id).filter(e=>e.id!==entryId);
-    if(list.length)books()[id]=list;else delete books()[id];
-    api.save();api.render();
+    const error=write(()=>{if(list.length)books()[id]=list;else delete books()[id];});report(error);return error;
   }
   function setOwner(id,value){
     if(!id)return;
-    if(!Object.hasOwn(OWNERS,value)||ownerOf(id)===value)delete owners()[id];else owners()[id]=value;
-    api.keepOsm?.(id);api.save();api.render();
+    const error=write(()=>{if(!Object.hasOwn(OWNERS,value)||ownerOf(id)===value)delete owners()[id];else owners()[id]=value;api.keepOsm?.(id);});report(error);return error;
   }
   // Used when a place is removed from the map.
   function forget(store,id){delete store.spend?.[id];delete store.ownership?.[id];}
@@ -116,6 +121,7 @@ window.OrientSpend=(()=>{
         +`<button type="button" role="radio" aria-checked="${o==='chain'}" data-spend-owner="chain" class="${o==='chain'?'on ':''}chn${sug?' suggest':''}">${icon('building-2')}Chain</button></div>`
       +`<p class="fine spend-owner-note">${esc(ownerLine(id,p))}</p>`
       +(n?`<button type="button" class="button full spend-repeat" data-spend-repeat>${icon('rotate-ccw')}Same as last time · ${esc(fmt(list[0].cents))}</button>`:'')
+      +(o?`<button type="button" class="button" data-spend-share>Share business type ↗</button><p class="fine">Review a public GitHub contribution of the business type. Purchase amounts stay private.</p>`:'')
       +`<form class="spend-add" data-spend-form autocomplete="off"><label>Spent<span class="spend-money"><span aria-hidden="true">$</span><input name="spend-amount" inputmode="decimal" maxlength="10" placeholder="0.00" aria-label="Amount spent, in dollars"></span></label>`
         +`<label>On<input type="date" name="spend-day" value="${localDay(new Date())}" max="${localDay(new Date())}" min="2000-01-01"></label><button type="submit" class="button primary">Add</button></form>`
       +`<p class="fine" id="spend-status" role="status" aria-live="polite"></p>`
@@ -184,6 +190,7 @@ window.OrientSpend=(()=>{
   function init(a){
     api=a;
     document.addEventListener('click',e=>{
+      const share=e.target.closest('[data-spend-share]');if(share){const id=api.selected(),owner=ownerOf(id);if(owner)OrientCommons.contribute(id,owner==='local'?'Business type: local independent business.':'Business type: chain or corporate business.','other');return;}
       const own=e.target.closest('[data-spend-owner]');if(own){setOwner(api.selected(),own.dataset.spendOwner);return;}
       const rp=e.target.closest('[data-spend-repeat]');if(rp){const id=api.selected(),l=id&&lastEntry(id);if(l)add(id,(l.cents/100).toFixed(2));return;}
       const rm=e.target.closest('[data-spend-remove]');if(rm){const id=api.selected();if(id)remove(id,rm.dataset.spendRemove);return;}
