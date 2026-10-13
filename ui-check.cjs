@@ -92,6 +92,21 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       assert.match(await empty.locator('.cal-empty').innerText(), /Nothing planned in the next 90 days/); assert.equal(await empty.locator('.cal-empty svg').count(), 1);
       await empty.getByRole('button', { name: 'A monthly market' }).click(); assert.match(await empty.locator('#calendar-sentence').inputValue(), /First Saturday of the month/);
       assert.equal(await empty.evaluate(() => document.activeElement.id), 'calendar-sentence', 'ready to type'); assert.deepEqual(empty.errors, []);
+      const draft = empty.locator('#calendar-sentence');
+      const refreshed = await empty.evaluate(() => {
+        const input = document.querySelector('#calendar-sentence');
+        input.setSelectionRange(6, 14, 'backward');
+        OrientCalendar.render(document.querySelector('#panel'));
+        const current = document.querySelector('#calendar-sentence');
+        return { value: current.value, focused: document.activeElement === current, selection: [current.selectionStart, current.selectionEnd, current.selectionDirection] };
+      });
+      assert.match(refreshed.value, /First Saturday of the month/, 'refresh keeps the draft');
+      assert.equal(refreshed.focused, true, 'refresh keeps keyboard focus');
+      assert.deepEqual(refreshed.selection, [6, 14, 'backward'], 'refresh keeps the selection');
+      const search = empty.getByRole('searchbox', { name: 'Search places and events' });
+      await search.focus(); await empty.evaluate(() => OrientCalendar.render(document.querySelector('#panel')));
+      assert.equal(await search.evaluate(input => document.activeElement === input), true, 'refresh does not steal focus');
+      assert.match(await draft.inputValue(), /First Saturday of the month/, 'an unfocused draft is kept too');
     });
 
     // Gidgit
@@ -145,7 +160,7 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       const fits = () => m.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('dialog[open]')].every(d => d.scrollWidth <= d.clientWidth + 1));
       await m.click('[data-action="settings"]'); await m.waitForTimeout(400); assert.equal(await fits(), true, 'Field kit'); await m.evaluate(() => document.getElementById('settings-dialog').close());
       await m.click('.bottom-nav [data-tab="Calendar"]'); await m.locator('.cal-hero').waitFor(); assert.equal(await fits(), true, 'calendar');
-      await m.locator('.cal-strip').waitFor({ state: 'visible' }); const box = await m.locator('.cal-strip').boundingBox(); assert.ok(box.x >= 0 && box.x + box.width <= 390, 'the week strip fits');
+      await m.locator('.cal-strip').waitFor({ state: 'visible' }); const box = await m.evaluate(() => document.querySelector('.cal-strip').getBoundingClientRect().toJSON()); assert.ok(box.width > 0 && box.x >= 0 && box.x + box.width <= 390, 'the week strip fits');
       assert.deepEqual(m.errors, []);
     });
     await t('with reduced motion the dialogs and the mascot stand still', async () => {
