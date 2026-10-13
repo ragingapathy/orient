@@ -92,6 +92,16 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       assert.match(await empty.locator('.cal-empty').innerText(), /Nothing planned in the next 90 days/); assert.equal(await empty.locator('.cal-empty svg').count(), 1);
       await empty.getByRole('button', { name: 'A monthly market' }).click(); assert.match(await empty.locator('#calendar-sentence').inputValue(), /First Saturday of the month/);
       assert.equal(await empty.evaluate(() => document.activeElement.id), 'calendar-sentence', 'ready to type'); assert.deepEqual(empty.errors, []);
+      const draft = empty.locator('#calendar-sentence');
+      await draft.evaluate(input => input.setSelectionRange(6, 14, 'backward'));
+      await empty.evaluate(() => OrientCalendar.render(document.querySelector('#panel')));
+      assert.match(await draft.inputValue(), /First Saturday of the month/, 'refresh keeps the draft');
+      assert.equal(await draft.evaluate(input => document.activeElement === input), true, 'refresh keeps keyboard focus');
+      assert.deepEqual(await draft.evaluate(input => [input.selectionStart, input.selectionEnd, input.selectionDirection]), [6, 14, 'backward'], 'refresh keeps the selection');
+      const search = empty.getByRole('searchbox', { name: 'Search places and events' });
+      await search.focus(); await empty.evaluate(() => OrientCalendar.render(document.querySelector('#panel')));
+      assert.equal(await search.evaluate(input => document.activeElement === input), true, 'refresh does not steal focus');
+      assert.match(await draft.inputValue(), /First Saturday of the month/, 'an unfocused draft is kept too');
     });
 
     // Gidgit

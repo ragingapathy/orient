@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep the calendar quick-add draft, keyboard focus and text selection when background data refreshes the view.
+
 - Back closes the foreground dialog and keeps Orient open. Stacked dialogs close one at a time, busy dialogs can refuse cancellation, and other close paths clean up the temporary history entry.
 - Cover modal opening order, history cleanup, reloads, cancellation and keyboard focus in a browser regression check.
 - Wait for map layers before testing Civic road and camera hover cards, and wait for DOM/app readiness in Backup, Civic, Commons and Weather checks instead of unrelated map resources.
