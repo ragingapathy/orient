@@ -1,5 +1,10 @@
 # Orient Changelog
 
+## 2026-10-12 — v0.9.2
+
+- Speed up Calendar by indexing places once per render, reusing the place snapshot when collecting events, and computing the current local time once for attendance filtering. Keep every upcoming entry and existing month/day behavior.
+- Add a 1,040-entry recurring-calendar regression check for bounded place processing and correct agenda/month counts.
+
 ## 2026-10-12 — v0.9.1
 
 - Make the time-formatting test independent of the time of day; use a real pointer hold for area selection and explicit drawer expansion in category tests.
