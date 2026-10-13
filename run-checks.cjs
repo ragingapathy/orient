@@ -59,6 +59,7 @@ const wanted = shard && shard[1] > 0 ? picked.filter((_, i) => i % shard[1] === 
       clearTimeout(timer);
       const status = code === 0 ? (/^SKIP:/m.test(out) && !/^(PASS|ok)/m.test(out) ? 'skip' : 'pass') : 'fail';
       const r = { name: file.replace(/-check\.cjs$/, ''), status, seconds: Math.round((Date.now() - t0) / 100) / 10, out };
+      fs.writeFileSync(path.join(__dirname,'output','playwright',r.name+'.log'),out);
       results.push(r); console.log(({ pass: 'pass', fail: 'FAIL', skip: 'skip' })[status] + '  ' + r.name + '  (' + r.seconds + 's)');
       if (status === 'fail') console.log(out.trim().split('\n').slice(0, 30).map(l => '      ' + l.slice(0, 240)).join('\n'));
       resolve();
@@ -67,6 +68,7 @@ const wanted = shard && shard[1] > 0 ? picked.filter((_, i) => i % shard[1] === 
   const queue = wanted.slice();
   await Promise.all(Array.from({ length: Math.min(jobs, queue.length) }, async () => { while (queue.length) await run(queue.shift()); }));
 
+  fs.writeFileSync(path.join(__dirname,'output','playwright','results'+(shard?'-'+shard[0]:'')+'.json'),JSON.stringify(results,null,2));
   const count = s => results.filter(r => r.status === s).length;
   console.log(`\n${count('pass')} passed, ${count('fail')} failed, ${count('skip')} skipped, of ${results.length}.`);
   if (count('fail')) console.log('Failed: ' + results.filter(r => r.status === 'fail').map(r => r.name).join(' '));

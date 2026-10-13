@@ -34,3 +34,14 @@ jobs:
       - run: npm install --no-save playwright
       - run: npm run check
       - run: node run-checks.cjs --shard ${{ matrix.shard }}/3 ${{ inputs.only }}
+
+      - name: Preserve check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-logs-${{ matrix.shard }}
+          path: |
+            output/playwright/*.log
+            output/playwright/results*.json
+          retention-days: 7
+          if-no-files-found: ignore

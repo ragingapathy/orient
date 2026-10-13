@@ -142,18 +142,19 @@
       map.setLayoutProperty('orient-heat','visibility',store.heat===true?'visible':'none');
     }catch{}
   }
-  function renderMarkers() {
+  function renderMarkers(visible=visiblePlaces()) {
     if(!map)return;
     updateHeat();
-    const visible=visiblePlaces();const ids=new Set(visible.map(p=>p.id));
+    const ids=new Set(visible.map(p=>p.id));
     for(const [id,marker] of markers)if(!ids.has(id)){marker.remove();markers.delete(id);}
     for(const p of visible){
       let marker=markers.get(p.id);
       if(!marker){const button=document.createElement('button');button.type='button';button.className='map-marker';button.addEventListener('click',e=>{e.stopPropagation();selectPlace(p.id);});marker=new maplibregl.Marker({element:button,anchor:'center'}).setLngLat(p.coordinates).addTo(map);markers.set(p.id,marker);}
-      marker.setLngLat(p.coordinates);const button=marker.getElement();button.dataset.placeId=p.id;button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
+      const position=marker.getLngLat();if(position.lng!==p.coordinates[0]||position.lat!==p.coordinates[1])marker.setLngLat(p.coordinates);const button=marker.getElement();button.dataset.placeId=p.id;button.setAttribute('aria-label',`${p.name}${p.demo?', demo place':''}${store.visited.includes(p.id)?', visited':store.saved.includes(p.id)?', saved':''}`);button.setAttribute('aria-pressed',p.id===state.selected);
       button.classList.toggle('lit-open',state.filter==='Open now');
       button.classList.toggle('discovered',!isMarked(p.id)&&/^(osm-|tile-)/.test(p.id));
-      button.innerHTML=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(p.icon)}</span><span class="pin-label">${escapeHTML(p.name)}</span>`;
+      const markup=`<span class="pin ${store.visited.includes(p.id)?'visited':store.saved.includes(p.id)?'saved':'unseen'}">${icon(p.icon)}</span><span class="pin-label">${escapeHTML(p.name)}</span>`;
+      if(button._orientMarkup!==markup){button.innerHTML=markup;button._orientMarkup=markup;}
     }
     OrientCircuits.syncMap(map,!!state.circuitMap&&state.tab==='My Map'&&!state.list);
     OrientJourney.syncMarkers(map,state.tab==='My Map'&&!state.list&&!state.collectionId);
@@ -263,7 +264,7 @@
     $('#filter-options').innerHTML=['Everything','Specials','Open now','Free events'].map(f=>`<button data-filter="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join('')+OrientBoard.closuresChip();
     if(state.tab==='Explore')$('#filter-options').innerHTML+=exploreControls();
     $('#filters > .fine').hidden=true;
-    renderSheet(p);renderPanel(visible);renderMarkers();icons();
+    renderSheet(p);renderPanel(visible);renderMarkers(visible);icons();
     $('#fog-toggle').checked=store.fog;$('#demo-toggle').checked=store.showDemo;
     requestAnimationFrame(()=>$('.world').style.setProperty('--sheet-height',`${$('#sheet').offsetHeight+8}px`));
   }

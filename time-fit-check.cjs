@@ -14,7 +14,7 @@ const store = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.65
   const open = async () => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'en-US' });
     await ctx.addInitScript(([s]) => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify(s)); localStorage.setItem('orient-weather-v1', JSON.stringify({ show: false })); localStorage.setItem('orient-roadwork-v1', JSON.stringify({ show: false })); localStorage.setItem('orient-civic-v1', JSON.stringify({ incidents: false })); } }, [store]);
-    const p = await ctx.newPage(); p.errors = []; p.on('pageerror', e => p.errors.push(e.message)); await p.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' })); await p.route('**/api/civic?*', r => r.fulfill({ status: 404, body: '{}' }));
+    const p = await ctx.newPage(); await p.clock.setFixedTime(new Date(d(0)+'T12:00:00Z')); p.errors = []; p.on('pageerror', e => p.errors.push(e.message)); await p.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' })); await p.route('**/api/civic?*', r => r.fulfill({ status: 404, body: '{}' }));
     await p.goto(URL_); await p.waitForFunction(() => window.OrientCalendar && document.querySelector('.bottom-nav'), null, { timeout: 20000 }); return { ctx, p };
   };
   try {

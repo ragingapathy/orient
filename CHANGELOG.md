@@ -1,5 +1,13 @@
 # Orient Changelog
 
+## Unreleased
+
+- Make the time-formatting test independent of the time of day.
+- Repair the GitHub sharing UI check for the current place card and isolate Insights' network test from automatic update checks.
+- Reuse the filtered place list during rendering; preserve unchanged marker contents and avoid redundant coordinate updates.
+- Reject malformed or future-dated update caches so they cannot suppress checks; add regression coverage for version ordering, caching, offline retries, and request privacy.
+- Preserve full per-check logs and structured results as GitHub Actions artifacts for easier diagnosis.
+
 ## 2026-10-12 — v0.9.0
 
 Orient 0.9 rolls up today's work. Orient now knows where you are when you ask (compass and app open, never tracked); the fog on My Map stays clear around you; plate readers are reliable to tap and to load; and the private Silverbook link is off for everyone who does not turn it on. Details are in v0.8.9 to v0.8.12 below.
