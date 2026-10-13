@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Make the time-formatting test independent of the time of day.
+- Make the time-formatting test independent of the time of day; use a real pointer hold for area selection and explicit drawer expansion in category tests.
 - Repair the GitHub sharing UI check for the current place card and isolate Insights' network test from automatic update checks.
 - Reuse the filtered place list during rendering; preserve unchanged marker contents and avoid redundant coordinate updates.
 - Reject malformed or future-dated update caches so they cannot suppress checks; add regression coverage for version ordering, caching, offline retries, and request privacy.
