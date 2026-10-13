@@ -1,5 +1,11 @@
 # Orient Changelog
 
+## Unreleased
+
+- Back closes the foreground dialog and keeps Orient open. Stacked dialogs close one at a time, busy dialogs can refuse cancellation, and other close paths clean up the temporary history entry.
+- Cover modal opening order, history cleanup, reloads, cancellation and keyboard focus in a browser regression check.
+- Wait for map layers before testing Civic road and camera hover cards, and wait for DOM/app readiness in Backup, Civic, Commons and Weather checks instead of unrelated map resources.
+
 ## 2026-10-12 — v0.9.2
 
 - Speed up Calendar by indexing places once per render, reusing the place snapshot when collecting events, and computing the current local time once for attendance filtering. Keep every upcoming entry and existing month/day behavior.

@@ -4,6 +4,8 @@
 
 Orient is a private map that lives in your browser.
 
+When a dialog is open, your browser's Back button or phone's back gesture closes the foreground dialog and keeps you in Orient. Stacked dialogs close one at a time. Close buttons, Escape and tapping the backdrop still work; a dialog that is busy can refuse dismissal until its work finishes.
+
 - On first use, choose a city or town and confirm it as your home area. Explore distances, Today and outing suggestions start there; **Field kit → Change home area** moves that starting point while keeping saved places. No GPS or home address is needed. Calendar time zone starts with the device setting and can be changed during setup. Fresh maps do not load the Toledo catalog; existing maps retain their data and starting area.
 - Save places, and log a visit each time you go with one tap. Orient keeps the count and the dates, shows where you go most, and can draw a heat map from it. Nothing is tracked: there is no GPS tracking, no automatic check-in, and no account.
 - Start a place from its website: paste an address and Orient fills in the name, category, address, phone, hours and social links the page publishes, for you to check before anything is saved.
