@@ -1,6 +1,6 @@
 # Orient Changelog
 
-## Unreleased
+## 2026-10-12 — v0.9.1
 
 - Make the time-formatting test independent of the time of day; use a real pointer hold for area selection and explicit drawer expansion in category tests.
 - Repair the GitHub sharing UI check for the current place card and isolate Insights' network test from automatic update checks.
