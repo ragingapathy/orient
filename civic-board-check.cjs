@@ -30,7 +30,7 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
         const name = (u.match(/\/(roadwork|incidents|cameras|alpr)\.json/) || [])[1]; const body = files[name] || M[name]();
         r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
       });
-      await page.goto(URL_); await page.waitForFunction(() => window.OrientBoard && document.querySelector('.map-marker'), null, { timeout: 30000 });
+      await page.goto(URL_, { waitUntil: 'domcontentloaded', timeout: 30000 }); await page.waitForFunction(() => window.OrientBoard && document.querySelector('.map-marker'), null, { timeout: 30000 });
       return page;
     };
     const civic = async (p, section = 'overview') => { await p.locator('.bottom-nav [data-tab="Civic"]').click(); await p.locator('#civic-tab-overview').waitFor(); await p.locator('#civic-tab-' + section).click(); await p.waitForFunction(id => document.getElementById('civic-tab-' + id).getAttribute('aria-selected') === 'true', section); if (section === 'overview') await p.locator('#panel .rb-tiles').waitFor(); await p.waitForFunction(() => OrientBoard.state().loaded.length >= 3); await p.waitForTimeout(500); return p.locator('#panel'); };
@@ -112,6 +112,7 @@ const store = (h = home) => ({ version: 1, home: h, useCatalog: false, custom: [
     });
     await t('hovering a closed road shows the closure, and a camera shows its picture', async () => {
       const p = await open(); await civic(p);
+      await p.waitForFunction(() => OrientRoadwork.mapLayers() && OrientBoard.mapLayers()?.cameras, null, { timeout: 30000 });
       await p.evaluate(() => OrientBoard.flyTo(-83.58, 41.62, 15)); await p.waitForTimeout(2200);
       await hoverAt(p, -83.58, 41.62); const card = p.locator('.civic-hover'); await card.waitFor();
       assert.match(await card.innerText(), /Closed[\s\S]*I-75 · Northbound[\s\S]*All lanes closed for bridge demolition[\s\S]*Miami St to Front St|All lanes closed for bridge demolition/);

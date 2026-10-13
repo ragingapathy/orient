@@ -1,5 +1,4 @@
-/* Small helpers that give every dialog the same look: an icon tile in the header, and the Field kit's jump bar.
-   Nothing here changes what a dialog does. */
+/* Shared dialog dismissal, header icons, and the Field kit's jump bar. */
 'use strict';
 (function () {
   // Native dialog backdrops target the dialog itself. Require the gesture to
@@ -9,6 +8,32 @@
   document.addEventListener('pointerdown',e=>{backdropStart=e.target instanceof HTMLDialogElement&&e.target.open&&outside(e.target,e)?e.target:null;},true);
   document.addEventListener('pointercancel',()=>{backdropStart=null;},true);
   document.addEventListener('click',e=>{const dialog=backdropStart;backdropStart=null;if(dialog&&e.target===dialog&&dialog.open&&outside(dialog,e)){e.preventDefault();e.stopPropagation();dialog.close();}},true);
+
+  // One same-URL entry absorbs Back while a modal is open. Other close paths
+  // remove it; cancel handlers can refuse dismissal while a dialog is busy.
+  let modals=[],guarded=!!history.state?.orientModal,skipPop=0;
+  function guard(records=[]){
+    modals=modals.filter(d=>d.isConnected&&d.open&&d.matches(':modal'));
+    // Mutation order preserves the top layer's opening order, including
+    // several showModal calls or a close/reopen in the same task.
+    for(const r of records)if(r.type==='attributes'&&r.oldValue===null&&r.target instanceof HTMLDialogElement){
+      const d=r.target;
+      modals=modals.filter(m=>m!==d);
+      if(d.isConnected&&d.open&&d.matches(':modal'))modals.push(d);
+    }
+    for(const d of document.querySelectorAll('dialog[open]'))if(!modals.includes(d)&&d.matches(':modal'))modals.push(d);
+    if(modals.length&&!guarded&&!skipPop){guarded=true;history.pushState({orientModal:true},'');}
+    else if(!modals.length&&guarded){guarded=false;skipPop++;history.back();}
+  }
+  addEventListener('popstate',()=>{
+    if(skipPop){skipPop--;guard();return;}  // our own Back landed; a modal opened meanwhile gets its entry now
+    if(!guarded){if(history.state?.orientModal){guarded=true;guard();}return;}guarded=false;
+    const top=modals[modals.length-1];
+    if(top&&top.open){if(top.requestClose)top.requestClose();else if(top.dispatchEvent(new Event('cancel',{cancelable:true})))top.close();}
+    guard();
+  });
+  new MutationObserver(guard).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['open'],attributeOldValue:true});
+  guard();
 
   // an icon for each dialog, so a header reads at a glance
   const ICONS = {

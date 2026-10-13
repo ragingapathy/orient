@@ -121,7 +121,7 @@ const names = dir => fs.existsSync(path.join(dir, 'backups')) ? fs.readdirSync(p
       const page = await browser.newPage({ viewport: { width: 900, height: 900 } }); page.setDefaultTimeout(8000);
       await page.route('**/api/state**', r => r.fulfill({ status: 403, body: '{}' }));
       await page.addInitScript(() => { if (!sessionStorage.f) { sessionStorage.f = '1'; localStorage.setItem('orient-field-map-v1', JSON.stringify({ version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.655], timeZone: 'America/New_York' }, useCatalog: false, custom: [], saved: [], visited: [] })); } });
-      await page.goto(origin + ':' + port); await page.waitForFunction(() => window.OrientSync);
+      await page.goto(origin + ':' + port, { waitUntil: 'domcontentloaded', timeout: 30000 }); await page.waitForFunction(() => window.OrientSync);
       await page.click('[data-action="settings"]'); await page.waitForTimeout(700);
       const out = { visible: await page.locator('#backup-box').isVisible(), text: await page.locator('#backup-box').innerText().catch(() => '') };
       if (action) await action(page, out);
