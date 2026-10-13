@@ -29,7 +29,7 @@ const store = { version: 1, home: { name: 'Toledo', coordinates: [-83.539, 41.65
         if (u.includes('api.weather.gov')) return json(alerts ? alert : { features: [] });
         return json(forecast(code, extra));
       });
-      await page.goto(URL_); await page.waitForFunction(() => document.querySelector('.map-marker') && window.OrientWeather, null, { timeout: 30000 });
+      await page.goto(URL_, { waitUntil: 'domcontentloaded', timeout: 30000 }); await page.waitForFunction(() => document.querySelector('.map-marker') && window.OrientWeather, null, { timeout: 30000 });
       return page;
     };
     const chip = p => p.locator('.weather-chip');
