@@ -1,6 +1,9 @@
 # Orient Changelog
 
-## Unreleased
+## 2026-10-15 — v0.9.3
+
+- Group happenings and nearby discovery together, and keep local fact contributions under Location detail and notes.
+- Combine people, the place note, photos, and memories in one place-card section and editor. Gallery edits refresh in the open editor without discarding unfinished people or note changes.
 
 - Keep the calendar quick-add draft, keyboard focus and text selection when background data refreshes the view.
 

@@ -191,14 +191,22 @@
     if(sheet.hidden){sheet.innerHTML='';return;}
     const saved=store.saved.includes(p.id),visited=store.visited.includes(p.id);
     const glance=OrientWebsite.cardFacts(p,store.details?.[p.id]?.hours||'');
-    sheet.innerHTML=OrientPlaces.card({...p,profileHours:glance.hours,note:p.id.startsWith('local-')?'':p.note},{saved,visited,expanded:state.expanded,discovery:discoverySection(p),glance:glance.markup+OrientCivic.glance(p)+OrientWifi.glance(p),knowledge:state.expanded?OrientWifi.section(p)+OrientCivic.section(p)+OrientCalendar.section(p)+OrientCollections.section(p)+OrientCommons.section(p)+(p.demo||p.photoMemory?'':'<button type="button" class="button" data-journey="fact-new" data-id="'+escapeHTML(p.id)+'">Leave a local fact</button>')+OrientPhotos.section(p):'',websiteSection:state.expanded?OrientWebsite.section(p):'',rating:store.ratings?.[p.id]||0,visits:{button:OrientVisits.button(p.id,p.name),line:OrientVisits.line(p.id),section:state.expanded?OrientVisits.section(p.id)+(p.demo?'':OrientSpend.section(p)):''}});
+    sheet.innerHTML=OrientPlaces.card({...p,profileHours:glance.hours,note:p.id.startsWith('local-')?'':p.note},{saved,visited,expanded:state.expanded,discovery:discoverySection(p),glance:glance.markup+OrientCivic.glance(p)+OrientWifi.glance(p),knowledge:state.expanded?OrientWifi.section(p)+OrientCivic.section(p)+OrientCalendar.section(p)+OrientCollections.section(p)+OrientCommons.section(p):'',websiteSection:state.expanded?OrientWebsite.section(p):'',rating:store.ratings?.[p.id]||0,visits:{button:OrientVisits.button(p.id,p.name),line:OrientVisits.line(p.id),section:state.expanded?OrientVisits.section(p.id)+(p.demo?'':OrientSpend.section(p)):''}});
     sheet.querySelector('.peekhead')?.insertAdjacentHTML('afterend',OrientPhotos.hero(p));
     if(state.expanded){foldSections(sheet);OrientWebsite.inspectKnown(p);}
     OrientDrawer.attach(sheet,state.drawerStop??(state.expanded?2:0),stop=>{state.drawerStop=stop;state.expanded=stop===2;render();});
   }
-  const FOLDS={'place-photos':'Photos & notes','visit-history':'Your visits','spend-place':'Spending','place-knowledge':'People & notes','place-happening':'What’s happening','nearby-section':'Near this place','website-section':'Website & calendars'};
+  const FOLDS={'visit-history':'Your visits','spend-place':'Spending','place-knowledge':'Location detail and notes','place-around':'What’s happening & nearby','website-section':'Website & calendars'};
   function foldSections(sheet){
     state.folds=state.folds||new Set();
+    const happening=sheet.querySelector('.detail > section.place-happening'),nearby=sheet.querySelector('.detail > section.nearby-section');
+    if(happening||nearby){
+      const group=document.createElement('section');group.className='place-around';
+      const heading=document.createElement('h3');heading.textContent='What’s happening & nearby';group.append(heading);
+      (happening||nearby).before(group);
+      if(happening)group.append(happening);
+      if(nearby)group.append(nearby);
+    }
     for(const key of Object.keys(FOLDS)){
       const sec=sheet.querySelector('.detail > section.'+key);if(!sec)continue;
       const head=sec.querySelector('h3'),tag=sec.querySelector('.tag'),hint=sec.querySelector('.fine');
